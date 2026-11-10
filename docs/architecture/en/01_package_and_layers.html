@@ -1,0 +1,603 @@
+<!--
+ Copyright (c) 2026 Yuichi Ito (yuichi@yuichi.com)
+
+ This software is licensed under the Apache License, Version 2.0.
+ For more information, please visit: https://github.com/yuichi110/drawlib
+-->
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>1. 3-Tier Package Topology &amp; Shading — MyBatis 3 Architecture (Unofficial · PNI501 + Drawlib Demo)</title>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-S9N5BZ1VRC"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-S9N5BZ1VRC');
+    </script>
+    <script>
+        (function() {
+            const saved = localStorage.getItem('drawlib-theme');
+            if (saved === 'dark' || (!saved && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                document.documentElement.setAttribute('data-theme', 'dark');
+            } else {
+                document.documentElement.setAttribute('data-theme', 'light');
+            }
+        })();
+    </script>
+    
+    
+    
+    <link rel="alternate" hreflang="en" href="https://mybatis3.drawlib.com/architecture/en/01_package_and_layers.html">
+    
+    <link rel="alternate" hreflang="ja" href="https://mybatis3.drawlib.com/architecture/ja/01_package_and_layers.html">
+    
+    <link rel="alternate" hreflang="x-default" href="https://mybatis3.drawlib.com/architecture/en/01_package_and_layers.html">
+    
+    
+    
+    <meta name="description" content="MyBatis 3 (v3.6.0) contains 393 Java source files (23,364 LOC, 374 classes, 2,721 methods) across 20 packages under src/main/java/org/apache/ibatis/. Every…">
+    <link rel="canonical" href="https://mybatis3.drawlib.com/architecture/en/01_package_and_layers.html">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="MyBatis 3 Architecture">
+    <meta property="og:title" content="1. 3-Tier Package Topology &amp; Shading — MyBatis 3 Architecture">
+    <meta property="og:description" content="MyBatis 3 (v3.6.0) contains 393 Java source files (23,364 LOC, 374 classes, 2,721 methods) across 20 packages under src/main/java/org/apache/ibatis/. Every…">
+    <meta property="og:url" content="https://mybatis3.drawlib.com/architecture/en/01_package_and_layers.html">
+    <meta property="og:image" content="https://mybatis3.drawlib.com/architecture/_assets/ogp.png">
+    <meta property="og:locale" content="en_US">
+    <meta property="og:locale:alternate" content="ja_JP">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="1. 3-Tier Package Topology &amp; Shading — MyBatis 3 Architecture">
+    <meta name="twitter:description" content="MyBatis 3 (v3.6.0) contains 393 Java source files (23,364 LOC, 374 classes, 2,721 methods) across 20 packages under src/main/java/org/apache/ibatis/. Every…">
+    <meta name="twitter:image" content="https://mybatis3.drawlib.com/architecture/_assets/ogp.png">
+    
+    
+    <link rel="icon" type="image/png" href="../_assets/favicon.png">
+    
+    
+    <link rel="stylesheet" href="style.css">
+    
+    
+</head>
+<body>
+    <div class="demo-banner" role="region" aria-label="Unofficial Showcase Notice">
+        <div class="demo-banner-inner">
+            <span class="demo-banner-badge">UNOFFICIAL DEMO</span>
+            <span class="demo-banner-text">
+                
+                Unofficial internal architecture deep dive of <a href="https://mybatis.org/mybatis-3/" target="_blank" rel="noopener noreferrer">MyBatis 3</a> (v3.6.0, Apache-2.0) built with <a href="https://pypi.org/project/pni501/" target="_blank" rel="noopener noreferrer">PNI501</a> &amp; <a href="https://www.drawlib.com/" target="_blank" rel="noopener noreferrer">Drawlib</a>.
+                
+            </span>
+            <span class="demo-banner-links">
+                <a href="https://mybatis3.drawlib.com/">User Guide</a>
+                <span class="demo-banner-sep">·</span>
+                <a href="https://mybatis3.drawlib.com/api/">API Reference</a>
+                <span class="demo-banner-sep">·</span>
+                <strong style="color:#ffffff;">Architecture</strong>
+                <span class="demo-banner-sep">·</span>
+                <a href="https://mybatis3.drawlib.com/reports/pni501/">PNI501 Audit</a>
+                <span class="demo-banner-sep">·</span>
+                <a href="https://mybatis.org/mybatis-3/" target="_blank" rel="noopener noreferrer">Official Docs ↗</a>
+                <span class="demo-banner-sep">·</span>
+                <a href="https://github.com/yuichi110/drawlib-mybatis3" target="_blank" rel="noopener noreferrer">GitHub ↗</a>
+            </span>
+        </div>
+    </div>
+    
+    <div class="doc-layout">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <a href="index.html" class="sidebar-brand" aria-label="MyBatis 3 Architecture">
+                    
+                    MyBatis 3 Architecture
+                    
+                </a>
+                <div class="sidebar-header-actions">
+                    <button type="button" id="theme-toggle" class="theme-toggle-btn" aria-label="Toggle theme">
+                        <svg class="icon-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+                        <svg class="icon-moon" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+                    </button>
+                    <button type="button" id="menu-toggle" class="menu-toggle-btn" aria-label="Toggle navigation" aria-expanded="false">
+                        <svg class="icon-hamburger" viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+                        <svg class="icon-close" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                    </button>
+                </div>
+            </div>
+            <div class="sidebar-menu">
+                
+                    
+                        
+                        <ul class="nav-list">
+                            
+                            <li class="nav-item ">
+                                <a href="index.html" >Architecture Overview</a>
+                            </li>
+                            
+                        </ul>
+                    
+                        
+                        <div class="sidebar-heading">Core Internals</div>
+                        
+                        <ul class="nav-list">
+                            
+                            <li class="nav-item active">
+                                <a href="01_package_and_layers.html" >1. 3-Tier Package Topology</a>
+                            </li>
+                            
+                            <li class="nav-item ">
+                                <a href="02_bootstrap_and_builders.html" >2. Bootstrap &amp; Builders</a>
+                            </li>
+                            
+                            <li class="nav-item ">
+                                <a href="03_mapper_proxy_engine.html" >3. MapperProxy Dispatch</a>
+                            </li>
+                            
+                            <li class="nav-item ">
+                                <a href="04_executor_and_caching.html" >4. Executor, Cache &amp; Plugins</a>
+                            </li>
+                            
+                            <li class="nav-item ">
+                                <a href="05_dynamic_sql_and_ognl.html" >5. Dynamic SQL &amp; OGNL AST</a>
+                            </li>
+                            
+                            <li class="nav-item ">
+                                <a href="06_resultset_and_reflection.html" >6. ResultSet &amp; Reflection</a>
+                            </li>
+                            
+                        </ul>
+                    
+                        
+                        <div class="sidebar-heading">Portals &amp; Reports</div>
+                        
+                        <ul class="nav-list">
+                            
+                            <li class="nav-item ">
+                                <a href="https://mybatis3.drawlib.com/" target="_blank" rel="noopener noreferrer">User Guide ↗<svg class="nav-external-icon" viewBox="0 0 24 24" aria-hidden="true"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg></a>
+                            </li>
+                            
+                            <li class="nav-item ">
+                                <a href="https://mybatis3.drawlib.com/api/" target="_blank" rel="noopener noreferrer">API &amp; XML Catalog ↗<svg class="nav-external-icon" viewBox="0 0 24 24" aria-hidden="true"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg></a>
+                            </li>
+                            
+                            <li class="nav-item ">
+                                <a href="https://mybatis3.drawlib.com/reports/pni501/" target="_blank" rel="noopener noreferrer">PNI501 Audit Report ↗<svg class="nav-external-icon" viewBox="0 0 24 24" aria-hidden="true"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg></a>
+                            </li>
+                            
+                        </ul>
+                    
+                
+            </div>
+        </aside>
+        <div class="content-wrapper">
+            <header class="top-bar">
+                <div class="breadcrumbs">
+                    <span class="crumb">Architecture</span>
+                    <span class="crumb-separator">&raquo;</span>
+                    <span class="crumb active">1. 3-Tier Package Topology &amp; Shading</span>
+                </div>
+                
+                <div class="lang-switcher">
+                    <details class="lang-dropdown">
+                        <summary class="lang-dropdown-btn" aria-label="Select language">
+                            <svg class="lang-globe-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
+                            <span class="lang-current-label">English</span>
+                            <svg class="lang-caret-icon" viewBox="0 0 24 24" aria-hidden="true"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                        </summary>
+                        <div class="lang-dropdown-menu" role="menu">
+                            
+                            <a href="01_package_and_layers.html" class="lang-option active" lang="en" hreflang="en" aria-current="page">
+                                <span>English</span>
+                                
+                                <svg class="lang-check-icon" viewBox="0 0 24 24" aria-hidden="true"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                                
+                            </a>
+                            
+                            <a href="../ja/01_package_and_layers.html" class="lang-option" lang="ja" hreflang="ja" >
+                                <span>日本語</span>
+                                
+                            </a>
+                            
+                        </div>
+                    </details>
+                </div>
+                
+            </header>
+            <main class="main-content">
+                <h1>1. 3-Tier Package Topology &amp; Shading</h1>
+<p>MyBatis 3 (<code>v3.6.0</code>) contains <strong>393 Java source files</strong> (<strong>23,364 LOC</strong>, <strong>374 classes</strong>, <strong>2,721 methods</strong>) across <strong>20 packages</strong> under <code>src/main/java/org/apache/ibatis/</code>. Every package includes a <code>package-info.java</code> descriptor (<code>20/20</code>), and the artifact exports <code>Automatic-Module-Name: org.mybatis</code> alongside OSGi bundle headers (<code>org.apache.ibatis.*;version=${project.version};-noimport:=true</code>).</p>
+<figure class="drawlib-image" style="text-align: center;">
+  <img src="../images/01_package_and_layers/pkg_three_tier_map.png" alt="01_package_and_layers_1" />
+  <figcaption class="drawlib-caption">MyBatis 3 v3.6.0 — 20 Packages Stratified into 3 Architectural Tiers</figcaption>
+</figure>
+<details class="drawlib-code-details">
+<summary>Source Code</summary>
+<pre><code class="language-python"><span class="kn">from</span><span class="w"> </span><span class="nn">drawlib.canvas</span><span class="w"> </span><span class="kn">import</span> <span class="n">save</span><span class="p">,</span> <span class="n">setup</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">drawlib.icons</span><span class="w"> </span><span class="kn">import</span> <span class="n">phosphor</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">drawlib.smartarts</span><span class="w"> </span><span class="kn">import</span> <span class="n">CardList</span><span class="p">,</span> <span class="n">Panel</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">drawlib.styles</span><span class="w"> </span><span class="kn">import</span> <span class="n">Colors</span><span class="p">,</span> <span class="n">Styles</span>
+
+<span class="n">setup</span><span class="p">(</span><span class="n">width</span><span class="o">=</span><span class="mi">144</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mi">66</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">150</span><span class="p">)</span>
+
+<span class="n">white_card</span> <span class="o">=</span> <span class="n">Styles</span><span class="o">.</span><span class="n">Neutral</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="n">shape_fill_color</span><span class="o">=</span><span class="n">Colors</span><span class="o">.</span><span class="n">White</span><span class="p">)</span>
+
+<span class="n">t1_panel</span> <span class="o">=</span> <span class="n">Panel</span><span class="p">(</span>
+    <span class="s2">"Tier 1: Public API"</span><span class="p">,</span>
+    <span class="s2">"5 Packages · 78 Files"</span><span class="p">,</span>
+    <span class="n">style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">Neutral</span><span class="p">,</span>
+    <span class="n">header_style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">PrimaryNeutral</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="n">shape_line_width</span><span class="o">=</span><span class="mf">1.2</span><span class="p">),</span>
+    <span class="n">text_style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">DarkBold</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="n">text_size</span><span class="o">=</span><span class="mf">10.5</span><span class="p">),</span>
+    <span class="n">description_style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">Muted</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="n">text_size</span><span class="o">=</span><span class="mf">9.2</span><span class="p">),</span>
+    <span class="n">icon</span><span class="o">=</span><span class="n">phosphor</span><span class="o">.</span><span class="n">stack</span><span class="p">,</span>
+    <span class="n">icon_style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">PrimaryBold</span><span class="p">,</span>
+    <span class="n">header_variant</span><span class="o">=</span><span class="s2">"filled"</span><span class="p">,</span>
+    <span class="n">header_height</span><span class="o">=</span><span class="mf">7.8</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">t1_panel</span><span class="o">.</span><span class="n">draw</span><span class="p">((</span><span class="mf">3.5</span><span class="p">,</span> <span class="mf">4.5</span><span class="p">),</span> <span class="n">width</span><span class="o">=</span><span class="mf">43.5</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mf">57.0</span><span class="p">,</span> <span class="n">align</span><span class="o">=</span><span class="s2">"bottom_left"</span><span class="p">)</span>
+<span class="n">xy1</span><span class="p">,</span> <span class="n">w1</span><span class="p">,</span> <span class="n">h1</span> <span class="o">=</span> <span class="n">t1_panel</span><span class="o">.</span><span class="n">get_content_box</span><span class="p">((</span><span class="mf">3.5</span><span class="p">,</span> <span class="mf">4.5</span><span class="p">),</span> <span class="n">width</span><span class="o">=</span><span class="mf">43.5</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mf">57.0</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="p">(</span><span class="mf">2.2</span><span class="p">,</span> <span class="mf">2.2</span><span class="p">),</span> <span class="n">align</span><span class="o">=</span><span class="s2">"bottom_left"</span><span class="p">)</span>
+
+<span class="n">c1</span> <span class="o">=</span> <span class="n">CardList</span><span class="p">(</span>
+    <span class="n">style</span><span class="o">=</span><span class="n">white_card</span><span class="p">,</span>
+    <span class="n">text_style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">DarkBold</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="n">text_size</span><span class="o">=</span><span class="mf">9.8</span><span class="p">),</span>
+    <span class="n">description_style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">Muted</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="n">text_size</span><span class="o">=</span><span class="mf">9.2</span><span class="p">),</span>
+    <span class="n">badge_shape</span><span class="o">=</span><span class="s2">"rounded_rect"</span><span class="p">,</span>
+    <span class="n">badge_style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">PrimaryFlat</span><span class="p">,</span>
+    <span class="n">badge_text_style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">WhiteBold</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="n">text_size</span><span class="o">=</span><span class="mf">9.2</span><span class="p">),</span>
+    <span class="n">direction</span><span class="o">=</span><span class="s2">"vertical"</span><span class="p">,</span>
+    <span class="n">spacing</span><span class="o">=</span><span class="mf">1.8</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">c1</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">"session (17)"</span><span class="p">,</span> <span class="s2">"SqlSession &amp; Configuration"</span><span class="p">,</span> <span class="n">badge_text</span><span class="o">=</span><span class="s2">"T1"</span><span class="p">)</span>
+<span class="n">c1</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">"binding (6)"</span><span class="p">,</span> <span class="s2">"MapperRegistry &amp; Proxy"</span><span class="p">,</span> <span class="n">badge_text</span><span class="o">=</span><span class="s2">"T1"</span><span class="p">)</span>
+<span class="n">c1</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">"annotations (39)"</span><span class="p">,</span> <span class="s2">"@Select, @Results, @Param"</span><span class="p">,</span> <span class="n">badge_text</span><span class="o">=</span><span class="s2">"T1"</span><span class="p">)</span>
+<span class="n">c1</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">"cursor &amp; jdbc (16)"</span><span class="p">,</span> <span class="s2">"Cursor&lt;T&gt;, SQL, SqlRunner"</span><span class="p">,</span> <span class="n">badge_text</span><span class="o">=</span><span class="s2">"T1"</span><span class="p">)</span>
+<span class="n">c1</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="n">xy1</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="n">w1</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="n">h1</span><span class="p">,</span> <span class="n">align</span><span class="o">=</span><span class="s2">"bottom_left"</span><span class="p">)</span>
+
+<span class="n">t2_panel</span> <span class="o">=</span> <span class="n">Panel</span><span class="p">(</span>
+    <span class="s2">"Tier 2: Execution Core"</span><span class="p">,</span>
+    <span class="s2">"5 Packages · 133 Files"</span><span class="p">,</span>
+    <span class="n">style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">Neutral</span><span class="p">,</span>
+    <span class="n">header_style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">SecondaryNeutral</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="n">shape_line_width</span><span class="o">=</span><span class="mf">1.2</span><span class="p">),</span>
+    <span class="n">text_style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">DarkBold</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="n">text_size</span><span class="o">=</span><span class="mf">10.5</span><span class="p">),</span>
+    <span class="n">description_style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">Muted</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="n">text_size</span><span class="o">=</span><span class="mf">9.2</span><span class="p">),</span>
+    <span class="n">icon</span><span class="o">=</span><span class="n">phosphor</span><span class="o">.</span><span class="n">gear_six</span><span class="p">,</span>
+    <span class="n">icon_style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">DarkBold</span><span class="p">,</span>
+    <span class="n">header_variant</span><span class="o">=</span><span class="s2">"filled"</span><span class="p">,</span>
+    <span class="n">header_height</span><span class="o">=</span><span class="mf">7.8</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">t2_panel</span><span class="o">.</span><span class="n">draw</span><span class="p">((</span><span class="mf">50.2</span><span class="p">,</span> <span class="mf">4.5</span><span class="p">),</span> <span class="n">width</span><span class="o">=</span><span class="mf">43.5</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mf">57.0</span><span class="p">,</span> <span class="n">align</span><span class="o">=</span><span class="s2">"bottom_left"</span><span class="p">)</span>
+<span class="n">xy2</span><span class="p">,</span> <span class="n">w2</span><span class="p">,</span> <span class="n">h2</span> <span class="o">=</span> <span class="n">t2_panel</span><span class="o">.</span><span class="n">get_content_box</span><span class="p">((</span><span class="mf">50.2</span><span class="p">,</span> <span class="mf">4.5</span><span class="p">),</span> <span class="n">width</span><span class="o">=</span><span class="mf">43.5</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mf">57.0</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="p">(</span><span class="mf">2.2</span><span class="p">,</span> <span class="mf">2.2</span><span class="p">),</span> <span class="n">align</span><span class="o">=</span><span class="s2">"bottom_left"</span><span class="p">)</span>
+
+<span class="n">c2</span> <span class="o">=</span> <span class="n">CardList</span><span class="p">(</span>
+    <span class="n">style</span><span class="o">=</span><span class="n">white_card</span><span class="p">,</span>
+    <span class="n">text_style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">DarkBold</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="n">text_size</span><span class="o">=</span><span class="mf">9.8</span><span class="p">),</span>
+    <span class="n">description_style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">Muted</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="n">text_size</span><span class="o">=</span><span class="mf">9.2</span><span class="p">),</span>
+    <span class="n">badge_shape</span><span class="o">=</span><span class="s2">"rounded_rect"</span><span class="p">,</span>
+    <span class="n">badge_style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">SecondaryFlat</span><span class="p">,</span>
+    <span class="n">badge_text_style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">WhiteBold</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="n">text_size</span><span class="o">=</span><span class="mf">9.2</span><span class="p">),</span>
+    <span class="n">direction</span><span class="o">=</span><span class="s2">"vertical"</span><span class="p">,</span>
+    <span class="n">spacing</span><span class="o">=</span><span class="mf">1.8</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">c2</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">"builder (26)"</span><span class="p">,</span> <span class="s2">"XML &amp; Annotation Builders"</span><span class="p">,</span> <span class="n">badge_text</span><span class="o">=</span><span class="s2">"T2"</span><span class="p">)</span>
+<span class="n">c2</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">"mapping (18)"</span><span class="p">,</span> <span class="s2">"MappedStatement &amp; ResultMap"</span><span class="p">,</span> <span class="n">badge_text</span><span class="o">=</span><span class="s2">"T2"</span><span class="p">)</span>
+<span class="n">c2</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">"scripting (25)"</span><span class="p">,</span> <span class="s2">"SqlNode AST &amp; OgnlCache"</span><span class="p">,</span> <span class="n">badge_text</span><span class="o">=</span><span class="s2">"T2"</span><span class="p">)</span>
+<span class="n">c2</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">"executor &amp; plugin (57)"</span><span class="p">,</span> <span class="s2">"Executors, Handlers, Plugin"</span><span class="p">,</span> <span class="n">badge_text</span><span class="o">=</span><span class="s2">"T2"</span><span class="p">)</span>
+<span class="n">c2</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="n">xy2</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="n">w2</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="n">h2</span><span class="p">,</span> <span class="n">align</span><span class="o">=</span><span class="s2">"bottom_left"</span><span class="p">)</span>
+
+<span class="n">t3_panel</span> <span class="o">=</span> <span class="n">Panel</span><span class="p">(</span>
+    <span class="s2">"Tier 3: Foundation"</span><span class="p">,</span>
+    <span class="s2">"10 Packages · 182 Files"</span><span class="p">,</span>
+    <span class="n">style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">Neutral</span><span class="p">,</span>
+    <span class="n">header_style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">PrimaryNeutral</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="n">shape_line_width</span><span class="o">=</span><span class="mf">1.2</span><span class="p">),</span>
+    <span class="n">text_style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">DarkBold</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="n">text_size</span><span class="o">=</span><span class="mf">10.5</span><span class="p">),</span>
+    <span class="n">description_style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">Muted</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="n">text_size</span><span class="o">=</span><span class="mf">9.2</span><span class="p">),</span>
+    <span class="n">icon</span><span class="o">=</span><span class="n">phosphor</span><span class="o">.</span><span class="n">cube</span><span class="p">,</span>
+    <span class="n">icon_style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">PrimaryBold</span><span class="p">,</span>
+    <span class="n">header_variant</span><span class="o">=</span><span class="s2">"filled"</span><span class="p">,</span>
+    <span class="n">header_height</span><span class="o">=</span><span class="mf">7.8</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">t3_panel</span><span class="o">.</span><span class="n">draw</span><span class="p">((</span><span class="mf">97.0</span><span class="p">,</span> <span class="mf">4.5</span><span class="p">),</span> <span class="n">width</span><span class="o">=</span><span class="mf">43.5</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mf">57.0</span><span class="p">,</span> <span class="n">align</span><span class="o">=</span><span class="s2">"bottom_left"</span><span class="p">)</span>
+<span class="n">xy3</span><span class="p">,</span> <span class="n">w3</span><span class="p">,</span> <span class="n">h3</span> <span class="o">=</span> <span class="n">t3_panel</span><span class="o">.</span><span class="n">get_content_box</span><span class="p">((</span><span class="mf">97.0</span><span class="p">,</span> <span class="mf">4.5</span><span class="p">),</span> <span class="n">width</span><span class="o">=</span><span class="mf">43.5</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mf">57.0</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="p">(</span><span class="mf">2.2</span><span class="p">,</span> <span class="mf">2.2</span><span class="p">),</span> <span class="n">align</span><span class="o">=</span><span class="s2">"bottom_left"</span><span class="p">)</span>
+
+<span class="n">c3</span> <span class="o">=</span> <span class="n">CardList</span><span class="p">(</span>
+    <span class="n">style</span><span class="o">=</span><span class="n">white_card</span><span class="p">,</span>
+    <span class="n">text_style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">DarkBold</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="n">text_size</span><span class="o">=</span><span class="mf">9.8</span><span class="p">),</span>
+    <span class="n">description_style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">Muted</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="n">text_size</span><span class="o">=</span><span class="mf">9.2</span><span class="p">),</span>
+    <span class="n">badge_shape</span><span class="o">=</span><span class="s2">"rounded_rect"</span><span class="p">,</span>
+    <span class="n">badge_style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">Dark</span><span class="p">,</span>
+    <span class="n">badge_text_style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">WhiteBold</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="n">text_size</span><span class="o">=</span><span class="mf">9.2</span><span class="p">),</span>
+    <span class="n">direction</span><span class="o">=</span><span class="s2">"vertical"</span><span class="p">,</span>
+    <span class="n">spacing</span><span class="o">=</span><span class="mf">1.8</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">c3</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">"type (74)"</span><span class="p">,</span> <span class="s2">"TypeHandlerRegistry &amp; 45+ Types"</span><span class="p">,</span> <span class="n">badge_text</span><span class="o">=</span><span class="s2">"T3"</span><span class="p">)</span>
+<span class="n">c3</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">"reflection (36)"</span><span class="p">,</span> <span class="s2">"MetaObject &amp; Reflector"</span><span class="p">,</span> <span class="n">badge_text</span><span class="o">=</span><span class="s2">"T3"</span><span class="p">)</span>
+<span class="n">c3</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">"cache &amp; tx (22)"</span><span class="p">,</span> <span class="s2">"Perpetual/Lru/Transactional"</span><span class="p">,</span> <span class="n">badge_text</span><span class="o">=</span><span class="s2">"T3"</span><span class="p">)</span>
+<span class="n">c3</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">"datasource, io, log (50)"</span><span class="p">,</span> <span class="s2">"PooledDataSource, VFS, XPath"</span><span class="p">,</span> <span class="n">badge_text</span><span class="o">=</span><span class="s2">"T3"</span><span class="p">)</span>
+<span class="n">c3</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="n">xy3</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="n">w3</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="n">h3</span><span class="p">,</span> <span class="n">align</span><span class="o">=</span><span class="s2">"bottom_left"</span><span class="p">)</span>
+
+<span class="n">save</span><span class="p">()</span>
+</code></pre>
+</details>
+<hr />
+<h2>Complete 20-Package Inventory (<code>org.apache.ibatis.*</code>)</h2>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">Package</th>
+<th style="text-align:center">Tier</th>
+<th style="text-align:center">Source Files</th>
+<th style="text-align:left">Primary Classes &amp; Architectural Role</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"><code>org.apache.ibatis.session</code></td>
+<td style="text-align:center">Tier 1</td>
+<td style="text-align:center"><code>17</code></td>
+<td style="text-align:left"><code>SqlSessionFactoryBuilder</code>, <code>SqlSessionFactory</code>, <code>SqlSession</code>, <code>Configuration</code>, <code>RowBounds</code>, <code>ResultHandler</code>, <code>SqlSessionManager</code></td>
+</tr>
+<tr>
+<td style="text-align:left"><code>org.apache.ibatis.binding</code></td>
+<td style="text-align:center">Tier 1</td>
+<td style="text-align:center"><code>6</code></td>
+<td style="text-align:left"><code>MapperRegistry</code>, <code>MapperProxyFactory&lt;T&gt;</code>, <code>MapperProxy&lt;T&gt;</code>, <code>MapperMethod</code>, <code>BindingException</code></td>
+</tr>
+<tr>
+<td style="text-align:left"><code>org.apache.ibatis.annotations</code></td>
+<td style="text-align:center">Tier 1</td>
+<td style="text-align:center"><code>39</code></td>
+<td style="text-align:left"><code>@Select</code>, <code>@Insert</code>, <code>@Update</code>, <code>@Delete</code>, <code>@Results</code>, <code>@Result</code>, <code>@One</code>, <code>@Many</code>, <code>@Param</code>, <code>@Options</code>, <code>@CacheNamespace</code></td>
+</tr>
+<tr>
+<td style="text-align:left"><code>org.apache.ibatis.cursor</code></td>
+<td style="text-align:center">Tier 1</td>
+<td style="text-align:center"><code>3</code></td>
+<td style="text-align:left"><code>Cursor&lt;T&gt;</code>, <code>DefaultCursor&lt;T&gt;</code> streaming iterator over open JDBC <code>ResultSet</code></td>
+</tr>
+<tr>
+<td style="text-align:left"><code>org.apache.ibatis.jdbc</code></td>
+<td style="text-align:center">Tier 1</td>
+<td style="text-align:center"><code>13</code></td>
+<td style="text-align:left"><code>SQL</code>, <code>AbstractSQL&lt;T&gt;</code>, <code>SqlRunner</code>, <code>ScriptRunner</code>, <code>SelectBuilder</code></td>
+</tr>
+<tr>
+<td style="text-align:left"><code>org.apache.ibatis.builder</code></td>
+<td style="text-align:center">Tier 2</td>
+<td style="text-align:center"><code>26</code></td>
+<td style="text-align:left"><code>BaseBuilder</code>, <code>MapperBuilderAssistant</code>, <code>SqlSourceBuilder</code>, <code>XMLConfigBuilder</code>, <code>XMLMapperBuilder</code>, <code>XMLStatementBuilder</code>, <code>MapperAnnotationBuilder</code></td>
+</tr>
+<tr>
+<td style="text-align:left"><code>org.apache.ibatis.mapping</code></td>
+<td style="text-align:center">Tier 2</td>
+<td style="text-align:center"><code>18</code></td>
+<td style="text-align:left"><code>MappedStatement</code>, <code>BoundSql</code>, <code>ParameterMapping</code>, <code>ResultMap</code>, <code>ResultMapping</code>, <code>Discriminator</code>, <code>SqlSource</code>, <code>Environment</code>, <code>CacheBuilder</code></td>
+</tr>
+<tr>
+<td style="text-align:left"><code>org.apache.ibatis.scripting</code></td>
+<td style="text-align:center">Tier 2</td>
+<td style="text-align:center"><code>25</code></td>
+<td style="text-align:left"><code>LanguageDriver</code>, <code>XMLLanguageDriver</code>, <code>RawSqlSource</code>, <code>DynamicSqlSource</code>, <code>SqlNode</code> hierarchy (<code>IfSqlNode</code>, <code>ForEachSqlNode</code>, <code>TrimSqlNode</code>), <code>OgnlCache</code>, <code>DefaultParameterHandler</code></td>
+</tr>
+<tr>
+<td style="text-align:left"><code>org.apache.ibatis.executor</code></td>
+<td style="text-align:center">Tier 2</td>
+<td style="text-align:center"><code>50</code></td>
+<td style="text-align:left"><code>Executor</code>, <code>BaseExecutor</code>, <code>SimpleExecutor</code>, <code>ReuseExecutor</code>, <code>BatchExecutor</code>, <code>CachingExecutor</code>, <code>StatementHandler</code>, <code>ResultSetHandler</code>, <code>KeyGenerator</code>, <code>ProxyFactory</code></td>
+</tr>
+<tr>
+<td style="text-align:left"><code>org.apache.ibatis.plugin</code></td>
+<td style="text-align:center">Tier 2</td>
+<td style="text-align:center"><code>7</code></td>
+<td style="text-align:left"><code>Interceptor</code>, <code>InterceptorChain</code>, <code>Invocation</code>, <code>Plugin</code>, <code>@Intercepts</code>, <code>@Signature</code></td>
+</tr>
+<tr>
+<td style="text-align:left"><code>org.apache.ibatis.type</code></td>
+<td style="text-align:center">Tier 3</td>
+<td style="text-align:center"><code>74</code></td>
+<td style="text-align:left"><code>TypeHandler&lt;T&gt;</code>, <code>BaseTypeHandler&lt;T&gt;</code>, <code>TypeHandlerRegistry</code>, <code>TypeAliasRegistry</code>, <code>JdbcType</code>, and 45+ built-in JDBC handlers</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>org.apache.ibatis.reflection</code></td>
+<td style="text-align:center">Tier 3</td>
+<td style="text-align:center"><code>36</code></td>
+<td style="text-align:left"><code>MetaObject</code>, <code>MetaClass</code>, <code>Reflector</code>, <code>DefaultReflectorFactory</code>, <code>ObjectFactory</code>, <code>ObjectWrapper</code>, <code>PropertyTokenizer</code>, <code>TypeParameterResolver</code></td>
+</tr>
+<tr>
+<td style="text-align:left"><code>org.apache.ibatis.cache</code></td>
+<td style="text-align:center">Tier 3</td>
+<td style="text-align:center"><code>15</code></td>
+<td style="text-align:left"><code>Cache</code>, <code>CacheKey</code>, <code>PerpetualCache</code>, <code>TransactionalCacheManager</code>, and 9 decorator caches (<code>LruCache</code>, <code>FifoCache</code>, <code>SoftCache</code>, <code>WeakCache</code>, <code>SerializedCache</code>, <code>SynchronizedCache</code>, <code>LoggingCache</code>, <code>BlockingCache</code>, <code>ScheduledCache</code>)</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>org.apache.ibatis.datasource</code></td>
+<td style="text-align:center">Tier 3</td>
+<td style="text-align:center"><code>15</code></td>
+<td style="text-align:left"><code>DataSourceFactory</code>, <code>UnpooledDataSource</code>, <code>PooledDataSource</code>, <code>PooledConnection</code>, <code>PoolState</code>, <code>JndiDataSourceFactory</code></td>
+</tr>
+<tr>
+<td style="text-align:left"><code>org.apache.ibatis.transaction</code></td>
+<td style="text-align:center">Tier 3</td>
+<td style="text-align:center"><code>7</code></td>
+<td style="text-align:left"><code>Transaction</code>, <code>TransactionFactory</code>, <code>JdbcTransaction</code>, <code>ManagedTransaction</code></td>
+</tr>
+<tr>
+<td style="text-align:left"><code>org.apache.ibatis.parsing</code></td>
+<td style="text-align:center">Tier 3</td>
+<td style="text-align:center"><code>6</code></td>
+<td style="text-align:left"><code>XPathParser</code>, <code>XNode</code>, <code>GenericTokenParser</code>, <code>PropertyParser</code>, <code>TokenHandler</code></td>
+</tr>
+<tr>
+<td style="text-align:left"><code>org.apache.ibatis.io</code></td>
+<td style="text-align:center">Tier 3</td>
+<td style="text-align:center"><code>9</code></td>
+<td style="text-align:left"><code>Resources</code>, <code>ClassLoaderWrapper</code>, <code>ResolverUtil&lt;T&gt;</code>, <code>VFS</code>, <code>DefaultVFS</code>, <code>JBoss6VFS</code>, <code>SerialFilterChecker</code></td>
+</tr>
+<tr>
+<td style="text-align:left"><code>org.apache.ibatis.logging</code></td>
+<td style="text-align:center">Tier 3</td>
+<td style="text-align:center"><code>22</code></td>
+<td style="text-align:left"><code>Log</code>, <code>LogFactory</code>, <code>ConnectionLogger</code>, <code>PreparedStatementLogger</code>, <code>ResultSetLogger</code>, and SLF4J/Log4j2/JUL/Commons/StdOut adapters</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>org.apache.ibatis.exceptions</code></td>
+<td style="text-align:center">Tier 3</td>
+<td style="text-align:center"><code>4</code></td>
+<td style="text-align:left"><code>PersistenceException</code>, <code>IbatisException</code>, <code>TooManyResultsException</code>, <code>ExceptionFactory</code></td>
+</tr>
+<tr>
+<td style="text-align:left"><code>org.apache.ibatis.lang</code></td>
+<td style="text-align:center">Tier 3</td>
+<td style="text-align:center"><code>2</code></td>
+<td style="text-align:left"><code>@UsesJava7</code>, <code>@UsesJava8</code> internal compatibility markers</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2>Zero-Dependency Shading &amp; Optional SPI Packaging</h2>
+<p>A defining architectural property of <code>org.mybatis:mybatis</code> (<code>pom.xml:115-134, 287-310, 365-411</code>) is that <strong>every compile-scope dependency in <code>pom.xml</code> is marked <code>&lt;optional&gt;true&lt;/optional&gt;</code></strong>. During the <code>package</code> lifecycle phase, <code>maven-shade-plugin</code> (<code>v3.6.2</code>) embeds and relocates the two internal bytecode/expression libraries directly into the <code>org.apache.ibatis.*</code> namespace so downstream applications never experience version collisions:</p>
+<figure class="drawlib-image" style="text-align: center;">
+  <img src="../images/01_package_and_layers/pkg_shade_relocation.png" alt="01_package_and_layers_2" />
+  <figcaption class="drawlib-caption">MyBatis 3 v3.6.0 — Maven Shade Relocation & Optional Runtime SPI Boundaries</figcaption>
+</figure>
+<details class="drawlib-code-details">
+<summary>Source Code</summary>
+<pre><code class="language-python"><span class="kn">from</span><span class="w"> </span><span class="nn">drawlib.canvas</span><span class="w"> </span><span class="kn">import</span> <span class="n">save</span><span class="p">,</span> <span class="n">setup</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">drawlib.diagrams.architecture</span><span class="w"> </span><span class="kn">import</span> <span class="n">ArchitectureDiagram</span><span class="p">,</span> <span class="n">Node</span><span class="p">,</span> <span class="n">NodeGroup</span><span class="p">,</span> <span class="n">PhosphorIcon</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">drawlib.styles</span><span class="w"> </span><span class="kn">import</span> <span class="n">Colors</span><span class="p">,</span> <span class="n">Styles</span>
+
+<span class="n">setup</span><span class="p">(</span><span class="n">width</span><span class="o">=</span><span class="mi">144</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mi">58</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">150</span><span class="p">)</span>
+
+<span class="n">d</span> <span class="o">=</span> <span class="n">ArchitectureDiagram</span><span class="p">(</span>
+    <span class="n">node_style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">Dark</span><span class="p">,</span>
+    <span class="n">node_text_style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">DarkBold</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="n">text_size</span><span class="o">=</span><span class="mf">9.8</span><span class="p">),</span>
+    <span class="n">edge_style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">Dark</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="n">line_width</span><span class="o">=</span><span class="mf">1.5</span><span class="p">),</span>
+    <span class="n">edge_text_style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">DarkBold</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="n">text_size</span><span class="o">=</span><span class="mf">9.2</span><span class="p">),</span>
+    <span class="n">node_card_style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">Neutral</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="n">shape_fill_color</span><span class="o">=</span><span class="n">Colors</span><span class="o">.</span><span class="n">White</span><span class="p">),</span>
+<span class="p">)</span>
+
+<span class="n">up</span> <span class="o">=</span> <span class="n">d</span><span class="o">.</span><span class="n">add</span><span class="p">(</span>
+    <span class="n">NodeGroup</span><span class="p">(</span>
+        <span class="s2">"Build-Time Optional Inputs (pom.xml)"</span><span class="p">,</span>
+        <span class="n">width</span><span class="o">=</span><span class="mi">44</span><span class="p">,</span>
+        <span class="n">height</span><span class="o">=</span><span class="mi">48</span><span class="p">,</span>
+        <span class="n">style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">SecondaryNeutral</span><span class="p">,</span>
+        <span class="n">text_style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">DarkBold</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="n">text_size</span><span class="o">=</span><span class="mf">10.2</span><span class="p">,</span> <span class="n">halign</span><span class="o">=</span><span class="s2">"left"</span><span class="p">,</span> <span class="n">valign</span><span class="o">=</span><span class="s2">"top"</span><span class="p">),</span>
+    <span class="p">),</span>
+    <span class="n">xy</span><span class="o">=</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">),</span>
+<span class="p">)</span>
+<span class="n">n_ognl</span> <span class="o">=</span> <span class="n">up</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">Node</span><span class="p">(</span><span class="s2">"ognl:ognl</span><span class="se">\n</span><span class="s2">3.4.16"</span><span class="p">,</span> <span class="n">icon</span><span class="o">=</span><span class="n">PhosphorIcon</span><span class="o">.</span><span class="n">CODE</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">34</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mi">13</span><span class="p">),</span> <span class="n">xy</span><span class="o">=</span><span class="p">(</span><span class="mi">22</span><span class="p">,</span> <span class="mi">33</span><span class="p">))</span>
+<span class="n">n_jav</span> <span class="o">=</span> <span class="n">up</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">Node</span><span class="p">(</span><span class="s2">"org.javassist</span><span class="se">\n</span><span class="s2">3.33.0-GA"</span><span class="p">,</span> <span class="n">icon</span><span class="o">=</span><span class="n">PhosphorIcon</span><span class="o">.</span><span class="n">CPU</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">34</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mi">13</span><span class="p">),</span> <span class="n">xy</span><span class="o">=</span><span class="p">(</span><span class="mi">22</span><span class="p">,</span> <span class="mi">14</span><span class="p">))</span>
+
+<span class="n">jar</span> <span class="o">=</span> <span class="n">d</span><span class="o">.</span><span class="n">add</span><span class="p">(</span>
+    <span class="n">NodeGroup</span><span class="p">(</span>
+        <span class="s2">"mybatis-3.6.0.jar (0 Mandatory Deps)"</span><span class="p">,</span>
+        <span class="n">width</span><span class="o">=</span><span class="mi">48</span><span class="p">,</span>
+        <span class="n">height</span><span class="o">=</span><span class="mi">48</span><span class="p">,</span>
+        <span class="n">style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">PrimaryNeutral</span><span class="p">,</span>
+        <span class="n">text_style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">DarkBold</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="n">text_size</span><span class="o">=</span><span class="mf">10.2</span><span class="p">,</span> <span class="n">halign</span><span class="o">=</span><span class="s2">"left"</span><span class="p">,</span> <span class="n">valign</span><span class="o">=</span><span class="s2">"top"</span><span class="p">),</span>
+    <span class="p">),</span>
+    <span class="n">xy</span><span class="o">=</span><span class="p">(</span><span class="mi">52</span><span class="p">,</span> <span class="mi">5</span><span class="p">),</span>
+<span class="p">)</span>
+<span class="n">n_s_ognl</span> <span class="o">=</span> <span class="n">jar</span><span class="o">.</span><span class="n">add</span><span class="p">(</span>
+    <span class="n">Node</span><span class="p">(</span>
+        <span class="s2">"org.apache.ibatis.ognl.*</span><span class="se">\n</span><span class="s2">(OgnlCache)"</span><span class="p">,</span>
+        <span class="n">icon</span><span class="o">=</span><span class="n">PhosphorIcon</span><span class="o">.</span><span class="n">SHIELD_CHECK</span><span class="p">,</span>
+        <span class="n">width</span><span class="o">=</span><span class="mi">40</span><span class="p">,</span>
+        <span class="n">height</span><span class="o">=</span><span class="mi">13</span><span class="p">,</span>
+        <span class="n">style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">White</span><span class="p">,</span>
+        <span class="n">text_style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">WhiteBold</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="n">text_size</span><span class="o">=</span><span class="mf">9.6</span><span class="p">),</span>
+        <span class="n">card_style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">PrimaryFlat</span><span class="p">,</span>
+    <span class="p">),</span>
+    <span class="n">xy</span><span class="o">=</span><span class="p">(</span><span class="mi">24</span><span class="p">,</span> <span class="mi">33</span><span class="p">),</span>
+<span class="p">)</span>
+<span class="n">n_s_jav</span> <span class="o">=</span> <span class="n">jar</span><span class="o">.</span><span class="n">add</span><span class="p">(</span>
+    <span class="n">Node</span><span class="p">(</span>
+        <span class="s2">"org.apache.ibatis.javassist.*</span><span class="se">\n</span><span class="s2">(JavassistProxyFactory)"</span><span class="p">,</span>
+        <span class="n">icon</span><span class="o">=</span><span class="n">PhosphorIcon</span><span class="o">.</span><span class="n">SHIELD_CHECK</span><span class="p">,</span>
+        <span class="n">width</span><span class="o">=</span><span class="mi">40</span><span class="p">,</span>
+        <span class="n">height</span><span class="o">=</span><span class="mi">13</span><span class="p">,</span>
+        <span class="n">style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">White</span><span class="p">,</span>
+        <span class="n">text_style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">WhiteBold</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="n">text_size</span><span class="o">=</span><span class="mf">9.6</span><span class="p">),</span>
+        <span class="n">card_style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">PrimaryFlat</span><span class="p">,</span>
+    <span class="p">),</span>
+    <span class="n">xy</span><span class="o">=</span><span class="p">(</span><span class="mi">24</span><span class="p">,</span> <span class="mi">14</span><span class="p">),</span>
+<span class="p">)</span>
+
+<span class="n">spi</span> <span class="o">=</span> <span class="n">d</span><span class="o">.</span><span class="n">add</span><span class="p">(</span>
+    <span class="n">NodeGroup</span><span class="p">(</span>
+        <span class="s2">"Optional Classpath SPIs"</span><span class="p">,</span>
+        <span class="n">width</span><span class="o">=</span><span class="mi">36</span><span class="p">,</span>
+        <span class="n">height</span><span class="o">=</span><span class="mi">48</span><span class="p">,</span>
+        <span class="n">style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">Neutral</span><span class="p">,</span>
+        <span class="n">text_style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">DarkBold</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="n">text_size</span><span class="o">=</span><span class="mf">10.2</span><span class="p">,</span> <span class="n">halign</span><span class="o">=</span><span class="s2">"left"</span><span class="p">,</span> <span class="n">valign</span><span class="o">=</span><span class="s2">"top"</span><span class="p">),</span>
+    <span class="p">),</span>
+    <span class="n">xy</span><span class="o">=</span><span class="p">(</span><span class="mi">104</span><span class="p">,</span> <span class="mi">5</span><span class="p">),</span>
+<span class="p">)</span>
+<span class="n">n_log</span> <span class="o">=</span> <span class="n">spi</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">Node</span><span class="p">(</span><span class="s2">"SLF4J 2.0 / Log4j2</span><span class="se">\n</span><span class="s2">/ Reload4j / JUL"</span><span class="p">,</span> <span class="n">icon</span><span class="o">=</span><span class="n">PhosphorIcon</span><span class="o">.</span><span class="n">TERMINAL_WINDOW</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">28</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mi">13</span><span class="p">),</span> <span class="n">xy</span><span class="o">=</span><span class="p">(</span><span class="mi">18</span><span class="p">,</span> <span class="mi">33</span><span class="p">))</span>
+<span class="n">n_drv</span> <span class="o">=</span> <span class="n">spi</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">Node</span><span class="p">(</span><span class="s2">"JDBC Driver &amp;</span><span class="se">\n</span><span class="s2">HikariCP / Pool"</span><span class="p">,</span> <span class="n">icon</span><span class="o">=</span><span class="n">PhosphorIcon</span><span class="o">.</span><span class="n">DATABASE</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">28</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mi">13</span><span class="p">),</span> <span class="n">xy</span><span class="o">=</span><span class="p">(</span><span class="mi">18</span><span class="p">,</span> <span class="mi">14</span><span class="p">))</span>
+
+<span class="n">n_ognl</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">n_s_ognl</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">"shade"</span><span class="p">)</span>
+<span class="n">n_jav</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">n_s_jav</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">"shade"</span><span class="p">)</span>
+<span class="n">n_s_ognl</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">n_log</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">"LogFactory"</span><span class="p">)</span>
+<span class="n">n_s_jav</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">n_drv</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">"DataSource"</span><span class="p">)</span>
+
+<span class="n">d</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="n">xy</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+<span class="n">save</span><span class="p">()</span>
+</code></pre>
+</details>
+
+            </main>
+        </div>
+    </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const themeBtn = document.getElementById('theme-toggle');
+            if (themeBtn) {
+                themeBtn.addEventListener('click', function() {
+                    const current = document.documentElement.getAttribute('data-theme');
+                    const next = current === 'dark' ? 'light' : 'dark';
+                    document.documentElement.setAttribute('data-theme', next);
+                    localStorage.setItem('drawlib-theme', next);
+                });
+            }
+            const langDropdowns = document.querySelectorAll('.lang-dropdown');
+            if (langDropdowns.length > 0) {
+                document.addEventListener('click', function(e) {
+                    langDropdowns.forEach(function(dd) {
+                        if (dd.hasAttribute('open') && !dd.contains(e.target)) {
+                            dd.removeAttribute('open');
+                        }
+                    });
+                });
+                document.addEventListener('keydown', function(e) {
+                    if (e.key === 'Escape') {
+                        langDropdowns.forEach(function(dd) {
+                            dd.removeAttribute('open');
+                        });
+                    }
+                });
+            }
+            const menuBtn = document.getElementById('menu-toggle');
+            const sidebar = document.querySelector('.sidebar');
+            if (menuBtn && sidebar) {
+                function setMenuOpen(open) {
+                    sidebar.classList.toggle('is-open', open);
+                    menuBtn.setAttribute('aria-expanded', open ? 'true' : 'false');
+                    document.body.classList.toggle('menu-open', open);
+                }
+                menuBtn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    setMenuOpen(!sidebar.classList.contains('is-open'));
+                });
+                document.addEventListener('click', function(e) {
+                    if (sidebar.classList.contains('is-open') && !sidebar.contains(e.target)) {
+                        setMenuOpen(false);
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,34 @@
+[project]
+name = "api"
+type = "catalog"
+title = "MyBatis 3 API & XML Reference Catalog (Unofficial · PNI501 + Drawlib Demo)"
+description = "Unofficial bilingual (English/Japanese) API & XML reference catalog for MyBatis 3 v3.6.0 — Core Session API, Mapper Annotations, XML Configuration & Mapper DTD/XSD Elements, SQL Builder, TypeHandlers, Cache & Transaction SPIs, Plugin Interceptors, and Reflection API."
+style = "google"
+
+[i18n]
+default_lang = "en"
+langs = ["en", "ja"]
+
+[i18n.labels]
+en = "English"
+ja = "日本語"
+
+[catalog]
+sidebar_expanded = true
+breadcrumb_root = "MyBatis 3 API"
+badge_text = "MyBatis 3 · v3.6.0"
+badge_url = "index.html"
+repo_url = "https://github.com/yuichi110/drawlib-mybatis3"
+header_links = [
+    { label = "User Guide", url = "https://mybatis3.drawlib.com/" },
+    { label = "Architecture", url = "https://mybatis3.drawlib.com/architecture/" },
+    { label = "PNI501 Audit", url = "https://mybatis3.drawlib.com/reports/pni501/" },
+]
+
+[seo]
+site_url = "https://mybatis3.drawlib.com/api"
+og_image = "_assets/ogp.png"
+twitter_card = "summary_large_image"
+sitemap = true
+robots = true
+llms_txt = true

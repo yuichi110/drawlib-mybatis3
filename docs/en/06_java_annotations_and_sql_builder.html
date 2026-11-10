@@ -1,0 +1,527 @@
+<!--
+ Copyright (c) 2026 Yuichi Ito (yuichi@yuichi.com)
+
+ This software is licensed under the Apache License, Version 2.0.
+ For more information, please visit: https://github.com/yuichi110/drawlib
+
+ This software is provided "as is", without warranty of any kind,
+ express or implied, including but not limited to the warranties of
+ merchantability, fitness for a particular purpose and noninfringement.
+-->
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>6. Java Annotations &amp; SQL Builder — MyBatis 3 User Guide (Unofficial · PNI501 + Drawlib Demo)</title>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-S9N5BZ1VRC"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-S9N5BZ1VRC');
+    </script>
+    <script>
+        (function() {
+            const saved = localStorage.getItem('drawlib-theme');
+            if (saved === 'dark' || (!saved && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                document.documentElement.setAttribute('data-theme', 'dark');
+            } else {
+                document.documentElement.setAttribute('data-theme', 'light');
+            }
+        })();
+    </script>
+    
+    
+    
+    <link rel="alternate" hreflang="en" href="https://mybatis3.drawlib.com/en/06_java_annotations_and_sql_builder.html">
+    
+    <link rel="alternate" hreflang="ja" href="https://mybatis3.drawlib.com/ja/06_java_annotations_and_sql_builder.html">
+    
+    <link rel="alternate" hreflang="x-default" href="https://mybatis3.drawlib.com/en/06_java_annotations_and_sql_builder.html">
+    
+    
+    
+    <meta name="description" content="With Java 17+ multi-line text blocks (&quot;&quot;&quot; ... &quot;&quot;&quot;), MyBatis&#x27;s 39 annotations in org.apache.ibatis.annotations and fluent org.apache.ibatis.jdbc.SQL builder…">
+    <link rel="canonical" href="https://mybatis3.drawlib.com/en/06_java_annotations_and_sql_builder.html">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="MyBatis 3 User Guide">
+    <meta property="og:title" content="6. Java Annotations &amp; SQL Builder — MyBatis 3 User Guide">
+    <meta property="og:description" content="With Java 17+ multi-line text blocks (&quot;&quot;&quot; ... &quot;&quot;&quot;), MyBatis&#x27;s 39 annotations in org.apache.ibatis.annotations and fluent org.apache.ibatis.jdbc.SQL builder…">
+    <meta property="og:url" content="https://mybatis3.drawlib.com/en/06_java_annotations_and_sql_builder.html">
+    <meta property="og:image" content="https://mybatis3.drawlib.com/_assets/ogp.png">
+    <meta property="og:locale" content="en_US">
+    <meta property="og:locale:alternate" content="ja_JP">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="6. Java Annotations &amp; SQL Builder — MyBatis 3 User Guide">
+    <meta name="twitter:description" content="With Java 17+ multi-line text blocks (&quot;&quot;&quot; ... &quot;&quot;&quot;), MyBatis&#x27;s 39 annotations in org.apache.ibatis.annotations and fluent org.apache.ibatis.jdbc.SQL builder…">
+    <meta name="twitter:image" content="https://mybatis3.drawlib.com/_assets/ogp.png">
+    
+    
+    <link rel="icon" type="image/png" href="../_assets/favicon.png">
+    
+    
+    <link rel="stylesheet" href="style.css">
+    
+    
+</head>
+<body>
+    <div class="demo-banner" role="region" aria-label="Unofficial Showcase Notice">
+        <div class="demo-banner-inner">
+            <span class="demo-banner-badge">UNOFFICIAL DEMO</span>
+            <span class="demo-banner-text">
+                
+                Unofficial visual user guide for <a href="https://mybatis.org/mybatis-3/" target="_blank" rel="noopener noreferrer">MyBatis 3</a> (v3.6.0, Apache-2.0) built with <a href="https://pypi.org/project/pni501/" target="_blank" rel="noopener noreferrer">PNI501</a> &amp; <a href="https://www.drawlib.com/" target="_blank" rel="noopener noreferrer">Drawlib</a>.
+                
+            </span>
+            <span class="demo-banner-links">
+                <strong style="color:#ffffff;">User Guide</strong>
+                <span class="demo-banner-sep">·</span>
+                <a href="https://mybatis3.drawlib.com/api/">API Reference</a>
+                <span class="demo-banner-sep">·</span>
+                <a href="https://mybatis3.drawlib.com/architecture/">Architecture</a>
+                <span class="demo-banner-sep">·</span>
+                <a href="https://mybatis3.drawlib.com/reports/pni501/">PNI501 Audit</a>
+                <span class="demo-banner-sep">·</span>
+                <a href="https://mybatis.org/mybatis-3/" target="_blank" rel="noopener noreferrer">Official Docs ↗</a>
+                <span class="demo-banner-sep">·</span>
+                <a href="https://github.com/yuichi110/drawlib-mybatis3" target="_blank" rel="noopener noreferrer">GitHub ↗</a>
+            </span>
+        </div>
+    </div>
+    
+    <div class="doc-layout">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <a href="index.html" class="sidebar-brand" aria-label="drawlib">
+                    
+                    drawlib
+                    
+                </a>
+                <div class="sidebar-header-actions">
+                    <button type="button" id="theme-toggle" class="theme-toggle-btn" aria-label="Toggle theme">
+                        <svg class="icon-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+                        <svg class="icon-moon" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+                    </button>
+                    <button type="button" id="menu-toggle" class="menu-toggle-btn" aria-label="Toggle navigation" aria-expanded="false">
+                        <svg class="icon-hamburger" viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+                        <svg class="icon-close" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                    </button>
+                </div>
+            </div>
+            <div class="sidebar-menu">
+                
+                    
+                        
+                        <div class="sidebar-heading">Getting Started</div>
+                        
+                        <ul class="nav-list">
+                            
+                            <li class="nav-item ">
+                                <a href="index.html" >Overview &amp; Quickstart</a>
+                            </li>
+                            
+                            <li class="nav-item ">
+                                <a href="01_getting_started.html" >1. Installation &amp; SqlSession Lifecycle</a>
+                            </li>
+                            
+                            <li class="nav-item ">
+                                <a href="02_xml_configuration.html" >2. XML Configuration (mybatis-config.xml)</a>
+                            </li>
+                            
+                        </ul>
+                    
+                        
+                        <div class="sidebar-heading">SQL Mapping &amp; Dynamic Queries</div>
+                        
+                        <ul class="nav-list">
+                            
+                            <li class="nav-item ">
+                                <a href="03_mapper_xml_and_sql.html" >3. Mapper XML &amp; SQL Statements</a>
+                            </li>
+                            
+                            <li class="nav-item ">
+                                <a href="04_result_maps_and_associations.html" >4. ResultMaps, Records &amp; Associations</a>
+                            </li>
+                            
+                            <li class="nav-item ">
+                                <a href="05_dynamic_sql.html" >5. Dynamic SQL &amp; OGNL Tags</a>
+                            </li>
+                            
+                            <li class="nav-item active">
+                                <a href="06_java_annotations_and_sql_builder.html" >6. Java Annotations &amp; SQL Builder</a>
+                            </li>
+                            
+                        </ul>
+                    
+                        
+                        <div class="sidebar-heading">Runtime, SPIs &amp; Operations</div>
+                        
+                        <ul class="nav-list">
+                            
+                            <li class="nav-item ">
+                                <a href="07_caching_and_transactions.html" >7. L1/L2 Caching, Transactions &amp; Batching</a>
+                            </li>
+                            
+                            <li class="nav-item ">
+                                <a href="08_typehandlers_plugins_and_testing.html" >8. TypeHandlers, Plugins &amp; Testing</a>
+                            </li>
+                            
+                        </ul>
+                    
+                        
+                        <div class="sidebar-heading">Companion Portals</div>
+                        
+                        <ul class="nav-list">
+                            
+                            <li class="nav-item ">
+                                <a href="https://mybatis3.drawlib.com/api/" target="_blank" rel="noopener noreferrer">API &amp; XML Reference Catalog<svg class="nav-external-icon" viewBox="0 0 24 24" aria-hidden="true"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg></a>
+                            </li>
+                            
+                            <li class="nav-item ">
+                                <a href="https://mybatis3.drawlib.com/architecture/" target="_blank" rel="noopener noreferrer">Internal Architecture Guide<svg class="nav-external-icon" viewBox="0 0 24 24" aria-hidden="true"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg></a>
+                            </li>
+                            
+                            <li class="nav-item ">
+                                <a href="https://mybatis3.drawlib.com/reports/pni501/" target="_blank" rel="noopener noreferrer">PNI501 Diagnostic Report<svg class="nav-external-icon" viewBox="0 0 24 24" aria-hidden="true"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg></a>
+                            </li>
+                            
+                        </ul>
+                    
+                
+            </div>
+        </aside>
+        <div class="content-wrapper">
+            <header class="top-bar">
+                <div class="breadcrumbs">
+                    <span class="crumb">Docs</span>
+                    <span class="crumb-separator">&raquo;</span>
+                    <span class="crumb active">6. Java Annotations &amp; SQL Builder</span>
+                </div>
+                
+                <div class="lang-switcher">
+                    <details class="lang-dropdown">
+                        <summary class="lang-dropdown-btn" aria-label="Select language">
+                            <svg class="lang-globe-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
+                            <span class="lang-current-label">English</span>
+                            <svg class="lang-caret-icon" viewBox="0 0 24 24" aria-hidden="true"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                        </summary>
+                        <div class="lang-dropdown-menu" role="menu">
+                            
+                            <a href="06_java_annotations_and_sql_builder.html" class="lang-option active" lang="en" hreflang="en" aria-current="page">
+                                <span>English</span>
+                                
+                                <svg class="lang-check-icon" viewBox="0 0 24 24" aria-hidden="true"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                                
+                            </a>
+                            
+                            <a href="../ja/06_java_annotations_and_sql_builder.html" class="lang-option" lang="ja" hreflang="ja" >
+                                <span>日本語</span>
+                                
+                            </a>
+                            
+                        </div>
+                    </details>
+                </div>
+                
+            </header>
+            <main class="main-content">
+                <h1>6. Java Annotations &amp; SQL Builder</h1>
+<p>With Java 17+ multi-line text blocks (<code>&quot;&quot;&quot; ... &quot;&quot;&quot;</code>), MyBatis's 39 annotations in <code>org.apache.ibatis.annotations</code> and fluent <code>org.apache.ibatis.jdbc.SQL</code> builder allow you to author clean, self-contained Mapper interfaces without external XML files.</p>
+<hr />
+<h2>XML vs Annotations vs <code>*Provider</code>: Choosing the Right Tool</h2>
+<figure class="drawlib-image" style="text-align: center;">
+  <img src="../images/06_java_annotations_and_sql_builder/ug_06_annotation_modes.png" alt="06_java_annotations_and_sql_builder_1" />
+  <figcaption class="drawlib-caption">Three Ways to Author SQL in MyBatis 3 Mapper Interfaces</figcaption>
+</figure>
+<details class="drawlib-code-details">
+<summary>Source Code</summary>
+<pre><code class="language-python"><span class="kn">from</span><span class="w"> </span><span class="nn">drawlib.canvas</span><span class="w"> </span><span class="kn">import</span> <span class="n">save</span><span class="p">,</span> <span class="n">setup</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">drawlib.smartarts</span><span class="w"> </span><span class="kn">import</span> <span class="n">CardList</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">drawlib.styles</span><span class="w"> </span><span class="kn">import</span> <span class="n">Colors</span><span class="p">,</span> <span class="n">Styles</span>
+
+<span class="n">setup</span><span class="p">(</span><span class="n">width</span><span class="o">=</span><span class="mi">144</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mi">38</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">150</span><span class="p">)</span>
+
+<span class="n">cards</span> <span class="o">=</span> <span class="n">CardList</span><span class="p">(</span>
+    <span class="n">style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">Neutral</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="n">shape_fill_color</span><span class="o">=</span><span class="n">Colors</span><span class="o">.</span><span class="n">White</span><span class="p">),</span>
+    <span class="n">text_style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">DarkBold</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="n">text_size</span><span class="o">=</span><span class="mf">10.0</span><span class="p">),</span>
+    <span class="n">description_style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">Dark</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="n">text_size</span><span class="o">=</span><span class="mf">8.6</span><span class="p">),</span>
+    <span class="n">badge_shape</span><span class="o">=</span><span class="s2">"rounded_rect"</span><span class="p">,</span>
+    <span class="n">badge_style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">PrimaryFlat</span><span class="p">,</span>
+    <span class="n">badge_text_style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">WhiteBold</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="n">text_size</span><span class="o">=</span><span class="mf">9.0</span><span class="p">),</span>
+    <span class="n">direction</span><span class="o">=</span><span class="s2">"horizontal"</span><span class="p">,</span>
+    <span class="n">spacing</span><span class="o">=</span><span class="mf">3.0</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">cards</span><span class="o">.</span><span class="n">add</span><span class="p">(</span>
+    <span class="s2">"1. Direct @Select / @Insert"</span><span class="p">,</span>
+    <span class="s1">'Static CRUD &amp; 1-5 line queries using Java 17+ """ text blocks.</span><span class="se">\n</span><span class="s1">Supports @Options, @Results, and @Arg.'</span><span class="p">,</span>
+    <span class="n">badge_text</span><span class="o">=</span><span class="s2">"INLINE"</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">cards</span><span class="o">.</span><span class="n">add</span><span class="p">(</span>
+    <span class="s2">"2. @SelectProvider + SQL"</span><span class="p">,</span>
+    <span class="s2">"Type-safe Java Dynamic SQL via ProviderMethodResolver</span><span class="se">\n</span><span class="s2">and fluent SQL.SELECT().WHERE() API."</span><span class="p">,</span>
+    <span class="n">badge_text</span><span class="o">=</span><span class="s2">"BUILDER"</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">cards</span><span class="o">.</span><span class="n">add</span><span class="p">(</span>
+    <span class="s2">"3. Mapper XML (Hybrid)"</span><span class="p">,</span>
+    <span class="s2">"Complex multi-JOINs &amp; CTEs. Mix @Select for simple methods</span><span class="se">\n</span><span class="s2">and XML for complex ones in the SAME Mapper!"</span><span class="p">,</span>
+    <span class="n">badge_text</span><span class="o">=</span><span class="s2">"HYBRID"</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">cards</span><span class="o">.</span><span class="n">draw</span><span class="p">((</span><span class="mf">4.0</span><span class="p">,</span> <span class="mf">4.0</span><span class="p">),</span> <span class="n">width</span><span class="o">=</span><span class="mf">136.0</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mf">30.0</span><span class="p">,</span> <span class="n">align</span><span class="o">=</span><span class="s2">"bottom_left"</span><span class="p">)</span>
+<span class="n">save</span><span class="p">()</span>
+</code></pre>
+</details>
+<blockquote>
+<p>[!TIP]
+<strong>Hybrid Mappers Work Out of the Box:</strong> You do not have to choose exclusively between Annotations and XML across a project—or even within a single Mapper interface! Keep 80% of simple CRUD methods directly on <code>AuthorMapper.java</code> with <code>@Select</code>/<code>@Insert</code>, and place the 20% of complex analytical queries in <code>AuthorMapper.xml</code>.</p>
+</blockquote>
+<hr />
+<h2>Core CRUD &amp; Result Mapping Annotations</h2>
+<pre><code class="language-java"><span class="kn">package</span><span class="w"> </span><span class="nn">com.example.blog.mapper</span><span class="p">;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">java.util.List</span><span class="p">;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">java.util.Optional</span><span class="p">;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">org.apache.ibatis.annotations.Arg</span><span class="p">;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">org.apache.ibatis.annotations.Delete</span><span class="p">;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">org.apache.ibatis.annotations.Insert</span><span class="p">;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">org.apache.ibatis.annotations.Options</span><span class="p">;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">org.apache.ibatis.annotations.Param</span><span class="p">;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">org.apache.ibatis.annotations.Result</span><span class="p">;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">org.apache.ibatis.annotations.ResultMap</span><span class="p">;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">org.apache.ibatis.annotations.Results</span><span class="p">;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">org.apache.ibatis.annotations.Select</span><span class="p">;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">org.apache.ibatis.annotations.Update</span><span class="p">;</span>
+
+<span class="kd">public</span><span class="w"> </span><span class="kd">interface</span> <span class="nc">AuthorMapper</span><span class="w"> </span><span class="p">{</span>
+
+<span class="w">  </span><span class="nd">@Results</span><span class="p">(</span><span class="n">id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"authorResultMap"</span><span class="p">,</span><span class="w"> </span><span class="n">value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nd">@Result</span><span class="p">(</span><span class="n">property</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"id"</span><span class="p">,</span><span class="w"> </span><span class="n">column</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"id"</span><span class="p">,</span><span class="w"> </span><span class="n">id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">true</span><span class="p">),</span>
+<span class="w">    </span><span class="nd">@Result</span><span class="p">(</span><span class="n">property</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"username"</span><span class="p">,</span><span class="w"> </span><span class="n">column</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"username"</span><span class="p">),</span>
+<span class="w">    </span><span class="nd">@Result</span><span class="p">(</span><span class="n">property</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"email"</span><span class="p">,</span><span class="w"> </span><span class="n">column</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"email"</span><span class="p">),</span>
+<span class="w">    </span><span class="nd">@Result</span><span class="p">(</span><span class="n">property</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"createdAt"</span><span class="p">,</span><span class="w"> </span><span class="n">column</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"created_at"</span><span class="p">)</span>
+<span class="w">  </span><span class="p">})</span>
+<span class="w">  </span><span class="nd">@Select</span><span class="p">(</span><span class="s">"""</span>
+<span class="s">      SELECT id, username, email, created_at</span>
+<span class="s">      FROM authors</span>
+<span class="s">      WHERE id = #{id}</span>
+<span class="s">      """</span><span class="p">)</span>
+<span class="w">  </span><span class="n">Optional</span><span class="o">&lt;</span><span class="n">Author</span><span class="o">&gt;</span><span class="w"> </span><span class="nf">findById</span><span class="p">(</span><span class="nd">@Param</span><span class="p">(</span><span class="s">"id"</span><span class="p">)</span><span class="w"> </span><span class="kt">long</span><span class="w"> </span><span class="n">id</span><span class="p">);</span>
+
+<span class="w">  </span><span class="c1">// Reuse the named @Results mapping above via @ResultMap!</span>
+<span class="w">  </span><span class="nd">@ResultMap</span><span class="p">(</span><span class="s">"authorResultMap"</span><span class="p">)</span>
+<span class="w">  </span><span class="nd">@Select</span><span class="p">(</span><span class="s">"""</span>
+<span class="s">      SELECT id, username, email, created_at</span>
+<span class="s">      FROM authors</span>
+<span class="s">      WHERE email = #{email}</span>
+<span class="s">      """</span><span class="p">)</span>
+<span class="w">  </span><span class="n">Optional</span><span class="o">&lt;</span><span class="n">Author</span><span class="o">&gt;</span><span class="w"> </span><span class="nf">findByEmail</span><span class="p">(</span><span class="nd">@Param</span><span class="p">(</span><span class="s">"email"</span><span class="p">)</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">email</span><span class="p">);</span>
+
+<span class="w">  </span><span class="nd">@Insert</span><span class="p">(</span><span class="s">"""</span>
+<span class="s">      INSERT INTO authors (username, email, created_at)</span>
+<span class="s">      VALUES (#{username}, #{email}, #{createdAt})</span>
+<span class="s">      """</span><span class="p">)</span>
+<span class="w">  </span><span class="nd">@Options</span><span class="p">(</span><span class="n">useGeneratedKeys</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w"> </span><span class="n">keyProperty</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"id"</span><span class="p">,</span><span class="w"> </span><span class="n">keyColumn</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"id"</span><span class="p">)</span>
+<span class="w">  </span><span class="kt">int</span><span class="w"> </span><span class="nf">insert</span><span class="p">(</span><span class="n">Author</span><span class="w"> </span><span class="n">author</span><span class="p">);</span>
+
+<span class="w">  </span><span class="nd">@Update</span><span class="p">(</span><span class="s">"""</span>
+<span class="s">      UPDATE authors</span>
+<span class="s">      SET username = #{username}, email = #{email}</span>
+<span class="s">      WHERE id = #{id}</span>
+<span class="s">      """</span><span class="p">)</span>
+<span class="w">  </span><span class="kt">int</span><span class="w"> </span><span class="nf">update</span><span class="p">(</span><span class="n">Author</span><span class="w"> </span><span class="n">author</span><span class="p">);</span>
+
+<span class="w">  </span><span class="nd">@Delete</span><span class="p">(</span><span class="s">"DELETE FROM authors WHERE id = #{id}"</span><span class="p">)</span>
+<span class="w">  </span><span class="kt">int</span><span class="w"> </span><span class="nf">deleteById</span><span class="p">(</span><span class="nd">@Param</span><span class="p">(</span><span class="s">"id"</span><span class="p">)</span><span class="w"> </span><span class="kt">long</span><span class="w"> </span><span class="n">id</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre>
+<h3>Constructor Mapping with <code>@Arg</code></h3>
+<p>In MyBatis 3.5.4+, you can declare <code>@Arg</code> directly on a method without wrapping it in <code>@ConstructorArgs</code>:</p>
+<pre><code class="language-java"><span class="nd">@Arg</span><span class="p">(</span><span class="n">id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w"> </span><span class="n">column</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"id"</span><span class="p">,</span><span class="w"> </span><span class="n">javaType</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Long</span><span class="p">.</span><span class="na">class</span><span class="p">,</span><span class="w"> </span><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"id"</span><span class="p">)</span>
+<span class="nd">@Arg</span><span class="p">(</span><span class="n">column</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"username"</span><span class="p">,</span><span class="w"> </span><span class="n">javaType</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">String</span><span class="p">.</span><span class="na">class</span><span class="p">,</span><span class="w"> </span><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"username"</span><span class="p">)</span>
+<span class="nd">@Arg</span><span class="p">(</span><span class="n">column</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"email"</span><span class="p">,</span><span class="w"> </span><span class="n">javaType</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">String</span><span class="p">.</span><span class="na">class</span><span class="p">,</span><span class="w"> </span><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"email"</span><span class="p">)</span>
+<span class="nd">@Select</span><span class="p">(</span><span class="s">"SELECT id, username, email FROM authors WHERE id = #{id}"</span><span class="p">)</span>
+<span class="n">AuthorRecord</span><span class="w"> </span><span class="nf">findRecordById</span><span class="p">(</span><span class="nd">@Param</span><span class="p">(</span><span class="s">"id"</span><span class="p">)</span><span class="w"> </span><span class="kt">long</span><span class="w"> </span><span class="n">id</span><span class="p">);</span>
+</code></pre>
+<hr />
+<h2>Programmatic Dynamic SQL with <code>@SelectProvider</code> and <code>SQL</code> Builder</h2>
+<p>Instead of embedding <code>&lt;script&gt;</code> XML strings inside annotations, pair <code>@SelectProvider</code> (or <code>@InsertProvider</code>, <code>@UpdateProvider</code>, <code>@DeleteProvider</code>) with <code>ProviderMethodResolver</code> and <code>org.apache.ibatis.jdbc.SQL</code>.</p>
+<p>When your provider class implements <code>ProviderMethodResolver</code>, MyBatis automatically matches the provider method with the <strong>same name</strong> as the Mapper method:</p>
+<figure class="drawlib-image" style="text-align: center;">
+  <img src="../images/06_java_annotations_and_sql_builder/ug_06_provider_flow.png" alt="06_java_annotations_and_sql_builder_2" />
+  <figcaption class="drawlib-caption">ProviderSqlSource & org.apache.ibatis.jdbc.SQL Fluent Builder Pipeline</figcaption>
+</figure>
+<details class="drawlib-code-details">
+<summary>Source Code</summary>
+<pre><code class="language-python"><span class="kn">from</span><span class="w"> </span><span class="nn">drawlib.canvas</span><span class="w"> </span><span class="kn">import</span> <span class="n">save</span><span class="p">,</span> <span class="n">setup</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">drawlib.diagrams.architecture</span><span class="w"> </span><span class="kn">import</span> <span class="n">ArchitectureDiagram</span><span class="p">,</span> <span class="n">Node</span><span class="p">,</span> <span class="n">NodeGroup</span><span class="p">,</span> <span class="n">PhosphorIcon</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">drawlib.styles</span><span class="w"> </span><span class="kn">import</span> <span class="n">Colors</span><span class="p">,</span> <span class="n">Styles</span>
+
+<span class="n">setup</span><span class="p">(</span><span class="n">width</span><span class="o">=</span><span class="mi">144</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mi">46</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">150</span><span class="p">)</span>
+
+<span class="n">d</span> <span class="o">=</span> <span class="n">ArchitectureDiagram</span><span class="p">(</span>
+    <span class="n">node_style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">Dark</span><span class="p">,</span>
+    <span class="n">node_text_style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">DarkBold</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="n">text_size</span><span class="o">=</span><span class="mf">9.2</span><span class="p">),</span>
+    <span class="n">edge_style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">Dark</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="n">line_width</span><span class="o">=</span><span class="mf">1.5</span><span class="p">),</span>
+    <span class="n">edge_text_style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">DarkBold</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="n">text_size</span><span class="o">=</span><span class="mf">8.8</span><span class="p">),</span>
+    <span class="n">node_card_style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">Neutral</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="n">shape_fill_color</span><span class="o">=</span><span class="n">Colors</span><span class="o">.</span><span class="n">White</span><span class="p">),</span>
+<span class="p">)</span>
+
+<span class="n">grp</span> <span class="o">=</span> <span class="n">d</span><span class="o">.</span><span class="n">add</span><span class="p">(</span>
+    <span class="n">NodeGroup</span><span class="p">(</span>
+        <span class="s2">"Type-Safe Dynamic SQL Generation via @SelectProvider &amp; ProviderMethodResolver"</span><span class="p">,</span>
+        <span class="n">width</span><span class="o">=</span><span class="mi">136</span><span class="p">,</span>
+        <span class="n">height</span><span class="o">=</span><span class="mi">36</span><span class="p">,</span>
+        <span class="n">style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">SecondaryNeutral</span><span class="p">,</span>
+        <span class="n">text_style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">DarkBold</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="n">text_size</span><span class="o">=</span><span class="mf">10.0</span><span class="p">,</span> <span class="n">halign</span><span class="o">=</span><span class="s2">"left"</span><span class="p">,</span> <span class="n">valign</span><span class="o">=</span><span class="s2">"top"</span><span class="p">),</span>
+    <span class="p">),</span>
+    <span class="n">xy</span><span class="o">=</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">),</span>
+<span class="p">)</span>
+<span class="n">n_m</span> <span class="o">=</span> <span class="n">grp</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">Node</span><span class="p">(</span><span class="s2">"Mapper Interface</span><span class="se">\n</span><span class="s2">@SelectProvider(PostSqlProvider.class)</span><span class="se">\n</span><span class="s2">searchPosts(filter)"</span><span class="p">,</span> <span class="n">icon</span><span class="o">=</span><span class="n">PhosphorIcon</span><span class="o">.</span><span class="n">CODE</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">40</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mi">15</span><span class="p">),</span> <span class="n">xy</span><span class="o">=</span><span class="p">(</span><span class="mi">24</span><span class="p">,</span> <span class="mi">15</span><span class="p">))</span>
+<span class="n">n_b</span> <span class="o">=</span> <span class="n">grp</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">Node</span><span class="p">(</span><span class="s2">"PostSqlProvider.searchPosts()</span><span class="se">\n</span><span class="s2">new SQL().SELECT(...)</span><span class="se">\n</span><span class="s2">.WHERE(...).toString()"</span><span class="p">,</span> <span class="n">icon</span><span class="o">=</span><span class="n">PhosphorIcon</span><span class="o">.</span><span class="n">SLIDERS</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">42</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mi">15</span><span class="p">),</span> <span class="n">xy</span><span class="o">=</span><span class="p">(</span><span class="mi">69</span><span class="p">,</span> <span class="mi">15</span><span class="p">))</span>
+<span class="n">n_s</span> <span class="o">=</span> <span class="n">grp</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">Node</span><span class="p">(</span><span class="s2">"ProviderSqlSource</span><span class="se">\n</span><span class="s2">Parses #{...} into '?' &amp;</span><span class="se">\n</span><span class="s2">binds via TypeHandler"</span><span class="p">,</span> <span class="n">icon</span><span class="o">=</span><span class="n">PhosphorIcon</span><span class="o">.</span><span class="n">SHIELD_CHECK</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">38</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mi">15</span><span class="p">),</span> <span class="n">xy</span><span class="o">=</span><span class="p">(</span><span class="mi">113</span><span class="p">,</span> <span class="mi">15</span><span class="p">))</span>
+
+<span class="n">n_m</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">n_b</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">"invokes"</span><span class="p">)</span>
+<span class="n">n_b</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">n_s</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">"SQL with #</span><span class="si">{}</span><span class="s2">"</span><span class="p">)</span>
+
+<span class="n">d</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="n">xy</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+<span class="n">save</span><span class="p">()</span>
+</code></pre>
+</details>
+<pre><code class="language-java"><span class="kn">package</span><span class="w"> </span><span class="nn">com.example.blog.mapper</span><span class="p">;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">java.util.List</span><span class="p">;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">org.apache.ibatis.annotations.Param</span><span class="p">;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">org.apache.ibatis.annotations.SelectProvider</span><span class="p">;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">org.apache.ibatis.builder.annotation.ProviderMethodResolver</span><span class="p">;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">org.apache.ibatis.jdbc.SQL</span><span class="p">;</span>
+
+<span class="kd">public</span><span class="w"> </span><span class="kd">interface</span> <span class="nc">PostMapper</span><span class="w"> </span><span class="p">{</span>
+
+<span class="w">  </span><span class="nd">@SelectProvider</span><span class="p">(</span><span class="n">type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">PostSqlProvider</span><span class="p">.</span><span class="na">class</span><span class="p">)</span>
+<span class="w">  </span><span class="n">List</span><span class="o">&lt;</span><span class="n">Post</span><span class="o">&gt;</span><span class="w"> </span><span class="nf">searchPosts</span><span class="p">(</span>
+<span class="w">      </span><span class="nd">@Param</span><span class="p">(</span><span class="s">"authorId"</span><span class="p">)</span><span class="w"> </span><span class="n">Long</span><span class="w"> </span><span class="n">authorId</span><span class="p">,</span>
+<span class="w">      </span><span class="nd">@Param</span><span class="p">(</span><span class="s">"status"</span><span class="p">)</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">status</span><span class="p">,</span>
+<span class="w">      </span><span class="nd">@Param</span><span class="p">(</span><span class="s">"keyword"</span><span class="p">)</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">keyword</span><span class="p">);</span>
+
+<span class="w">  </span><span class="kd">class</span> <span class="nc">PostSqlProvider</span><span class="w"> </span><span class="kd">implements</span><span class="w"> </span><span class="n">ProviderMethodResolver</span><span class="w"> </span><span class="p">{</span>
+
+<span class="w">    </span><span class="kd">public</span><span class="w"> </span><span class="kd">static</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="nf">searchPosts</span><span class="p">(</span>
+<span class="w">        </span><span class="nd">@Param</span><span class="p">(</span><span class="s">"authorId"</span><span class="p">)</span><span class="w"> </span><span class="n">Long</span><span class="w"> </span><span class="n">authorId</span><span class="p">,</span>
+<span class="w">        </span><span class="nd">@Param</span><span class="p">(</span><span class="s">"status"</span><span class="p">)</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">status</span><span class="p">,</span>
+<span class="w">        </span><span class="nd">@Param</span><span class="p">(</span><span class="s">"keyword"</span><span class="p">)</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">keyword</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="k">return</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">SQL</span><span class="p">()</span><span class="w"> </span><span class="p">{{</span>
+<span class="w">        </span><span class="n">SELECT</span><span class="p">(</span><span class="s">"p.id, p.author_id, p.title, p.status, p.published_at"</span><span class="p">);</span>
+<span class="w">        </span><span class="n">FROM</span><span class="p">(</span><span class="s">"posts p"</span><span class="p">);</span>
+<span class="w">        </span><span class="n">INNER_JOIN</span><span class="p">(</span><span class="s">"authors a ON a.id = p.author_id"</span><span class="p">);</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">authorId</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">null</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">          </span><span class="n">WHERE</span><span class="p">(</span><span class="s">"p.author_id = #{authorId}"</span><span class="p">);</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">status</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">null</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="o">!</span><span class="n">status</span><span class="p">.</span><span class="na">isBlank</span><span class="p">())</span><span class="w"> </span><span class="p">{</span>
+<span class="w">          </span><span class="n">WHERE</span><span class="p">(</span><span class="s">"p.status = #{status}"</span><span class="p">);</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">keyword</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">null</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="o">!</span><span class="n">keyword</span><span class="p">.</span><span class="na">isBlank</span><span class="p">())</span><span class="w"> </span><span class="p">{</span>
+<span class="w">          </span><span class="n">WHERE</span><span class="p">(</span><span class="s">"p.title ILIKE '%' || #{keyword} || '%'"</span><span class="p">);</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">        </span><span class="n">ORDER_BY</span><span class="p">(</span><span class="s">"p.published_at DESC"</span><span class="p">);</span>
+<span class="w">        </span><span class="n">LIMIT</span><span class="p">(</span><span class="mi">50</span><span class="p">);</span>
+<span class="w">      </span><span class="p">}}.</span><span class="na">toString</span><span class="p">();</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre>
+<p>Notice that <code>new SQL()</code> automatically joins multiple <code>WHERE(...)</code> calls with <code>AND</code>, and because the provider string still uses <code>#{authorId}</code>, <code>#{status}</code>, and <code>#{keyword}</code>, <code>ProviderSqlSource</code> compiles every parameter into a safe <code>?</code> <code>PreparedStatement</code> placeholder!</p>
+
+            </main>
+        </div>
+    </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Theme toggle
+            const themeBtn = document.getElementById('theme-toggle');
+            if (themeBtn) {
+                themeBtn.addEventListener('click', function() {
+                    const current = document.documentElement.getAttribute('data-theme');
+                    const next = current === 'dark' ? 'light' : 'dark';
+                    document.documentElement.setAttribute('data-theme', next);
+                    localStorage.setItem('drawlib-theme', next);
+                });
+            }
+
+            // Language dropdown outside-click & Escape close
+            const langDropdowns = document.querySelectorAll('.lang-dropdown');
+            if (langDropdowns.length > 0) {
+                document.addEventListener('click', function(e) {
+                    langDropdowns.forEach(function(dd) {
+                        if (dd.hasAttribute('open') && !dd.contains(e.target)) {
+                            dd.removeAttribute('open');
+                        }
+                    });
+                });
+                document.addEventListener('keydown', function(e) {
+                    if (e.key === 'Escape') {
+                        langDropdowns.forEach(function(dd) {
+                            dd.removeAttribute('open');
+                        });
+                    }
+                });
+            }
+
+            // Mobile menu toggle
+            const menuBtn = document.getElementById('menu-toggle');
+            const sidebar = document.querySelector('.sidebar');
+            if (menuBtn && sidebar) {
+                function setMenuOpen(open) {
+                    sidebar.classList.toggle('is-open', open);
+                    menuBtn.setAttribute('aria-expanded', open ? 'true' : 'false');
+                    document.body.classList.toggle('menu-open', open);
+                    if (open) {
+                        const menu = sidebar.querySelector('.sidebar-menu');
+                        if (menu) {
+                            menu.scrollTop = 0;
+                        }
+                    }
+                }
+
+                menuBtn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    const willOpen = !sidebar.classList.contains('is-open');
+                    setMenuOpen(willOpen);
+                });
+
+                // Close menu when clicking outside sidebar
+                document.addEventListener('click', function(e) {
+                    if (sidebar.classList.contains('is-open') && !sidebar.contains(e.target)) {
+                        setMenuOpen(false);
+                    }
+                });
+
+                // Close menu when a navigation link is clicked
+                const navLinks = sidebar.querySelectorAll('.nav-item a');
+                navLinks.forEach(function(link) {
+                    link.addEventListener('click', function() {
+                        setMenuOpen(false);
+                    });
+                });
+
+                // Close on Escape key
+                document.addEventListener('keydown', function(e) {
+                    if (e.key === 'Escape' && sidebar.classList.contains('is-open')) {
+                        setMenuOpen(false);
+                    }
+                });
+
+                // Reset menu state when resized above mobile breakpoint
+                window.addEventListener('resize', function() {
+                    if (window.innerWidth > 768 && sidebar.classList.contains('is-open')) {
+                        setMenuOpen(false);
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>

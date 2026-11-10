@@ -1,0 +1,522 @@
+<!--
+ Copyright (c) 2026 Yuichi Ito (yuichi@yuichi.com)
+
+ This software is licensed under the Apache License, Version 2.0.
+ For more information, please visit: https://github.com/yuichi110/drawlib
+
+ This software is provided "as is", without warranty of any kind,
+ express or implied, including but not limited to the warranties of
+ merchantability, fitness for a particular purpose and noninfringement.
+-->
+<!DOCTYPE html>
+<html lang="ja" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>1. インストールと SqlSession ライフサイクル — MyBatis 3 User Guide (Unofficial · PNI501 + Drawlib Demo)</title>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-S9N5BZ1VRC"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-S9N5BZ1VRC');
+    </script>
+    <script>
+        (function() {
+            const saved = localStorage.getItem('drawlib-theme');
+            if (saved === 'dark' || (!saved && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                document.documentElement.setAttribute('data-theme', 'dark');
+            } else {
+                document.documentElement.setAttribute('data-theme', 'light');
+            }
+        })();
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+    
+    
+    <link rel="alternate" hreflang="en" href="https://mybatis3.drawlib.com/en/01_getting_started.html">
+    
+    <link rel="alternate" hreflang="ja" href="https://mybatis3.drawlib.com/ja/01_getting_started.html">
+    
+    <link rel="alternate" hreflang="x-default" href="https://mybatis3.drawlib.com/en/01_getting_started.html">
+    
+    
+    
+    <meta name="description" content="MyBatis を正しく使いこなす第一歩は、4 つのコアライフサイクルオブジェクト (SqlSessionFactoryBuilder、SqlSessionFactory、SqlSession、Mapper プロキシ) と、それぞれの厳密な スレッドセーフティおよびスコープ境界 を理解することです。">
+    <link rel="canonical" href="https://mybatis3.drawlib.com/ja/01_getting_started.html">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="MyBatis 3 User Guide">
+    <meta property="og:title" content="1. インストールと SqlSession ライフサイクル — MyBatis 3 User Guide">
+    <meta property="og:description" content="MyBatis を正しく使いこなす第一歩は、4 つのコアライフサイクルオブジェクト (SqlSessionFactoryBuilder、SqlSessionFactory、SqlSession、Mapper プロキシ) と、それぞれの厳密な スレッドセーフティおよびスコープ境界 を理解することです。">
+    <meta property="og:url" content="https://mybatis3.drawlib.com/ja/01_getting_started.html">
+    <meta property="og:image" content="https://mybatis3.drawlib.com/_assets/ogp.png">
+    <meta property="og:locale" content="ja_JP">
+    <meta property="og:locale:alternate" content="en_US">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="1. インストールと SqlSession ライフサイクル — MyBatis 3 User Guide">
+    <meta name="twitter:description" content="MyBatis を正しく使いこなす第一歩は、4 つのコアライフサイクルオブジェクト (SqlSessionFactoryBuilder、SqlSessionFactory、SqlSession、Mapper プロキシ) と、それぞれの厳密な スレッドセーフティおよびスコープ境界 を理解することです。">
+    <meta name="twitter:image" content="https://mybatis3.drawlib.com/_assets/ogp.png">
+    
+    
+    <link rel="icon" type="image/png" href="../_assets/favicon.png">
+    
+    
+    <link rel="stylesheet" href="style.css">
+    
+    
+</head>
+<body>
+    <div class="demo-banner" role="region" aria-label="Unofficial Showcase Notice">
+        <div class="demo-banner-inner">
+            <span class="demo-banner-badge">UNOFFICIAL DEMO</span>
+            <span class="demo-banner-text">
+                
+                <a href="https://pypi.org/project/pni501/" target="_blank" rel="noopener noreferrer">PNI501</a> と <a href="https://www.drawlib.com/" target="_blank" rel="noopener noreferrer">Drawlib</a> で構築した <a href="https://mybatis.org/mybatis-3/" target="_blank" rel="noopener noreferrer">MyBatis 3</a> (v3.6.0, Apache-2.0) の非公式ユーザーガイドです。
+                
+            </span>
+            <span class="demo-banner-links">
+                <strong style="color:#ffffff;">ユーザーガイド</strong>
+                <span class="demo-banner-sep">·</span>
+                <a href="https://mybatis3.drawlib.com/api/ja/">API リファレンス</a>
+                <span class="demo-banner-sep">·</span>
+                <a href="https://mybatis3.drawlib.com/architecture/ja/">アーキテクチャ</a>
+                <span class="demo-banner-sep">·</span>
+                <a href="https://mybatis3.drawlib.com/reports/pni501/">PNI501 Audit</a>
+                <span class="demo-banner-sep">·</span>
+                <a href="https://mybatis.org/mybatis-3/" target="_blank" rel="noopener noreferrer">公式 Docs ↗</a>
+                <span class="demo-banner-sep">·</span>
+                <a href="https://github.com/yuichi110/drawlib-mybatis3" target="_blank" rel="noopener noreferrer">GitHub ↗</a>
+            </span>
+        </div>
+    </div>
+    
+    <div class="doc-layout">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <a href="index.html" class="sidebar-brand" aria-label="drawlib">
+                    
+                    drawlib
+                    
+                </a>
+                <div class="sidebar-header-actions">
+                    <button type="button" id="theme-toggle" class="theme-toggle-btn" aria-label="Toggle theme">
+                        <svg class="icon-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+                        <svg class="icon-moon" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+                    </button>
+                    <button type="button" id="menu-toggle" class="menu-toggle-btn" aria-label="Toggle navigation" aria-expanded="false">
+                        <svg class="icon-hamburger" viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+                        <svg class="icon-close" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                    </button>
+                </div>
+            </div>
+            <div class="sidebar-menu">
+                
+                    
+                        
+                        <div class="sidebar-heading">はじめに</div>
+                        
+                        <ul class="nav-list">
+                            
+                            <li class="nav-item ">
+                                <a href="index.html" >概要とクイックスタート</a>
+                            </li>
+                            
+                            <li class="nav-item active">
+                                <a href="01_getting_started.html" >1. インストールと SqlSession ライフサイクル</a>
+                            </li>
+                            
+                            <li class="nav-item ">
+                                <a href="02_xml_configuration.html" >2. XML 設定 (mybatis-config.xml)</a>
+                            </li>
+                            
+                        </ul>
+                    
+                        
+                        <div class="sidebar-heading">SQL マッピングと動的クエリ</div>
+                        
+                        <ul class="nav-list">
+                            
+                            <li class="nav-item ">
+                                <a href="03_mapper_xml_and_sql.html" >3. Mapper XML と SQL ステートメント</a>
+                            </li>
+                            
+                            <li class="nav-item ">
+                                <a href="04_result_maps_and_associations.html" >4. ResultMap・Java Record・関連マッピング</a>
+                            </li>
+                            
+                            <li class="nav-item ">
+                                <a href="05_dynamic_sql.html" >5. 動的 SQL と OGNL タグ</a>
+                            </li>
+                            
+                            <li class="nav-item ">
+                                <a href="06_java_annotations_and_sql_builder.html" >6. Java アノテーションと SQL Builder</a>
+                            </li>
+                            
+                        </ul>
+                    
+                        
+                        <div class="sidebar-heading">ランタイム・拡張 SPI・運用</div>
+                        
+                        <ul class="nav-list">
+                            
+                            <li class="nav-item ">
+                                <a href="07_caching_and_transactions.html" >7. L1/L2 キャッシュ・トランザクション・バッチ実行</a>
+                            </li>
+                            
+                            <li class="nav-item ">
+                                <a href="08_typehandlers_plugins_and_testing.html" >8. TypeHandler・プラグイン・テスト</a>
+                            </li>
+                            
+                        </ul>
+                    
+                        
+                        <div class="sidebar-heading">関連ポータル</div>
+                        
+                        <ul class="nav-list">
+                            
+                            <li class="nav-item ">
+                                <a href="https://mybatis3.drawlib.com/api/" target="_blank" rel="noopener noreferrer">API &amp; XML リファレンスカタログ<svg class="nav-external-icon" viewBox="0 0 24 24" aria-hidden="true"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg></a>
+                            </li>
+                            
+                            <li class="nav-item ">
+                                <a href="https://mybatis3.drawlib.com/architecture/" target="_blank" rel="noopener noreferrer">内部アーキテクチャガイド<svg class="nav-external-icon" viewBox="0 0 24 24" aria-hidden="true"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg></a>
+                            </li>
+                            
+                            <li class="nav-item ">
+                                <a href="https://mybatis3.drawlib.com/reports/pni501/" target="_blank" rel="noopener noreferrer">PNI501 診断レポート<svg class="nav-external-icon" viewBox="0 0 24 24" aria-hidden="true"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg></a>
+                            </li>
+                            
+                        </ul>
+                    
+                
+            </div>
+        </aside>
+        <div class="content-wrapper">
+            <header class="top-bar">
+                <div class="breadcrumbs">
+                    <span class="crumb">Docs</span>
+                    <span class="crumb-separator">&raquo;</span>
+                    <span class="crumb active">1. インストールと SqlSession ライフサイクル</span>
+                </div>
+                
+                <div class="lang-switcher">
+                    <details class="lang-dropdown">
+                        <summary class="lang-dropdown-btn" aria-label="Select language">
+                            <svg class="lang-globe-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
+                            <span class="lang-current-label">日本語</span>
+                            <svg class="lang-caret-icon" viewBox="0 0 24 24" aria-hidden="true"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                        </summary>
+                        <div class="lang-dropdown-menu" role="menu">
+                            
+                            <a href="../en/01_getting_started.html" class="lang-option" lang="en" hreflang="en" >
+                                <span>English</span>
+                                
+                            </a>
+                            
+                            <a href="01_getting_started.html" class="lang-option active" lang="ja" hreflang="ja" aria-current="page">
+                                <span>日本語</span>
+                                
+                                <svg class="lang-check-icon" viewBox="0 0 24 24" aria-hidden="true"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                                
+                            </a>
+                            
+                        </div>
+                    </details>
+                </div>
+                
+            </header>
+            <main class="main-content">
+                <h1>1. インストールと SqlSession ライフサイクル</h1>
+<p>MyBatis を正しく使いこなす第一歩は、<strong>4 つのコアライフサイクルオブジェクト</strong> (<code>SqlSessionFactoryBuilder</code>、<code>SqlSessionFactory</code>、<code>SqlSession</code>、<code>Mapper</code> プロキシ) と、それぞれの厳密な <strong>スレッドセーフティおよびスコープ境界</strong> を理解することです。</p>
+<hr />
+<h2>Maven &amp; Gradle の依存関係設定</h2>
+<p>MyBatis 3 (<code>org.mybatis:mybatis:3.6.0</code>) は JDK 17 以上の環境において <strong>必須の外部ランタイム依存関係がゼロ</strong> です。使用するデータベースの JDBC ドライバおよびコネクションプール (HikariCP など) と組み合わせて導入します。</p>
+<h3>Maven (<code>pom.xml</code>)</h3>
+<pre><code class="language-xml"><span class="nt">&lt;dependencies&gt;</span>
+<span class="w">  </span><span class="cm">&lt;!-- MyBatis 3 コア --&gt;</span>
+<span class="w">  </span><span class="nt">&lt;dependency&gt;</span>
+<span class="w">    </span><span class="nt">&lt;groupId&gt;</span>org.mybatis<span class="nt">&lt;/groupId&gt;</span>
+<span class="w">    </span><span class="nt">&lt;artifactId&gt;</span>mybatis<span class="nt">&lt;/artifactId&gt;</span>
+<span class="w">    </span><span class="nt">&lt;version&gt;</span>3.6.0<span class="nt">&lt;/version&gt;</span>
+<span class="w">  </span><span class="nt">&lt;/dependency&gt;</span>
+
+<span class="w">  </span><span class="cm">&lt;!-- 本番環境向けコネクションプール (推奨) --&gt;</span>
+<span class="w">  </span><span class="nt">&lt;dependency&gt;</span>
+<span class="w">    </span><span class="nt">&lt;groupId&gt;</span>com.zaxxer<span class="nt">&lt;/groupId&gt;</span>
+<span class="w">    </span><span class="nt">&lt;artifactId&gt;</span>HikariCP<span class="nt">&lt;/artifactId&gt;</span>
+<span class="w">    </span><span class="nt">&lt;version&gt;</span>6.2.1<span class="nt">&lt;/version&gt;</span>
+<span class="w">  </span><span class="nt">&lt;/dependency&gt;</span>
+
+<span class="w">  </span><span class="cm">&lt;!-- JDBC ドライバ例 (PostgreSQL) --&gt;</span>
+<span class="w">  </span><span class="nt">&lt;dependency&gt;</span>
+<span class="w">    </span><span class="nt">&lt;groupId&gt;</span>org.postgresql<span class="nt">&lt;/groupId&gt;</span>
+<span class="w">    </span><span class="nt">&lt;artifactId&gt;</span>postgresql<span class="nt">&lt;/artifactId&gt;</span>
+<span class="w">    </span><span class="nt">&lt;version&gt;</span>42.7.5<span class="nt">&lt;/version&gt;</span>
+<span class="w">  </span><span class="nt">&lt;/dependency&gt;</span>
+<span class="nt">&lt;/dependencies&gt;</span>
+</code></pre>
+<h3>Gradle (<code>build.gradle.kts</code>)</h3>
+<pre><code class="language-kotlin"><span class="n">dependencies</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">implementation</span><span class="p">(</span><span class="s">"org.mybatis:mybatis:3.6.0"</span><span class="p">)</span>
+<span class="w">    </span><span class="n">implementation</span><span class="p">(</span><span class="s">"com.zaxxer:HikariCP:6.2.1"</span><span class="p">)</span>
+<span class="w">    </span><span class="n">runtimeOnly</span><span class="p">(</span><span class="s">"org.postgresql:postgresql:42.7.5"</span><span class="p">)</span>
+<span class="p">}</span>
+</code></pre>
+<hr />
+<h2>スコープとスレッドセーフティの原則</h2>
+<p>MyBatis 運用で最も重要なルールは、各コアオブジェクトを適切なライフサイクルスコープに配置することです。</p>
+<figure class="drawlib-image" style="text-align: center;">
+  <img src="../images/01_getting_started/ug_01_scopes_ja.png" alt="01_getting_started_1" />
+  <figcaption class="drawlib-caption">MyBatis 3 のライフサイクルスコープとスレッドセーフティ境界</figcaption>
+</figure>
+<details class="drawlib-code-details">
+<summary>Source Code</summary>
+<pre><code class="language-python"><span class="kn">from</span><span class="w"> </span><span class="nn">drawlib.canvas</span><span class="w"> </span><span class="kn">import</span> <span class="n">save</span><span class="p">,</span> <span class="n">setup</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">drawlib.smartarts</span><span class="w"> </span><span class="kn">import</span> <span class="n">CardList</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">drawlib.styles</span><span class="w"> </span><span class="kn">import</span> <span class="n">Colors</span><span class="p">,</span> <span class="n">Styles</span>
+
+<span class="n">setup</span><span class="p">(</span><span class="n">width</span><span class="o">=</span><span class="mi">144</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mi">40</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">150</span><span class="p">)</span>
+
+<span class="n">cards</span> <span class="o">=</span> <span class="n">CardList</span><span class="p">(</span>
+    <span class="n">style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">Neutral</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="n">shape_fill_color</span><span class="o">=</span><span class="n">Colors</span><span class="o">.</span><span class="n">White</span><span class="p">),</span>
+    <span class="n">text_style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">DarkBold</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="n">text_size</span><span class="o">=</span><span class="mf">10.0</span><span class="p">),</span>
+    <span class="n">description_style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">Dark</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="n">text_size</span><span class="o">=</span><span class="mf">8.6</span><span class="p">),</span>
+    <span class="n">badge_shape</span><span class="o">=</span><span class="s2">"rounded_rect"</span><span class="p">,</span>
+    <span class="n">badge_style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">PrimaryFlat</span><span class="p">,</span>
+    <span class="n">badge_text_style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">WhiteBold</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="n">text_size</span><span class="o">=</span><span class="mf">9.0</span><span class="p">),</span>
+    <span class="n">direction</span><span class="o">=</span><span class="s2">"horizontal"</span><span class="p">,</span>
+    <span class="n">spacing</span><span class="o">=</span><span class="mf">2.5</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">cards</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">"1. FactoryBuilder"</span><span class="p">,</span> <span class="s2">"スコープ: メソッドローカル</span><span class="se">\n</span><span class="s2">スレッドセーフ: 不要</span><span class="se">\n</span><span class="s2">build() 後に即時破棄"</span><span class="p">,</span> <span class="n">badge_text</span><span class="o">=</span><span class="s2">"INIT"</span><span class="p">)</span>
+<span class="n">cards</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">"2. SqlSessionFactory"</span><span class="p">,</span> <span class="s2">"スコープ: アプリ全体で1つ</span><span class="se">\n</span><span class="s2">スレッドセーフ: YES</span><span class="se">\n</span><span class="s2">DB ごとに 1 度だけ生成"</span><span class="p">,</span> <span class="n">badge_text</span><span class="o">=</span><span class="s2">"SINGLETON"</span><span class="p">)</span>
+<span class="n">cards</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">"3. SqlSession"</span><span class="p">,</span> <span class="s2">"スコープ: リクエスト単位</span><span class="se">\n</span><span class="s2">スレッドセーフ: NO!</span><span class="se">\n</span><span class="s2">try-with-resources 必須"</span><span class="p">,</span> <span class="n">badge_text</span><span class="o">=</span><span class="s2">"REQUEST"</span><span class="p">)</span>
+<span class="n">cards</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">"4. Mapper プロキシ"</span><span class="p">,</span> <span class="s2">"スコープ: メソッドローカル</span><span class="se">\n</span><span class="s2">スレッドセーフ: NO*</span><span class="se">\n</span><span class="s2">SqlSession と共に破棄"</span><span class="p">,</span> <span class="n">badge_text</span><span class="o">=</span><span class="s2">"METHOD"</span><span class="p">)</span>
+
+<span class="n">cards</span><span class="o">.</span><span class="n">draw</span><span class="p">((</span><span class="mf">4.0</span><span class="p">,</span> <span class="mf">4.0</span><span class="p">),</span> <span class="n">width</span><span class="o">=</span><span class="mf">136.0</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mf">32.0</span><span class="p">,</span> <span class="n">align</span><span class="o">=</span><span class="s2">"bottom_left"</span><span class="p">)</span>
+<span class="n">save</span><span class="p">()</span>
+</code></pre>
+</details>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">コンポーネント</th>
+<th style="text-align:left">推奨スコープ</th>
+<th style="text-align:left">スレッドセーフか</th>
+<th style="text-align:left">理由</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"><a href="https://mybatis3.drawlib.com/api/ja/01_session_and_binding.html"><code>SqlSessionFactoryBuilder</code></a></td>
+<td style="text-align:left">メソッドローカル (起動時)</td>
+<td style="text-align:left">対象外</td>
+<td style="text-align:left">設定をパースして <code>SqlSessionFactory</code> を生成するためだけに使用します。</td>
+</tr>
+<tr>
+<td style="text-align:left"><a href="https://mybatis3.drawlib.com/api/ja/01_session_and_binding.html"><code>SqlSessionFactory</code></a></td>
+<td style="text-align:left"><strong>アプリケーションシングルトン</strong></td>
+<td style="text-align:left"><strong>はい (Yes)</strong></td>
+<td style="text-align:left">ランタイム中に不変な <code>Configuration</code> レジストリを保持します。リクエストごとに再生成してはいけません。</td>
+</tr>
+<tr>
+<td style="text-align:left"><a href="https://mybatis3.drawlib.com/api/ja/01_session_and_binding.html"><code>SqlSession</code></a></td>
+<td style="text-align:left"><strong>リクエスト / メソッド (<code>try-with-resources</code>)</strong></td>
+<td style="text-align:left"><strong>いいえ (No)</strong></td>
+<td style="text-align:left">ステートフルな <code>Executor</code>、非スレッドセーフな L1 <code>PerpetualCache</code>、および JDBC <code>Connection</code> を保持します。</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>Mapper</code> プロキシ (<code>session.getMapper(...)</code>)</td>
+<td style="text-align:left"><strong>メソッドローカル</strong></td>
+<td style="text-align:left"><strong>いいえ (No)</strong> <em>(<code>DefaultSqlSession</code> 紐付け時)</em></td>
+<td style="text-align:left">呼び出しを背後の <code>SqlSession</code> に直接委譲します (<code>SqlSessionManager</code> や Spring の <code>SqlSessionTemplate</code> 使用時のみスレッドセーフ)。</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2><code>SqlSessionFactory</code> の構築方法</h2>
+<p><code>SqlSessionFactory</code> は XML 設定ファイル (<code>mybatis-config.xml</code>) または Java コードから構築できます。</p>
+<h3>方法 A: XML 設定ファイルから構築 (<code>Resources.getResourceAsReader</code>)</h3>
+<pre><code class="language-java"><span class="kn">import</span><span class="w"> </span><span class="nn">java.io.Reader</span><span class="p">;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">org.apache.ibatis.io.Resources</span><span class="p">;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">org.apache.ibatis.session.SqlSessionFactory</span><span class="p">;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">org.apache.ibatis.session.SqlSessionFactoryBuilder</span><span class="p">;</span>
+
+<span class="n">String</span><span class="w"> </span><span class="n">resource</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"org/example/persistence/mybatis-config.xml"</span><span class="p">;</span>
+<span class="k">try</span><span class="w"> </span><span class="p">(</span><span class="n">Reader</span><span class="w"> </span><span class="n">reader</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Resources</span><span class="p">.</span><span class="na">getResourceAsReader</span><span class="p">(</span><span class="n">resource</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="n">SqlSessionFactory</span><span class="w"> </span><span class="n">sqlSessionFactory</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">SqlSessionFactoryBuilder</span><span class="p">().</span><span class="na">build</span><span class="p">(</span><span class="n">reader</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre>
+<h3>方法 B: Java コードによるプログラマティック構築 (HikariCP + Mappers)</h3>
+<pre><code class="language-java"><span class="kn">import</span><span class="w"> </span><span class="nn">com.zaxxer.hikari.HikariConfig</span><span class="p">;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">com.zaxxer.hikari.HikariDataSource</span><span class="p">;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">javax.sql.DataSource</span><span class="p">;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">org.apache.ibatis.mapping.Environment</span><span class="p">;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">org.apache.ibatis.session.Configuration</span><span class="p">;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">org.apache.ibatis.session.LocalCacheScope</span><span class="p">;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">org.apache.ibatis.session.SqlSessionFactory</span><span class="p">;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">org.apache.ibatis.session.SqlSessionFactoryBuilder</span><span class="p">;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">org.apache.ibatis.transaction.jdbc.JdbcTransactionFactory</span><span class="p">;</span>
+
+<span class="n">HikariConfig</span><span class="w"> </span><span class="n">hikari</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">HikariConfig</span><span class="p">();</span>
+<span class="n">hikari</span><span class="p">.</span><span class="na">setJdbcUrl</span><span class="p">(</span><span class="s">"jdbc:postgresql://localhost:5432/blog"</span><span class="p">);</span>
+<span class="n">hikari</span><span class="p">.</span><span class="na">setUsername</span><span class="p">(</span><span class="s">"app_user"</span><span class="p">);</span>
+<span class="n">hikari</span><span class="p">.</span><span class="na">setPassword</span><span class="p">(</span><span class="n">System</span><span class="p">.</span><span class="na">getenv</span><span class="p">(</span><span class="s">"DB_PASSWORD"</span><span class="p">));</span>
+<span class="n">DataSource</span><span class="w"> </span><span class="n">dataSource</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">HikariDataSource</span><span class="p">(</span><span class="n">hikari</span><span class="p">);</span>
+
+<span class="n">Environment</span><span class="w"> </span><span class="n">environment</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">Environment</span><span class="p">(</span><span class="s">"production"</span><span class="p">,</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">JdbcTransactionFactory</span><span class="p">(),</span><span class="w"> </span><span class="n">dataSource</span><span class="p">);</span>
+
+<span class="n">Configuration</span><span class="w"> </span><span class="n">configuration</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">Configuration</span><span class="p">(</span><span class="n">environment</span><span class="p">);</span>
+<span class="n">configuration</span><span class="p">.</span><span class="na">setMapUnderscoreToCamelCase</span><span class="p">(</span><span class="kc">true</span><span class="p">);</span>
+<span class="n">configuration</span><span class="p">.</span><span class="na">setLocalCacheScope</span><span class="p">(</span><span class="n">LocalCacheScope</span><span class="p">.</span><span class="na">STATEMENT</span><span class="p">);</span><span class="w"> </span><span class="c1">// マルチインスタンス環境での推奨設定</span>
+<span class="n">configuration</span><span class="p">.</span><span class="na">addMappers</span><span class="p">(</span><span class="s">"com.example.blog.mapper"</span><span class="p">);</span><span class="w">         </span><span class="c1">// パッケージ内の全 Mapper と XML を一括登録</span>
+
+<span class="n">SqlSessionFactory</span><span class="w"> </span><span class="n">sqlSessionFactory</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">SqlSessionFactoryBuilder</span><span class="p">().</span><span class="na">build</span><span class="p">(</span><span class="n">configuration</span><span class="p">);</span>
+</code></pre>
+<hr />
+<h2><code>try-with-resources</code> による実行と自動ロールバック保証</h2>
+<p><code>SqlSession</code> は <code>java.lang.AutoCloseable</code> を実装しています。デフォルトでは <code>sqlSessionFactory.openSession()</code> は <strong><code>autoCommit = false</code></strong> でセッションを開きます。<code>session.commit()</code> を呼ばずに <code>try-with-resources</code> ブロックを抜けた場合、MyBatis は未コミットの変更を <strong>自動的にロールバック</strong> してからコネクションをプールへ返却します。</p>
+<figure class="drawlib-image" style="text-align: center;">
+  <img src="../images/01_getting_started/ug_01_session_seq_ja.png" alt="01_getting_started_2" />
+  <figcaption class="drawlib-caption">SqlSession の try-with-resources 実行シーケンスと自動ロールバック保証</figcaption>
+</figure>
+<details class="drawlib-code-details">
+<summary>Source Code</summary>
+<pre><code class="language-python"><span class="kn">from</span><span class="w"> </span><span class="nn">drawlib.canvas</span><span class="w"> </span><span class="kn">import</span> <span class="n">save</span><span class="p">,</span> <span class="n">setup</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">drawlib.diagrams.sequence</span><span class="w"> </span><span class="kn">import</span> <span class="n">Participant</span><span class="p">,</span> <span class="n">PhosphorIcon</span><span class="p">,</span> <span class="n">SequenceDiagram</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">drawlib.styles</span><span class="w"> </span><span class="kn">import</span> <span class="n">Styles</span>
+
+<span class="n">setup</span><span class="p">(</span><span class="n">width</span><span class="o">=</span><span class="mi">144</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mi">74</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">150</span><span class="p">)</span>
+
+<span class="n">sd</span> <span class="o">=</span> <span class="n">SequenceDiagram</span><span class="p">(</span>
+    <span class="n">node_style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">Dark</span><span class="p">,</span>
+    <span class="n">node_text_style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">DarkBold</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="n">text_size</span><span class="o">=</span><span class="mf">9.2</span><span class="p">),</span>
+    <span class="n">edge_style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">Dark</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="n">line_width</span><span class="o">=</span><span class="mf">1.4</span><span class="p">),</span>
+    <span class="n">edge_text_style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">Dark</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="n">text_size</span><span class="o">=</span><span class="mf">8.8</span><span class="p">),</span>
+    <span class="n">node_card_style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">Neutral</span><span class="p">,</span>
+    <span class="n">col_width</span><span class="o">=</span><span class="mf">28.0</span><span class="p">,</span>
+    <span class="n">step_y</span><span class="o">=</span><span class="mf">6.0</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">p_app</span> <span class="o">=</span> <span class="n">sd</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">Participant</span><span class="p">(</span><span class="s2">"サービスメソッド"</span><span class="p">,</span> <span class="n">icon</span><span class="o">=</span><span class="n">PhosphorIcon</span><span class="o">.</span><span class="n">TERMINAL_WINDOW</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">23</span><span class="p">,</span> <span class="n">card_style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">Neutral</span><span class="p">))</span>
+<span class="n">p_fac</span> <span class="o">=</span> <span class="n">sd</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">Participant</span><span class="p">(</span><span class="s2">"SqlSessionFactory"</span><span class="p">,</span> <span class="n">icon</span><span class="o">=</span><span class="n">PhosphorIcon</span><span class="o">.</span><span class="n">FACTORY</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">25</span><span class="p">,</span> <span class="n">card_style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">PrimaryNeutral</span><span class="p">))</span>
+<span class="n">p_ses</span> <span class="o">=</span> <span class="n">sd</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">Participant</span><span class="p">(</span><span class="s2">"SqlSession"</span><span class="p">,</span> <span class="n">icon</span><span class="o">=</span><span class="n">PhosphorIcon</span><span class="o">.</span><span class="n">STACK</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">23</span><span class="p">,</span> <span class="n">card_style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">SecondaryNeutral</span><span class="p">))</span>
+<span class="n">p_map</span> <span class="o">=</span> <span class="n">sd</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">Participant</span><span class="p">(</span><span class="s2">"OrderMapper"</span><span class="p">,</span> <span class="n">icon</span><span class="o">=</span><span class="n">PhosphorIcon</span><span class="o">.</span><span class="n">CODE</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">23</span><span class="p">,</span> <span class="n">card_style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">PrimaryNeutral</span><span class="p">))</span>
+<span class="n">p_db</span> <span class="o">=</span> <span class="n">sd</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">Participant</span><span class="p">(</span><span class="s2">"JDBC トランザクション"</span><span class="p">,</span> <span class="n">icon</span><span class="o">=</span><span class="n">PhosphorIcon</span><span class="o">.</span><span class="n">DATABASE</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">24</span><span class="p">,</span> <span class="n">card_style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">SuccessNeutral</span><span class="p">))</span>
+
+<span class="n">p_app</span><span class="o">.</span><span class="n">request</span><span class="p">(</span><span class="n">p_fac</span><span class="p">,</span> <span class="s2">"openSession() [autoCommit=false]"</span><span class="p">)</span>
+<span class="n">p_fac</span><span class="o">.</span><span class="n">reply</span><span class="p">(</span><span class="n">p_ses</span><span class="p">,</span> <span class="s2">"new DefaultSqlSession"</span><span class="p">)</span>
+<span class="n">p_app</span><span class="o">.</span><span class="n">request</span><span class="p">(</span><span class="n">p_ses</span><span class="p">,</span> <span class="s2">"getMapper(OrderMapper.class)"</span><span class="p">)</span>
+<span class="n">p_ses</span><span class="o">.</span><span class="n">reply</span><span class="p">(</span><span class="n">p_map</span><span class="p">,</span> <span class="s2">"MapperProxy"</span><span class="p">)</span>
+<span class="n">p_app</span><span class="o">.</span><span class="n">request</span><span class="p">(</span><span class="n">p_map</span><span class="p">,</span> <span class="s2">"insertOrder(order)"</span><span class="p">)</span>
+<span class="n">p_map</span><span class="o">.</span><span class="n">request</span><span class="p">(</span><span class="n">p_ses</span><span class="p">,</span> <span class="s2">"insert('...insertOrder', order)"</span><span class="p">)</span>
+<span class="n">p_ses</span><span class="o">.</span><span class="n">request</span><span class="p">(</span><span class="n">p_db</span><span class="p">,</span> <span class="s2">"PreparedStatement.executeUpdate()"</span><span class="p">)</span>
+<span class="n">p_app</span><span class="o">.</span><span class="n">request</span><span class="p">(</span><span class="n">p_ses</span><span class="p">,</span> <span class="s2">"commit() &amp; close() [未コミット時は自動ロールバック]"</span><span class="p">)</span>
+
+<span class="n">sd</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="n">xy</span><span class="o">=</span><span class="p">(</span><span class="mi">72</span><span class="p">,</span> <span class="mi">37</span><span class="p">),</span> <span class="n">align</span><span class="o">=</span><span class="s2">"center"</span><span class="p">)</span>
+<span class="n">save</span><span class="p">()</span>
+</code></pre>
+</details>
+<pre><code class="language-java"><span class="c1">// 更新系トランザクションの定石パターン: 成功時は明示的に session.commit() を呼ぶ</span>
+<span class="k">try</span><span class="w"> </span><span class="p">(</span><span class="n">SqlSession</span><span class="w"> </span><span class="n">session</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">sqlSessionFactory</span><span class="p">.</span><span class="na">openSession</span><span class="p">())</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="n">OrderMapper</span><span class="w"> </span><span class="n">mapper</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">session</span><span class="p">.</span><span class="na">getMapper</span><span class="p">(</span><span class="n">OrderMapper</span><span class="p">.</span><span class="na">class</span><span class="p">);</span>
+<span class="w">  </span><span class="n">mapper</span><span class="p">.</span><span class="na">insertOrder</span><span class="p">(</span><span class="n">order</span><span class="p">);</span>
+<span class="w">  </span><span class="n">mapper</span><span class="p">.</span><span class="na">insertOrderItems</span><span class="p">(</span><span class="n">order</span><span class="p">.</span><span class="na">items</span><span class="p">());</span>
+<span class="w">  </span><span class="n">session</span><span class="p">.</span><span class="na">commit</span><span class="p">();</span><span class="w"> </span><span class="c1">// 両方の INSERT をアトミックにコミット (途中で例外が発生した場合は close() が自動ロールバック)</span>
+<span class="p">}</span>
+</code></pre>
+
+            </main>
+        </div>
+    </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Theme toggle
+            const themeBtn = document.getElementById('theme-toggle');
+            if (themeBtn) {
+                themeBtn.addEventListener('click', function() {
+                    const current = document.documentElement.getAttribute('data-theme');
+                    const next = current === 'dark' ? 'light' : 'dark';
+                    document.documentElement.setAttribute('data-theme', next);
+                    localStorage.setItem('drawlib-theme', next);
+                });
+            }
+
+            // Language dropdown outside-click & Escape close
+            const langDropdowns = document.querySelectorAll('.lang-dropdown');
+            if (langDropdowns.length > 0) {
+                document.addEventListener('click', function(e) {
+                    langDropdowns.forEach(function(dd) {
+                        if (dd.hasAttribute('open') && !dd.contains(e.target)) {
+                            dd.removeAttribute('open');
+                        }
+                    });
+                });
+                document.addEventListener('keydown', function(e) {
+                    if (e.key === 'Escape') {
+                        langDropdowns.forEach(function(dd) {
+                            dd.removeAttribute('open');
+                        });
+                    }
+                });
+            }
+
+            // Mobile menu toggle
+            const menuBtn = document.getElementById('menu-toggle');
+            const sidebar = document.querySelector('.sidebar');
+            if (menuBtn && sidebar) {
+                function setMenuOpen(open) {
+                    sidebar.classList.toggle('is-open', open);
+                    menuBtn.setAttribute('aria-expanded', open ? 'true' : 'false');
+                    document.body.classList.toggle('menu-open', open);
+                    if (open) {
+                        const menu = sidebar.querySelector('.sidebar-menu');
+                        if (menu) {
+                            menu.scrollTop = 0;
+                        }
+                    }
+                }
+
+                menuBtn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    const willOpen = !sidebar.classList.contains('is-open');
+                    setMenuOpen(willOpen);
+                });
+
+                // Close menu when clicking outside sidebar
+                document.addEventListener('click', function(e) {
+                    if (sidebar.classList.contains('is-open') && !sidebar.contains(e.target)) {
+                        setMenuOpen(false);
+                    }
+                });
+
+                // Close menu when a navigation link is clicked
+                const navLinks = sidebar.querySelectorAll('.nav-item a');
+                navLinks.forEach(function(link) {
+                    link.addEventListener('click', function() {
+                        setMenuOpen(false);
+                    });
+                });
+
+                // Close on Escape key
+                document.addEventListener('keydown', function(e) {
+                    if (e.key === 'Escape' && sidebar.classList.contains('is-open')) {
+                        setMenuOpen(false);
+                    }
+                });
+
+                // Reset menu state when resized above mobile breakpoint
+                window.addEventListener('resize', function() {
+                    if (window.innerWidth > 768 && sidebar.classList.contains('is-open')) {
+                        setMenuOpen(false);
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>

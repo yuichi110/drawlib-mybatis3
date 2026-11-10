@@ -1,0 +1,435 @@
+<!--
+ Copyright (c) 2026 Yuichi Ito (yuichi@yuichi.com)
+
+ This software is licensed under the Apache License, Version 2.0.
+ For more information, please visit: https://github.com/yuichi110/drawlib
+-->
+<!DOCTYPE html>
+<html lang="ja" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>4. Executor・L1/L2キャッシュ・Plugin — MyBatis 3 Architecture (Unofficial · PNI501 + Drawlib Demo)</title>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-S9N5BZ1VRC"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-S9N5BZ1VRC');
+    </script>
+    <script>
+        (function() {
+            const saved = localStorage.getItem('drawlib-theme');
+            if (saved === 'dark' || (!saved && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                document.documentElement.setAttribute('data-theme', 'dark');
+            } else {
+                document.documentElement.setAttribute('data-theme', 'light');
+            }
+        })();
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+    
+    
+    <link rel="alternate" hreflang="en" href="https://mybatis3.drawlib.com/architecture/en/04_executor_and_caching.html">
+    
+    <link rel="alternate" hreflang="ja" href="https://mybatis3.drawlib.com/architecture/ja/04_executor_and_caching.html">
+    
+    <link rel="alternate" hreflang="x-default" href="https://mybatis3.drawlib.com/architecture/en/04_executor_and_caching.html">
+    
+    
+    
+    <meta name="description" content="すべての SqlSession は、Configuration.newExecutor(Transaction, ExecutorType) (src/main/java/org/apache/ibatis/session/Configuration.java:743-760) が生成する…">
+    <link rel="canonical" href="https://mybatis3.drawlib.com/architecture/ja/04_executor_and_caching.html">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="MyBatis 3 内部設計">
+    <meta property="og:title" content="4. Executor・L1/L2キャッシュ・Plugin — MyBatis 3 内部設計">
+    <meta property="og:description" content="すべての SqlSession は、Configuration.newExecutor(Transaction, ExecutorType) (src/main/java/org/apache/ibatis/session/Configuration.java:743-760) が生成する…">
+    <meta property="og:url" content="https://mybatis3.drawlib.com/architecture/ja/04_executor_and_caching.html">
+    <meta property="og:image" content="https://mybatis3.drawlib.com/architecture/_assets/ogp.png">
+    <meta property="og:locale" content="ja_JP">
+    <meta property="og:locale:alternate" content="en_US">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="4. Executor・L1/L2キャッシュ・Plugin — MyBatis 3 内部設計">
+    <meta name="twitter:description" content="すべての SqlSession は、Configuration.newExecutor(Transaction, ExecutorType) (src/main/java/org/apache/ibatis/session/Configuration.java:743-760) が生成する…">
+    <meta name="twitter:image" content="https://mybatis3.drawlib.com/architecture/_assets/ogp.png">
+    
+    
+    <link rel="icon" type="image/png" href="../_assets/favicon.png">
+    
+    
+    <link rel="stylesheet" href="style.css">
+    
+    
+</head>
+<body>
+    <div class="demo-banner" role="region" aria-label="Unofficial Showcase Notice">
+        <div class="demo-banner-inner">
+            <span class="demo-banner-badge">UNOFFICIAL DEMO</span>
+            <span class="demo-banner-text">
+                
+                <a href="https://pypi.org/project/pni501/" target="_blank" rel="noopener noreferrer">PNI501</a> と <a href="https://www.drawlib.com/" target="_blank" rel="noopener noreferrer">Drawlib</a> で構築した <a href="https://mybatis.org/mybatis-3/" target="_blank" rel="noopener noreferrer">MyBatis 3</a> (v3.6.0, Apache-2.0) の非公式内部アーキテクチャ解説です。
+                
+            </span>
+            <span class="demo-banner-links">
+                <a href="https://mybatis3.drawlib.com/ja/">ユーザーガイド</a>
+                <span class="demo-banner-sep">·</span>
+                <a href="https://mybatis3.drawlib.com/api/ja/">API リファレンス</a>
+                <span class="demo-banner-sep">·</span>
+                <strong style="color:#ffffff;">アーキテクチャ</strong>
+                <span class="demo-banner-sep">·</span>
+                <a href="https://mybatis3.drawlib.com/reports/pni501/">PNI501 Audit</a>
+                <span class="demo-banner-sep">·</span>
+                <a href="https://mybatis.org/mybatis-3/" target="_blank" rel="noopener noreferrer">公式 Docs ↗</a>
+                <span class="demo-banner-sep">·</span>
+                <a href="https://github.com/yuichi110/drawlib-mybatis3" target="_blank" rel="noopener noreferrer">GitHub ↗</a>
+            </span>
+        </div>
+    </div>
+    
+    <div class="doc-layout">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <a href="index.html" class="sidebar-brand" aria-label="MyBatis 3 内部設計">
+                    
+                    MyBatis 3 内部設計
+                    
+                </a>
+                <div class="sidebar-header-actions">
+                    <button type="button" id="theme-toggle" class="theme-toggle-btn" aria-label="Toggle theme">
+                        <svg class="icon-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+                        <svg class="icon-moon" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+                    </button>
+                    <button type="button" id="menu-toggle" class="menu-toggle-btn" aria-label="Toggle navigation" aria-expanded="false">
+                        <svg class="icon-hamburger" viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+                        <svg class="icon-close" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                    </button>
+                </div>
+            </div>
+            <div class="sidebar-menu">
+                
+                    
+                        
+                        <ul class="nav-list">
+                            
+                            <li class="nav-item ">
+                                <a href="index.html" >アーキテクチャ概要</a>
+                            </li>
+                            
+                        </ul>
+                    
+                        
+                        <div class="sidebar-heading">コア内部機構</div>
+                        
+                        <ul class="nav-list">
+                            
+                            <li class="nav-item ">
+                                <a href="01_package_and_layers.html" >1. 3層パッケージ構成とShading</a>
+                            </li>
+                            
+                            <li class="nav-item ">
+                                <a href="02_bootstrap_and_builders.html" >2. 起動コンパイルとBuilder群</a>
+                            </li>
+                            
+                            <li class="nav-item ">
+                                <a href="03_mapper_proxy_engine.html" >3. MapperProxy 動的ディスパッチ</a>
+                            </li>
+                            
+                            <li class="nav-item active">
+                                <a href="04_executor_and_caching.html" >4. Executor・L1/L2キャッシュ・Plugin</a>
+                            </li>
+                            
+                            <li class="nav-item ">
+                                <a href="05_dynamic_sql_and_ognl.html" >5. 動的SQL AST と OGNL 評価</a>
+                            </li>
+                            
+                            <li class="nav-item ">
+                                <a href="06_resultset_and_reflection.html" >6. ResultSet マッピングと Reflection</a>
+                            </li>
+                            
+                        </ul>
+                    
+                        
+                        <div class="sidebar-heading">関連ポータル</div>
+                        
+                        <ul class="nav-list">
+                            
+                            <li class="nav-item ">
+                                <a href="https://mybatis3.drawlib.com/" target="_blank" rel="noopener noreferrer">ユーザーガイド ↗<svg class="nav-external-icon" viewBox="0 0 24 24" aria-hidden="true"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg></a>
+                            </li>
+                            
+                            <li class="nav-item ">
+                                <a href="https://mybatis3.drawlib.com/api/" target="_blank" rel="noopener noreferrer">API &amp; XML カタログ ↗<svg class="nav-external-icon" viewBox="0 0 24 24" aria-hidden="true"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg></a>
+                            </li>
+                            
+                            <li class="nav-item ">
+                                <a href="https://mybatis3.drawlib.com/reports/pni501/" target="_blank" rel="noopener noreferrer">PNI501 診断レポート ↗<svg class="nav-external-icon" viewBox="0 0 24 24" aria-hidden="true"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg></a>
+                            </li>
+                            
+                        </ul>
+                    
+                
+            </div>
+        </aside>
+        <div class="content-wrapper">
+            <header class="top-bar">
+                <div class="breadcrumbs">
+                    <span class="crumb">内部アーキテクチャ</span>
+                    <span class="crumb-separator">&raquo;</span>
+                    <span class="crumb active">4. Executor・L1/L2キャッシュ・Plugin</span>
+                </div>
+                
+                <div class="lang-switcher">
+                    <details class="lang-dropdown">
+                        <summary class="lang-dropdown-btn" aria-label="Select language">
+                            <svg class="lang-globe-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
+                            <span class="lang-current-label">日本語</span>
+                            <svg class="lang-caret-icon" viewBox="0 0 24 24" aria-hidden="true"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                        </summary>
+                        <div class="lang-dropdown-menu" role="menu">
+                            
+                            <a href="../en/04_executor_and_caching.html" class="lang-option" lang="en" hreflang="en" >
+                                <span>English</span>
+                                
+                            </a>
+                            
+                            <a href="04_executor_and_caching.html" class="lang-option active" lang="ja" hreflang="ja" aria-current="page">
+                                <span>日本語</span>
+                                
+                                <svg class="lang-check-icon" viewBox="0 0 24 24" aria-hidden="true"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                                
+                            </a>
+                            
+                        </div>
+                    </details>
+                </div>
+                
+            </header>
+            <main class="main-content">
+                <h1>4. Executor・L1/L2キャッシュ・Plugin</h1>
+<p>すべての <code>SqlSession</code> は、<code>Configuration.newExecutor(Transaction, ExecutorType)</code> (<code>src/main/java/org/apache/ibatis/session/Configuration.java:743-760</code>) が生成する <strong><code>org.apache.ibatis.executor.Executor</code></strong> に DB 操作を委譲します。このファクトリメソッドはわずか15行のコードで3つの GoF デザインパターンを合成しています。</p>
+<ol>
+<li><strong>Template Method パターン (<code>BaseExecutor</code>)</strong>: L1 キャッシュ（<code>PerpetualCache</code>）検索、遅延ロードキュー管理、トランザクション制御を共通実装し、実際の JDBC <code>Statement</code> 実行のみを <code>SimpleExecutor</code>・<code>ReuseExecutor</code>・<code>BatchExecutor</code> に委譲します。</li>
+<li><strong>Decorator パターン (<code>CachingExecutor</code>)</strong>: <code>cacheEnabled = true</code>（デフォルト）のとき <code>BaseExecutor</code> をラップし、<code>TransactionalCacheManager</code> による L2 名前空間キャッシュを付加します。</li>
+<li><strong>Dynamic Proxy チェーン (<code>InterceptorChain.pluginAll</code>)</strong>: <code>@Intercepts</code> アノテーションを持つプラグインを <code>Executor</code>・<code>StatementHandler</code>・<code>ParameterHandler</code>・<code>ResultSetHandler</code> に <code>Plugin.wrap()</code> で多重適用します。</li>
+</ol>
+<figure class="drawlib-image" style="text-align: center;">
+  <img src="../images/04_executor_and_caching/arch_executor_hierarchy.png" alt="04_executor_and_caching_1" />
+  <figcaption class="drawlib-caption">MyBatis 3 v3.6.0 — Executor Template Method 階層と CachingExecutor L2 デコレータ</figcaption>
+</figure>
+<details class="drawlib-code-details">
+<summary>Source Code</summary>
+<pre><code class="language-python"><span class="kn">from</span><span class="w"> </span><span class="nn">drawlib.canvas</span><span class="w"> </span><span class="kn">import</span> <span class="n">save</span><span class="p">,</span> <span class="n">setup</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">drawlib.diagrams.class_diagram</span><span class="w"> </span><span class="kn">import</span> <span class="n">ClassDiagram</span><span class="p">,</span> <span class="n">ClassNode</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">drawlib.fonts</span><span class="w"> </span><span class="kn">import</span> <span class="n">FontMonoSpace</span><span class="p">,</span> <span class="n">FontRoboto</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">drawlib.styles</span><span class="w"> </span><span class="kn">import</span> <span class="n">Colors</span><span class="p">,</span> <span class="n">Styles</span>
+
+<span class="n">setup</span><span class="p">(</span><span class="n">width</span><span class="o">=</span><span class="mi">144</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mi">76</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">150</span><span class="p">)</span>
+
+<span class="n">cd</span> <span class="o">=</span> <span class="n">ClassDiagram</span><span class="p">(</span>
+    <span class="n">width</span><span class="o">=</span><span class="mf">144.0</span><span class="p">,</span>
+    <span class="n">height</span><span class="o">=</span><span class="mf">76.0</span><span class="p">,</span>
+    <span class="n">node_style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">Neutral</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span>
+        <span class="n">shape_fill_color</span><span class="o">=</span><span class="n">Colors</span><span class="o">.</span><span class="n">White</span><span class="p">,</span>
+        <span class="n">shape_line_color</span><span class="o">=</span><span class="n">Colors</span><span class="o">.</span><span class="n">Gray6</span><span class="p">,</span>
+        <span class="n">text_color</span><span class="o">=</span><span class="n">Colors</span><span class="o">.</span><span class="n">Dark</span><span class="p">,</span>
+        <span class="n">text_font</span><span class="o">=</span><span class="n">FontMonoSpace</span><span class="o">.</span><span class="n">ROBOTO_MONO_REGULAR</span><span class="p">,</span>
+        <span class="n">text_size</span><span class="o">=</span><span class="mf">9.2</span><span class="p">,</span>
+    <span class="p">),</span>
+    <span class="n">header_style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">PrimaryNeutral</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span>
+        <span class="n">shape_line_color</span><span class="o">=</span><span class="n">Colors</span><span class="o">.</span><span class="n">Gray6</span><span class="p">,</span>
+        <span class="n">text_color</span><span class="o">=</span><span class="n">Colors</span><span class="o">.</span><span class="n">Dark</span><span class="p">,</span>
+        <span class="n">text_font</span><span class="o">=</span><span class="n">FontRoboto</span><span class="o">.</span><span class="n">ROBOTO_BOLD</span><span class="p">,</span>
+        <span class="n">text_size</span><span class="o">=</span><span class="mf">9.8</span><span class="p">,</span>
+    <span class="p">),</span>
+    <span class="n">edge_style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">Dark</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="n">line_width</span><span class="o">=</span><span class="mf">1.4</span><span class="p">),</span>
+    <span class="n">edge_text_style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">DarkBold</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="n">text_font</span><span class="o">=</span><span class="n">FontRoboto</span><span class="o">.</span><span class="n">ROBOTO_BOLD</span><span class="p">,</span> <span class="n">text_size</span><span class="o">=</span><span class="mf">9.2</span><span class="p">),</span>
+<span class="p">)</span>
+
+<span class="n">hero_hdr</span> <span class="o">=</span> <span class="n">Styles</span><span class="o">.</span><span class="n">PrimaryFlat</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="n">text_color</span><span class="o">=</span><span class="n">Colors</span><span class="o">.</span><span class="n">White</span><span class="p">,</span> <span class="n">text_font</span><span class="o">=</span><span class="n">FontRoboto</span><span class="o">.</span><span class="n">ROBOTO_BOLD</span><span class="p">,</span> <span class="n">text_size</span><span class="o">=</span><span class="mf">9.8</span><span class="p">)</span>
+<span class="n">sec_hdr</span> <span class="o">=</span> <span class="n">Styles</span><span class="o">.</span><span class="n">SecondaryNeutral</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="n">shape_line_color</span><span class="o">=</span><span class="n">Colors</span><span class="o">.</span><span class="n">Gray6</span><span class="p">,</span> <span class="n">text_color</span><span class="o">=</span><span class="n">Colors</span><span class="o">.</span><span class="n">Dark</span><span class="p">,</span> <span class="n">text_font</span><span class="o">=</span><span class="n">FontRoboto</span><span class="o">.</span><span class="n">ROBOTO_BOLD</span><span class="p">,</span> <span class="n">text_size</span><span class="o">=</span><span class="mf">9.8</span><span class="p">)</span>
+
+<span class="n">n_exec</span> <span class="o">=</span> <span class="n">cd</span><span class="o">.</span><span class="n">add</span><span class="p">(</span>
+    <span class="n">ClassNode</span><span class="p">(</span><span class="s2">"Executor"</span><span class="p">,</span> <span class="n">stereotype</span><span class="o">=</span><span class="s2">"interface"</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mf">42.0</span><span class="p">,</span> <span class="n">header_style</span><span class="o">=</span><span class="n">hero_hdr</span><span class="p">)</span>
+    <span class="o">.</span><span class="n">add_method</span><span class="p">(</span><span class="s2">"query / update"</span><span class="p">,</span> <span class="s2">"ms, param, ..."</span><span class="p">,</span> <span class="s2">"List&lt;E&gt; / int"</span><span class="p">)</span>
+    <span class="o">.</span><span class="n">add_method</span><span class="p">(</span><span class="s2">"commit / rollback"</span><span class="p">,</span> <span class="s2">"required"</span><span class="p">,</span> <span class="s2">"void"</span><span class="p">),</span>
+    <span class="n">xy</span><span class="o">=</span><span class="p">(</span><span class="mf">72.0</span><span class="p">,</span> <span class="mf">62.0</span><span class="p">),</span>
+<span class="p">)</span>
+
+<span class="n">n_cache_exec</span> <span class="o">=</span> <span class="n">cd</span><span class="o">.</span><span class="n">add</span><span class="p">(</span>
+    <span class="n">ClassNode</span><span class="p">(</span><span class="s2">"CachingExecutor  [L2 Decorator]"</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mf">44.0</span><span class="p">,</span> <span class="n">header_style</span><span class="o">=</span><span class="n">sec_hdr</span><span class="p">)</span>
+    <span class="o">.</span><span class="n">add_attribute</span><span class="p">(</span><span class="s2">"delegate"</span><span class="p">,</span> <span class="s2">"Executor"</span><span class="p">)</span>
+    <span class="o">.</span><span class="n">add_attribute</span><span class="p">(</span><span class="s2">"tcm"</span><span class="p">,</span> <span class="s2">"TransactionalCacheManager"</span><span class="p">)</span>
+    <span class="o">.</span><span class="n">add_method</span><span class="p">(</span><span class="s2">"query (checks L2 Cache)"</span><span class="p">,</span> <span class="s2">"ms, key"</span><span class="p">,</span> <span class="s2">"List&lt;E&gt;"</span><span class="p">),</span>
+    <span class="n">xy</span><span class="o">=</span><span class="p">(</span><span class="mf">28.0</span><span class="p">,</span> <span class="mf">38.0</span><span class="p">),</span>
+<span class="p">)</span>
+
+<span class="n">n_base_exec</span> <span class="o">=</span> <span class="n">cd</span><span class="o">.</span><span class="n">add</span><span class="p">(</span>
+    <span class="n">ClassNode</span><span class="p">(</span><span class="s2">"BaseExecutor  [L1 Template]"</span><span class="p">,</span> <span class="n">stereotype</span><span class="o">=</span><span class="s2">"abstract"</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mf">44.0</span><span class="p">,</span> <span class="n">header_style</span><span class="o">=</span><span class="n">sec_hdr</span><span class="p">)</span>
+    <span class="o">.</span><span class="n">add_attribute</span><span class="p">(</span><span class="s2">"localCache"</span><span class="p">,</span> <span class="s2">"PerpetualCache (L1)"</span><span class="p">)</span>
+    <span class="o">.</span><span class="n">add_method</span><span class="p">(</span><span class="s2">"doQuery / doUpdate"</span><span class="p">,</span> <span class="s2">"abstract"</span><span class="p">,</span> <span class="s2">"List&lt;E&gt; / int"</span><span class="p">),</span>
+    <span class="n">xy</span><span class="o">=</span><span class="p">(</span><span class="mf">110.0</span><span class="p">,</span> <span class="mf">38.0</span><span class="p">),</span>
+<span class="p">)</span>
+
+<span class="n">n_simple</span> <span class="o">=</span> <span class="n">cd</span><span class="o">.</span><span class="n">add</span><span class="p">(</span>
+    <span class="n">ClassNode</span><span class="p">(</span><span class="s2">"SimpleExecutor"</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mf">36.0</span><span class="p">)</span>
+    <span class="o">.</span><span class="n">add_method</span><span class="p">(</span><span class="s2">"doQuery (new Statement)"</span><span class="p">,</span> <span class="s2">""</span><span class="p">,</span> <span class="s2">"List&lt;E&gt;"</span><span class="p">),</span>
+    <span class="n">xy</span><span class="o">=</span><span class="p">(</span><span class="mf">36.0</span><span class="p">,</span> <span class="mf">12.0</span><span class="p">),</span>
+<span class="p">)</span>
+<span class="n">n_reuse</span> <span class="o">=</span> <span class="n">cd</span><span class="o">.</span><span class="n">add</span><span class="p">(</span>
+    <span class="n">ClassNode</span><span class="p">(</span><span class="s2">"ReuseExecutor"</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mf">38.0</span><span class="p">)</span>
+    <span class="o">.</span><span class="n">add_attribute</span><span class="p">(</span><span class="s2">"statementMap"</span><span class="p">,</span> <span class="s2">"Map&lt;String, Stmt&gt;"</span><span class="p">)</span>
+    <span class="o">.</span><span class="n">add_method</span><span class="p">(</span><span class="s2">"doQuery (reuses SQL)"</span><span class="p">,</span> <span class="s2">""</span><span class="p">,</span> <span class="s2">"List&lt;E&gt;"</span><span class="p">),</span>
+    <span class="n">xy</span><span class="o">=</span><span class="p">(</span><span class="mf">82.0</span><span class="p">,</span> <span class="mf">12.0</span><span class="p">),</span>
+<span class="p">)</span>
+<span class="n">n_batch</span> <span class="o">=</span> <span class="n">cd</span><span class="o">.</span><span class="n">add</span><span class="p">(</span>
+    <span class="n">ClassNode</span><span class="p">(</span><span class="s2">"BatchExecutor"</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mf">38.0</span><span class="p">)</span>
+    <span class="o">.</span><span class="n">add_attribute</span><span class="p">(</span><span class="s2">"statementList"</span><span class="p">,</span> <span class="s2">"List&lt;Statement&gt;"</span><span class="p">)</span>
+    <span class="o">.</span><span class="n">add_method</span><span class="p">(</span><span class="s2">"doFlushStatements"</span><span class="p">,</span> <span class="s2">""</span><span class="p">,</span> <span class="s2">"List&lt;BatchResult&gt;"</span><span class="p">),</span>
+    <span class="n">xy</span><span class="o">=</span><span class="p">(</span><span class="mf">124.0</span><span class="p">,</span> <span class="mf">12.0</span><span class="p">),</span>
+<span class="p">)</span>
+
+<span class="n">cd</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">n_cache_exec</span><span class="p">,</span> <span class="n">n_exec</span><span class="p">,</span> <span class="s2">"realization"</span><span class="p">,</span> <span class="n">start_side</span><span class="o">=</span><span class="s2">"top"</span><span class="p">,</span> <span class="n">end_side</span><span class="o">=</span><span class="s2">"left"</span><span class="p">)</span>
+<span class="n">cd</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">n_base_exec</span><span class="p">,</span> <span class="n">n_exec</span><span class="p">,</span> <span class="s2">"realization"</span><span class="p">,</span> <span class="n">start_side</span><span class="o">=</span><span class="s2">"top"</span><span class="p">,</span> <span class="n">end_side</span><span class="o">=</span><span class="s2">"right"</span><span class="p">)</span>
+<span class="n">cd</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">n_cache_exec</span><span class="p">,</span> <span class="n">n_base_exec</span><span class="p">,</span> <span class="s2">"association"</span><span class="p">,</span> <span class="n">directed</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">start_side</span><span class="o">=</span><span class="s2">"right"</span><span class="p">,</span> <span class="n">end_side</span><span class="o">=</span><span class="s2">"left"</span><span class="p">)</span>
+<span class="n">cd</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">n_simple</span><span class="p">,</span> <span class="n">n_base_exec</span><span class="p">,</span> <span class="s2">"inheritance"</span><span class="p">,</span> <span class="n">start_side</span><span class="o">=</span><span class="s2">"top"</span><span class="p">,</span> <span class="n">end_side</span><span class="o">=</span><span class="s2">"bottom"</span><span class="p">)</span>
+<span class="n">cd</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">n_reuse</span><span class="p">,</span> <span class="n">n_base_exec</span><span class="p">,</span> <span class="s2">"inheritance"</span><span class="p">,</span> <span class="n">start_side</span><span class="o">=</span><span class="s2">"top"</span><span class="p">,</span> <span class="n">end_side</span><span class="o">=</span><span class="s2">"bottom"</span><span class="p">)</span>
+<span class="n">cd</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">n_batch</span><span class="p">,</span> <span class="n">n_base_exec</span><span class="p">,</span> <span class="s2">"inheritance"</span><span class="p">,</span> <span class="n">start_side</span><span class="o">=</span><span class="s2">"top"</span><span class="p">,</span> <span class="n">end_side</span><span class="o">=</span><span class="s2">"bottom"</span><span class="p">)</span>
+
+<span class="n">cd</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="n">xy</span><span class="o">=</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">))</span>
+<span class="n">save</span><span class="p">()</span>
+</code></pre>
+</details>
+<hr />
+<h2>2階層キャッシュの動作原理 (<code>L2 TransactionalCache</code> -&gt; <code>L1 PerpetualCache</code> -&gt; JDBC)</h2>
+<p><code>CachingExecutor.query()</code> (<code>src/main/java/org/apache/ibatis/executor/CachingExecutor.java:86-122</code>) の実行フローは以下の通りです。</p>
+<ol>
+<li><strong><code>CacheKey</code> の生成</strong>: <code>BaseExecutor.createCacheKey()</code> が <code>[mappedStatement.id, rowBounds.offset, rowBounds.limit, boundSql.sql, パラメータ値群, environment.id]</code> から複合ハッシュキーを生成します。</li>
+<li><strong>L2 名前空間キャッシュ検索 (<code>TransactionalCacheManager</code>)</strong>:
+<ul>
+<li><code>&lt;cache/&gt;</code> または <code>@CacheNamespace</code> が有効な場合、<code>TransactionalCacheManager.getObject(cache, key)</code> を検索します。</li>
+<li><strong>トランザクション分離の要諦</strong>: L2 キャッシュへの書き込みはセッション固有の <code>TransactionalCache</code>（<code>entriesToAddOnCommit</code> バッファ）に一旦ステージングされ、<strong><code>sqlSession.commit()</code> が成功した時点でのみ共有 L2 キャッシュ（<code>SynchronizedCache -&gt; LoggingCache -&gt; SerializedCache -&gt; LruCache -&gt; PerpetualCache</code>）へ反映</strong>されます。これにより未コミットデータの Dirty Read が完全に防がれます。</li>
+<li>また、<code>SerializedCache</code> および遅延ローダ <code>AbstractSerialStateHolder</code> がデシリアライズを行う際（<code>CWE-502</code>）には、直前で <code>SerialFilterChecker.check()</code> を呼び出して JEP-290 <code>jdk.serialFilter</code> の設定有無を検証します。</li>
+</ul>
+</li>
+<li><strong>L1 ローカルキャッシュ検索 (<code>BaseExecutor.localCache</code>)</strong>:
+<ul>
+<li>L2 ミス時は <code>BaseExecutor.localCache</code> (<code>PerpetualCache</code>) を検索します。</li>
+<li>デフォルトの <code>localCacheScope = SESSION</code> では同一 <code>SqlSession</code> 内の同一クエリ結果を返しますが、<code>localCacheScope = STATEMENT</code> に設定するとステートメント完了ごとにクリアされます（Spring 連携環境やマルチインスタンス環境で推奨）。</li>
+</ul>
+</li>
+</ol>
+<figure class="drawlib-image" style="text-align: center;">
+  <img src="../images/04_executor_and_caching/arch_cache_and_plugin_flow.png" alt="04_executor_and_caching_2" />
+  <figcaption class="drawlib-caption">MyBatis 3 v3.6.0 — L2 TransactionalCache ステージング、L1 キャッシュ、および Plugin.wrap() インターセプト連鎖</figcaption>
+</figure>
+<details class="drawlib-code-details">
+<summary>Source Code</summary>
+<pre><code class="language-python"><span class="kn">from</span><span class="w"> </span><span class="nn">drawlib.canvas</span><span class="w"> </span><span class="kn">import</span> <span class="n">save</span><span class="p">,</span> <span class="n">setup</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">drawlib.diagrams.sequence</span><span class="w"> </span><span class="kn">import</span> <span class="n">Participant</span><span class="p">,</span> <span class="n">PhosphorIcon</span><span class="p">,</span> <span class="n">SequenceDiagram</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">drawlib.styles</span><span class="w"> </span><span class="kn">import</span> <span class="n">Styles</span>
+
+<span class="n">setup</span><span class="p">(</span><span class="n">width</span><span class="o">=</span><span class="mi">144</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mi">66</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">150</span><span class="p">)</span>
+
+<span class="n">sd</span> <span class="o">=</span> <span class="n">SequenceDiagram</span><span class="p">(</span>
+    <span class="n">node_style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">Dark</span><span class="p">,</span>
+    <span class="n">node_text_style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">DarkBold</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="n">text_size</span><span class="o">=</span><span class="mf">9.6</span><span class="p">),</span>
+    <span class="n">edge_style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">Dark</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="n">line_width</span><span class="o">=</span><span class="mf">1.4</span><span class="p">),</span>
+    <span class="n">edge_text_style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">Dark</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="n">text_size</span><span class="o">=</span><span class="mf">9.2</span><span class="p">),</span>
+    <span class="n">node_card_style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">Neutral</span><span class="p">,</span>
+    <span class="n">col_width</span><span class="o">=</span><span class="mf">34.0</span><span class="p">,</span>
+    <span class="n">step_y</span><span class="o">=</span><span class="mf">6.8</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">p_plugin</span> <span class="o">=</span> <span class="n">sd</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">Participant</span><span class="p">(</span><span class="s2">"Plugin Proxy"</span><span class="p">,</span> <span class="n">icon</span><span class="o">=</span><span class="n">PhosphorIcon</span><span class="o">.</span><span class="n">PLUGS</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">26</span><span class="p">,</span> <span class="n">card_style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">SecondaryNeutral</span><span class="p">))</span>
+<span class="n">p_c_exec</span> <span class="o">=</span> <span class="n">sd</span><span class="o">.</span><span class="n">add</span><span class="p">(</span>
+    <span class="n">Participant</span><span class="p">(</span>
+        <span class="s2">"CachingExecutor"</span><span class="p">,</span>
+        <span class="n">icon</span><span class="o">=</span><span class="n">PhosphorIcon</span><span class="o">.</span><span class="n">STACK</span><span class="p">,</span>
+        <span class="n">width</span><span class="o">=</span><span class="mi">26</span><span class="p">,</span>
+        <span class="n">style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">White</span><span class="p">,</span>
+        <span class="n">text_style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">WhiteBold</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="n">text_size</span><span class="o">=</span><span class="mf">9.6</span><span class="p">),</span>
+        <span class="n">card_style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">PrimaryFlat</span><span class="p">,</span>
+    <span class="p">)</span>
+<span class="p">)</span>
+<span class="n">p_b_exec</span> <span class="o">=</span> <span class="n">sd</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">Participant</span><span class="p">(</span><span class="s2">"BaseExecutor (L1)"</span><span class="p">,</span> <span class="n">icon</span><span class="o">=</span><span class="n">PhosphorIcon</span><span class="o">.</span><span class="n">LIGHTNING</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">26</span><span class="p">,</span> <span class="n">card_style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">PrimaryNeutral</span><span class="p">))</span>
+<span class="n">p_stmt</span> <span class="o">=</span> <span class="n">sd</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">Participant</span><span class="p">(</span><span class="s2">"StatementHandler"</span><span class="p">,</span> <span class="n">icon</span><span class="o">=</span><span class="n">PhosphorIcon</span><span class="o">.</span><span class="n">DATABASE</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">26</span><span class="p">,</span> <span class="n">card_style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">Neutral</span><span class="p">))</span>
+
+<span class="n">p_plugin</span><span class="o">.</span><span class="n">request</span><span class="p">(</span><span class="n">p_c_exec</span><span class="p">,</span> <span class="s2">"intercept -&gt; query(ms, param)"</span><span class="p">)</span>
+<span class="n">p_c_exec</span><span class="o">.</span><span class="n">request</span><span class="p">(</span><span class="n">p_b_exec</span><span class="p">,</span> <span class="s2">"L2 Miss -&gt; delegate.query()"</span><span class="p">)</span>
+<span class="n">p_b_exec</span><span class="o">.</span><span class="n">request</span><span class="p">(</span><span class="n">p_stmt</span><span class="p">,</span> <span class="s2">"L1 Miss -&gt; prepare &amp; query()"</span><span class="p">)</span>
+<span class="n">p_stmt</span><span class="o">.</span><span class="n">reply</span><span class="p">(</span><span class="n">p_b_exec</span><span class="p">,</span> <span class="s2">"List&lt;E&gt; hydrated rows"</span><span class="p">)</span>
+<span class="n">p_b_exec</span><span class="o">.</span><span class="n">reply</span><span class="p">(</span><span class="n">p_c_exec</span><span class="p">,</span> <span class="s2">"stage in TransactionalCache"</span><span class="p">)</span>
+<span class="n">p_c_exec</span><span class="o">.</span><span class="n">reply</span><span class="p">(</span><span class="n">p_plugin</span><span class="p">,</span> <span class="s2">"commit() flushes to L2 Cache"</span><span class="p">)</span>
+
+<span class="n">sd</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="n">xy</span><span class="o">=</span><span class="p">(</span><span class="mi">72</span><span class="p">,</span> <span class="mi">33</span><span class="p">),</span> <span class="n">align</span><span class="o">=</span><span class="s2">"center"</span><span class="p">)</span>
+<span class="n">save</span><span class="p">()</span>
+</code></pre>
+</details>
+<hr />
+<h2><code>Plugin.wrap()</code> による4大パイプライン・インターセプト</h2>
+<p><code>org.apache.ibatis.plugin.*</code> パッケージは、パイプラインを構成する以下4つのインターフェースに対する宣言的インターセプト機構を提供します。</p>
+<ul>
+<li><code>Executor</code> (<code>update</code>, <code>query</code>, <code>flushStatements</code>, <code>commit</code>, <code>rollback</code>, <code>getTransaction</code>, <code>close</code>, <code>isClosed</code>)</li>
+<li><code>ParameterHandler</code> (<code>getParameterObject</code>, <code>setParameters</code>)</li>
+<li><code>ResultSetHandler</code> (<code>handleResultSets</code>, <code>handleCursorResultSets</code>, <code>handleOutputParameters</code>)</li>
+<li><code>StatementHandler</code> (<code>prepare</code>, <code>parameterize</code>, <code>batch</code>, <code>update</code>, <code>query</code>, <code>queryCursor</code>)</li>
+</ul>
+<p><code>Configuration</code> がこれら4種のオブジェクトを生成する際、<code>interceptorChain.pluginAll(target)</code> が呼ばれます。<code>Plugin.wrap(target, interceptor)</code> は <code>@Intercepts({@Signature(type=..., method=..., args=...)})</code> アノテーションを解析し、対象インターフェースに一致する場合のみ JDK 動的プロキシでラップします。</p>
+
+            </main>
+        </div>
+    </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const themeBtn = document.getElementById('theme-toggle');
+            if (themeBtn) {
+                themeBtn.addEventListener('click', function() {
+                    const current = document.documentElement.getAttribute('data-theme');
+                    const next = current === 'dark' ? 'light' : 'dark';
+                    document.documentElement.setAttribute('data-theme', next);
+                    localStorage.setItem('drawlib-theme', next);
+                });
+            }
+            const langDropdowns = document.querySelectorAll('.lang-dropdown');
+            if (langDropdowns.length > 0) {
+                document.addEventListener('click', function(e) {
+                    langDropdowns.forEach(function(dd) {
+                        if (dd.hasAttribute('open') && !dd.contains(e.target)) {
+                            dd.removeAttribute('open');
+                        }
+                    });
+                });
+                document.addEventListener('keydown', function(e) {
+                    if (e.key === 'Escape') {
+                        langDropdowns.forEach(function(dd) {
+                            dd.removeAttribute('open');
+                        });
+                    }
+                });
+            }
+            const menuBtn = document.getElementById('menu-toggle');
+            const sidebar = document.querySelector('.sidebar');
+            if (menuBtn && sidebar) {
+                function setMenuOpen(open) {
+                    sidebar.classList.toggle('is-open', open);
+                    menuBtn.setAttribute('aria-expanded', open ? 'true' : 'false');
+                    document.body.classList.toggle('menu-open', open);
+                }
+                menuBtn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    setMenuOpen(!sidebar.classList.contains('is-open'));
+                });
+                document.addEventListener('click', function(e) {
+                    if (sidebar.classList.contains('is-open') && !sidebar.contains(e.target)) {
+                        setMenuOpen(false);
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>

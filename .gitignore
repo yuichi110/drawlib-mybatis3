@@ -218,3 +218,26 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# Java / Maven / Derby test artifacts
+/*.iml
+/*.ipr
+/*.iws
+/.classpath
+/.factorypath
+/.idea
+/.project
+/.settings
+/nb*
+/release.properties
+/target
+/ibderby
+derby.log
+/bin/
+.mvn/wrapper/maven-wrapper.jar
+.sts4-cache/
+*.releaseBackup
+
+# Drawlib & PNI501 caches
+.drawlib/
+.pni/cache/

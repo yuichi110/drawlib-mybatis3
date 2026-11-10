@@ -1,0 +1,565 @@
+<!--
+ Copyright (c) 2026 Yuichi Ito (yuichi@yuichi.com)
+
+ This software is licensed under the Apache License, Version 2.0.
+ For more information, please visit: https://github.com/yuichi110/drawlib
+
+ This software is provided "as is", without warranty of any kind,
+ express or implied, including but not limited to the warranties of
+ merchantability, fitness for a particular purpose and noninfringement.
+-->
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MyBatis 3 User Guide &amp; Visual Documentation Suite — MyBatis 3 User Guide (Unofficial · PNI501 + Drawlib Demo)</title>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-S9N5BZ1VRC"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-S9N5BZ1VRC');
+    </script>
+    <script>
+        (function() {
+            const saved = localStorage.getItem('drawlib-theme');
+            if (saved === 'dark' || (!saved && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                document.documentElement.setAttribute('data-theme', 'dark');
+            } else {
+                document.documentElement.setAttribute('data-theme', 'light');
+            }
+        })();
+    </script>
+    
+    
+    
+    <link rel="alternate" hreflang="en" href="https://mybatis3.drawlib.com/en/">
+    
+    <link rel="alternate" hreflang="ja" href="https://mybatis3.drawlib.com/ja/">
+    
+    <link rel="alternate" hreflang="x-default" href="https://mybatis3.drawlib.com/">
+    
+    
+    
+    <meta name="description" content="Comprehensive bilingual user guide for Java MyBatis 3 (v3.6.0) — XML &amp; Annotation mappers, dynamic SQL, result mapping, caching, transactions, TypeHandlers…">
+    <link rel="canonical" href="https://mybatis3.drawlib.com/">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="MyBatis 3 User Guide">
+    <meta property="og:title" content="MyBatis 3 User Guide &amp; Visual Documentation Suite">
+    <meta property="og:description" content="Comprehensive bilingual user guide for Java MyBatis 3 (v3.6.0) — XML &amp; Annotation mappers, dynamic SQL, result mapping, caching, transactions, TypeHandlers…">
+    <meta property="og:url" content="https://mybatis3.drawlib.com/">
+    <meta property="og:image" content="https://mybatis3.drawlib.com/_assets/ogp.png">
+    <meta property="og:locale" content="en_US">
+    <meta property="og:locale:alternate" content="ja_JP">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="MyBatis 3 User Guide &amp; Visual Documentation Suite">
+    <meta name="twitter:description" content="Comprehensive bilingual user guide for Java MyBatis 3 (v3.6.0) — XML &amp; Annotation mappers, dynamic SQL, result mapping, caching, transactions, TypeHandlers…">
+    <meta name="twitter:image" content="https://mybatis3.drawlib.com/_assets/ogp.png">
+    
+    
+    <link rel="icon" type="image/png" href="_assets/favicon.png">
+    
+    
+    <link rel="stylesheet" href="en/style.css">
+    
+    
+</head>
+<body>
+    <div class="demo-banner" role="region" aria-label="Unofficial Showcase Notice">
+        <div class="demo-banner-inner">
+            <span class="demo-banner-badge">UNOFFICIAL DEMO</span>
+            <span class="demo-banner-text">
+                
+                Unofficial visual user guide for <a href="https://mybatis.org/mybatis-3/" target="_blank" rel="noopener noreferrer">MyBatis 3</a> (v3.6.0, Apache-2.0) built with <a href="https://pypi.org/project/pni501/" target="_blank" rel="noopener noreferrer">PNI501</a> &amp; <a href="https://www.drawlib.com/" target="_blank" rel="noopener noreferrer">Drawlib</a>.
+                
+            </span>
+            <span class="demo-banner-links">
+                <strong style="color:#ffffff;">User Guide</strong>
+                <span class="demo-banner-sep">·</span>
+                <a href="https://mybatis3.drawlib.com/api/">API Reference</a>
+                <span class="demo-banner-sep">·</span>
+                <a href="https://mybatis3.drawlib.com/architecture/">Architecture</a>
+                <span class="demo-banner-sep">·</span>
+                <a href="https://mybatis3.drawlib.com/reports/pni501/">PNI501 Audit</a>
+                <span class="demo-banner-sep">·</span>
+                <a href="https://mybatis.org/mybatis-3/" target="_blank" rel="noopener noreferrer">Official Docs ↗</a>
+                <span class="demo-banner-sep">·</span>
+                <a href="https://github.com/yuichi110/drawlib-mybatis3" target="_blank" rel="noopener noreferrer">GitHub ↗</a>
+            </span>
+        </div>
+    </div>
+    
+    <div class="doc-layout">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <a href="index.html" class="sidebar-brand" aria-label="drawlib">
+                    
+                    drawlib
+                    
+                </a>
+                <div class="sidebar-header-actions">
+                    <button type="button" id="theme-toggle" class="theme-toggle-btn" aria-label="Toggle theme">
+                        <svg class="icon-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+                        <svg class="icon-moon" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+                    </button>
+                    <button type="button" id="menu-toggle" class="menu-toggle-btn" aria-label="Toggle navigation" aria-expanded="false">
+                        <svg class="icon-hamburger" viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+                        <svg class="icon-close" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                    </button>
+                </div>
+            </div>
+            <div class="sidebar-menu">
+                
+                    
+                        
+                        <div class="sidebar-heading">Getting Started</div>
+                        
+                        <ul class="nav-list">
+                            
+                            <li class="nav-item active">
+                                <a href="en/index.html" >Overview &amp; Quickstart</a>
+                            </li>
+                            
+                            <li class="nav-item ">
+                                <a href="en/01_getting_started.html" >1. Installation &amp; SqlSession Lifecycle</a>
+                            </li>
+                            
+                            <li class="nav-item ">
+                                <a href="en/02_xml_configuration.html" >2. XML Configuration (mybatis-config.xml)</a>
+                            </li>
+                            
+                        </ul>
+                    
+                        
+                        <div class="sidebar-heading">SQL Mapping &amp; Dynamic Queries</div>
+                        
+                        <ul class="nav-list">
+                            
+                            <li class="nav-item ">
+                                <a href="en/03_mapper_xml_and_sql.html" >3. Mapper XML &amp; SQL Statements</a>
+                            </li>
+                            
+                            <li class="nav-item ">
+                                <a href="en/04_result_maps_and_associations.html" >4. ResultMaps, Records &amp; Associations</a>
+                            </li>
+                            
+                            <li class="nav-item ">
+                                <a href="en/05_dynamic_sql.html" >5. Dynamic SQL &amp; OGNL Tags</a>
+                            </li>
+                            
+                            <li class="nav-item ">
+                                <a href="en/06_java_annotations_and_sql_builder.html" >6. Java Annotations &amp; SQL Builder</a>
+                            </li>
+                            
+                        </ul>
+                    
+                        
+                        <div class="sidebar-heading">Runtime, SPIs &amp; Operations</div>
+                        
+                        <ul class="nav-list">
+                            
+                            <li class="nav-item ">
+                                <a href="en/07_caching_and_transactions.html" >7. L1/L2 Caching, Transactions &amp; Batching</a>
+                            </li>
+                            
+                            <li class="nav-item ">
+                                <a href="en/08_typehandlers_plugins_and_testing.html" >8. TypeHandlers, Plugins &amp; Testing</a>
+                            </li>
+                            
+                        </ul>
+                    
+                        
+                        <div class="sidebar-heading">Companion Portals</div>
+                        
+                        <ul class="nav-list">
+                            
+                            <li class="nav-item ">
+                                <a href="https://mybatis3.drawlib.com/api/" target="_blank" rel="noopener noreferrer">API &amp; XML Reference Catalog<svg class="nav-external-icon" viewBox="0 0 24 24" aria-hidden="true"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg></a>
+                            </li>
+                            
+                            <li class="nav-item ">
+                                <a href="https://mybatis3.drawlib.com/architecture/" target="_blank" rel="noopener noreferrer">Internal Architecture Guide<svg class="nav-external-icon" viewBox="0 0 24 24" aria-hidden="true"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg></a>
+                            </li>
+                            
+                            <li class="nav-item ">
+                                <a href="https://mybatis3.drawlib.com/reports/pni501/" target="_blank" rel="noopener noreferrer">PNI501 Diagnostic Report<svg class="nav-external-icon" viewBox="0 0 24 24" aria-hidden="true"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg></a>
+                            </li>
+                            
+                        </ul>
+                    
+                
+            </div>
+        </aside>
+        <div class="content-wrapper">
+            <header class="top-bar">
+                <div class="breadcrumbs">
+                    <span class="crumb">Docs</span>
+                    <span class="crumb-separator">&raquo;</span>
+                    <span class="crumb active">MyBatis 3 User Guide &amp; Visual Documentation Suite</span>
+                </div>
+                
+                <div class="lang-switcher">
+                    <details class="lang-dropdown">
+                        <summary class="lang-dropdown-btn" aria-label="Select language">
+                            <svg class="lang-globe-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
+                            <span class="lang-current-label">English</span>
+                            <svg class="lang-caret-icon" viewBox="0 0 24 24" aria-hidden="true"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                        </summary>
+                        <div class="lang-dropdown-menu" role="menu">
+                            
+                            <a href="en/index.html" class="lang-option active" lang="en" hreflang="en" aria-current="page">
+                                <span>English</span>
+                                
+                                <svg class="lang-check-icon" viewBox="0 0 24 24" aria-hidden="true"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                                
+                            </a>
+                            
+                            <a href="ja/index.html" class="lang-option" lang="ja" hreflang="ja" >
+                                <span>日本語</span>
+                                
+                            </a>
+                            
+                        </div>
+                    </details>
+                </div>
+                
+            </header>
+            <main class="main-content">
+                <h1>MyBatis 3 User Guide &amp; Visual Documentation Suite</h1>
+<p>Welcome to the unofficial visual documentation and engineering suite for <strong><a href="https://mybatis.org/mybatis-3/">MyBatis 3</a> (<code>v3.6.0</code>)</strong>—the premier SQL-first persistence framework for Java—built with <strong><a href="https://pypi.org/project/pni501/">PNI501</a></strong> and <strong><a href="https://www.drawlib.com/">Drawlib</a></strong>.</p>
+<p>Unlike monolithic Object-Relational Mappers (ORMs) that hide SQL behind opaque object-graph query languages, <strong>MyBatis couples Java methods directly to hand-crafted SQL statements</strong> via XML or Java annotations, while eliminating nearly 100% of raw JDBC <code>PreparedStatement</code> binding and <code>ResultSet</code> extraction boilerplate.</p>
+<figure class="drawlib-image" style="text-align: center;">
+  <img src="images/index/ug_index_overview.png" alt="index_1" />
+  <figcaption class="drawlib-caption">MyBatis 3 v3.6.0 — End-to-End SQL Mapping Workflow (Java Interface -> BoundSql -> JDBC -> Domain Record)</figcaption>
+</figure>
+<details class="drawlib-code-details">
+<summary>Source Code</summary>
+<pre><code class="language-python"><span class="kn">from</span><span class="w"> </span><span class="nn">drawlib.canvas</span><span class="w"> </span><span class="kn">import</span> <span class="n">save</span><span class="p">,</span> <span class="n">setup</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">drawlib.diagrams.architecture</span><span class="w"> </span><span class="kn">import</span> <span class="n">ArchitectureDiagram</span><span class="p">,</span> <span class="n">Node</span><span class="p">,</span> <span class="n">NodeGroup</span><span class="p">,</span> <span class="n">PhosphorIcon</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">drawlib.styles</span><span class="w"> </span><span class="kn">import</span> <span class="n">Colors</span><span class="p">,</span> <span class="n">Styles</span>
+
+<span class="n">setup</span><span class="p">(</span><span class="n">width</span><span class="o">=</span><span class="mi">144</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mi">54</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">150</span><span class="p">)</span>
+
+<span class="n">d</span> <span class="o">=</span> <span class="n">ArchitectureDiagram</span><span class="p">(</span>
+    <span class="n">node_style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">Dark</span><span class="p">,</span>
+    <span class="n">node_text_style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">DarkBold</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="n">text_size</span><span class="o">=</span><span class="mf">9.5</span><span class="p">),</span>
+    <span class="n">edge_style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">Dark</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="n">line_width</span><span class="o">=</span><span class="mf">1.5</span><span class="p">),</span>
+    <span class="n">edge_text_style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">DarkBold</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="n">text_size</span><span class="o">=</span><span class="mf">9.0</span><span class="p">),</span>
+    <span class="n">node_card_style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">Neutral</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="n">shape_fill_color</span><span class="o">=</span><span class="n">Colors</span><span class="o">.</span><span class="n">White</span><span class="p">),</span>
+<span class="p">)</span>
+
+<span class="n">app</span> <span class="o">=</span> <span class="n">d</span><span class="o">.</span><span class="n">add</span><span class="p">(</span>
+    <span class="n">NodeGroup</span><span class="p">(</span>
+        <span class="s2">"1. Application Layer"</span><span class="p">,</span>
+        <span class="n">width</span><span class="o">=</span><span class="mi">36</span><span class="p">,</span>
+        <span class="n">height</span><span class="o">=</span><span class="mi">44</span><span class="p">,</span>
+        <span class="n">style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">PrimaryNeutral</span><span class="p">,</span>
+        <span class="n">text_style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">DarkBold</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="n">text_size</span><span class="o">=</span><span class="mf">10.2</span><span class="p">,</span> <span class="n">halign</span><span class="o">=</span><span class="s2">"left"</span><span class="p">,</span> <span class="n">valign</span><span class="o">=</span><span class="s2">"top"</span><span class="p">),</span>
+    <span class="p">),</span>
+    <span class="n">xy</span><span class="o">=</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">),</span>
+<span class="p">)</span>
+<span class="n">n_if</span> <span class="o">=</span> <span class="n">app</span><span class="o">.</span><span class="n">add</span><span class="p">(</span>
+    <span class="n">Node</span><span class="p">(</span>
+        <span class="s2">"AuthorMapper</span><span class="se">\n</span><span class="s2">(Java Interface)"</span><span class="p">,</span>
+        <span class="n">icon</span><span class="o">=</span><span class="n">PhosphorIcon</span><span class="o">.</span><span class="n">CODE</span><span class="p">,</span>
+        <span class="n">width</span><span class="o">=</span><span class="mi">28</span><span class="p">,</span>
+        <span class="n">height</span><span class="o">=</span><span class="mi">14</span><span class="p">,</span>
+        <span class="n">style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">White</span><span class="p">,</span>
+        <span class="n">text_style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">WhiteBold</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="n">text_size</span><span class="o">=</span><span class="mf">9.5</span><span class="p">),</span>
+        <span class="n">card_style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">PrimaryFlat</span><span class="p">,</span>
+    <span class="p">),</span>
+    <span class="n">xy</span><span class="o">=</span><span class="p">(</span><span class="mi">18</span><span class="p">,</span> <span class="mi">29</span><span class="p">),</span>
+<span class="p">)</span>
+<span class="n">n_rec</span> <span class="o">=</span> <span class="n">app</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">Node</span><span class="p">(</span><span class="s2">"Author Record /</span><span class="se">\n</span><span class="s2">Domain DTO"</span><span class="p">,</span> <span class="n">icon</span><span class="o">=</span><span class="n">PhosphorIcon</span><span class="o">.</span><span class="n">CUBE</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">28</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mi">13</span><span class="p">),</span> <span class="n">xy</span><span class="o">=</span><span class="p">(</span><span class="mi">18</span><span class="p">,</span> <span class="mi">11</span><span class="p">))</span>
+
+<span class="n">core</span> <span class="o">=</span> <span class="n">d</span><span class="o">.</span><span class="n">add</span><span class="p">(</span>
+    <span class="n">NodeGroup</span><span class="p">(</span>
+        <span class="s2">"2. MyBatis 3 Runtime Engine (org.apache.ibatis)"</span><span class="p">,</span>
+        <span class="n">width</span><span class="o">=</span><span class="mi">62</span><span class="p">,</span>
+        <span class="n">height</span><span class="o">=</span><span class="mi">44</span><span class="p">,</span>
+        <span class="n">style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">SecondaryNeutral</span><span class="p">,</span>
+        <span class="n">text_style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">DarkBold</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="n">text_size</span><span class="o">=</span><span class="mf">10.2</span><span class="p">,</span> <span class="n">halign</span><span class="o">=</span><span class="s2">"left"</span><span class="p">,</span> <span class="n">valign</span><span class="o">=</span><span class="s2">"top"</span><span class="p">),</span>
+    <span class="p">),</span>
+    <span class="n">xy</span><span class="o">=</span><span class="p">(</span><span class="mi">44</span><span class="p">,</span> <span class="mi">5</span><span class="p">),</span>
+<span class="p">)</span>
+<span class="n">n_xml</span> <span class="o">=</span> <span class="n">core</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">Node</span><span class="p">(</span><span class="s2">"Mapper XML / @Select</span><span class="se">\n</span><span class="s2">+ Dynamic SQL (OGNL)"</span><span class="p">,</span> <span class="n">icon</span><span class="o">=</span><span class="n">PhosphorIcon</span><span class="o">.</span><span class="n">FILE_CODE</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mi">14</span><span class="p">),</span> <span class="n">xy</span><span class="o">=</span><span class="p">(</span><span class="mi">31</span><span class="p">,</span> <span class="mi">29</span><span class="p">))</span>
+<span class="n">n_exe</span> <span class="o">=</span> <span class="n">core</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">Node</span><span class="p">(</span><span class="s2">"Executor + TypeHandler</span><span class="se">\n</span><span class="s2">+ ResultSetHandler"</span><span class="p">,</span> <span class="n">icon</span><span class="o">=</span><span class="n">PhosphorIcon</span><span class="o">.</span><span class="n">GEAR</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mi">13</span><span class="p">),</span> <span class="n">xy</span><span class="o">=</span><span class="p">(</span><span class="mi">31</span><span class="p">,</span> <span class="mi">11</span><span class="p">))</span>
+
+<span class="n">db</span> <span class="o">=</span> <span class="n">d</span><span class="o">.</span><span class="n">add</span><span class="p">(</span>
+    <span class="n">NodeGroup</span><span class="p">(</span>
+        <span class="s2">"3. Relational Database"</span><span class="p">,</span>
+        <span class="n">width</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span>
+        <span class="n">height</span><span class="o">=</span><span class="mi">44</span><span class="p">,</span>
+        <span class="n">style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">Neutral</span><span class="p">,</span>
+        <span class="n">text_style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">DarkBold</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="n">text_size</span><span class="o">=</span><span class="mf">10.2</span><span class="p">,</span> <span class="n">halign</span><span class="o">=</span><span class="s2">"left"</span><span class="p">,</span> <span class="n">valign</span><span class="o">=</span><span class="s2">"top"</span><span class="p">),</span>
+    <span class="p">),</span>
+    <span class="n">xy</span><span class="o">=</span><span class="p">(</span><span class="mi">110</span><span class="p">,</span> <span class="mi">5</span><span class="p">),</span>
+<span class="p">)</span>
+<span class="n">n_jdbc</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">Node</span><span class="p">(</span><span class="s2">"JDBC Connection</span><span class="se">\n</span><span class="s2">PreparedStatement"</span><span class="p">,</span> <span class="n">icon</span><span class="o">=</span><span class="n">PhosphorIcon</span><span class="o">.</span><span class="n">PLUGS_CONNECTED</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">24</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mi">14</span><span class="p">),</span> <span class="n">xy</span><span class="o">=</span><span class="p">(</span><span class="mi">15</span><span class="p">,</span> <span class="mi">29</span><span class="p">))</span>
+<span class="n">n_sql</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">Node</span><span class="p">(</span><span class="s2">"PostgreSQL / MySQL</span><span class="se">\n</span><span class="s2">Oracle / H2"</span><span class="p">,</span> <span class="n">icon</span><span class="o">=</span><span class="n">PhosphorIcon</span><span class="o">.</span><span class="n">DATABASE</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">24</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mi">13</span><span class="p">),</span> <span class="n">xy</span><span class="o">=</span><span class="p">(</span><span class="mi">15</span><span class="p">,</span> <span class="mi">11</span><span class="p">))</span>
+
+<span class="n">n_if</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">n_xml</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">"MapperProxy"</span><span class="p">)</span>
+<span class="n">n_xml</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">n_exe</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">"BoundSql"</span><span class="p">)</span>
+<span class="n">n_exe</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">n_jdbc</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">"bind #</span><span class="si">{}</span><span class="s2"> params"</span><span class="p">)</span>
+<span class="n">n_jdbc</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">n_sql</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">"SQL"</span><span class="p">)</span>
+<span class="n">n_exe</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">n_rec</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">"ResultMap"</span><span class="p">)</span>
+
+<span class="n">d</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="n">xy</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+<span class="n">save</span><span class="p">()</span>
+</code></pre>
+</details>
+<hr />
+<h2>Explore the 4-Portal Documentation Suite</h2>
+<p>This site is organized into four interconnected portals covering usage, reference, internals, and quality diagnostics:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">Portal</th>
+<th style="text-align:left">Scope &amp; Audience</th>
+<th style="text-align:left">URL</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"><strong>1. User Guide</strong> <em>(Current Portal)</em></td>
+<td style="text-align:left">Practical tutorials, XML &amp; Annotation patterns, Dynamic SQL, <code>&lt;resultMap&gt;</code>, caching, transactions, and plugins</td>
+<td style="text-align:left"><a href="en/index.html"><code>/</code></a></td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>2. API &amp; XML Reference Catalog</strong></td>
+<td style="text-align:left">Searchable <code>/</code> reference for every public Java class, interface, annotation, and XML DTD element</td>
+<td style="text-align:left"><a href="https://mybatis3.drawlib.com/api/"><code>/api/</code></a></td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>3. Internal Architecture Guide</strong></td>
+<td style="text-align:left">Source-level deep dive into <code>MapperProxy</code>, <code>CachingExecutor</code>, <code>DynamicSqlSource</code>, and <code>DefaultResultSetHandler</code></td>
+<td style="text-align:left"><a href="https://mybatis3.drawlib.com/architecture/"><code>/architecture/</code></a></td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>4. PNI501 Diagnostic Report</strong></td>
+<td style="text-align:left">15-stage automated &amp; expert architecture audit (<code>90/100</code>, Grade <strong>S</strong>) in HTML &amp; printable PDF</td>
+<td style="text-align:left"><a href="https://mybatis3.drawlib.com/reports/pni501/"><code>/reports/pni501/</code></a></td>
+</tr>
+</tbody>
+</table>
+<figure class="drawlib-image" style="text-align: center;">
+  <img src="images/index/ug_index_portals.png" alt="index_2" />
+  <figcaption class="drawlib-caption">The Four Portals of mybatis3.drawlib.com</figcaption>
+</figure>
+<details class="drawlib-code-details">
+<summary>Source Code</summary>
+<pre><code class="language-python"><span class="kn">from</span><span class="w"> </span><span class="nn">drawlib.canvas</span><span class="w"> </span><span class="kn">import</span> <span class="n">save</span><span class="p">,</span> <span class="n">setup</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">drawlib.smartarts</span><span class="w"> </span><span class="kn">import</span> <span class="n">CardList</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">drawlib.styles</span><span class="w"> </span><span class="kn">import</span> <span class="n">Colors</span><span class="p">,</span> <span class="n">Styles</span>
+
+<span class="n">setup</span><span class="p">(</span><span class="n">width</span><span class="o">=</span><span class="mi">144</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mi">40</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">150</span><span class="p">)</span>
+
+<span class="n">cards</span> <span class="o">=</span> <span class="n">CardList</span><span class="p">(</span>
+    <span class="n">style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">Neutral</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="n">shape_fill_color</span><span class="o">=</span><span class="n">Colors</span><span class="o">.</span><span class="n">White</span><span class="p">),</span>
+    <span class="n">text_style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">DarkBold</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="n">text_size</span><span class="o">=</span><span class="mf">10.2</span><span class="p">),</span>
+    <span class="n">description_style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">Dark</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="n">text_size</span><span class="o">=</span><span class="mf">8.8</span><span class="p">),</span>
+    <span class="n">badge_shape</span><span class="o">=</span><span class="s2">"rounded_rect"</span><span class="p">,</span>
+    <span class="n">badge_style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">PrimaryFlat</span><span class="p">,</span>
+    <span class="n">badge_text_style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">WhiteBold</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="n">text_size</span><span class="o">=</span><span class="mf">9.2</span><span class="p">),</span>
+    <span class="n">direction</span><span class="o">=</span><span class="s2">"horizontal"</span><span class="p">,</span>
+    <span class="n">spacing</span><span class="o">=</span><span class="mf">2.5</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">cards</span><span class="o">.</span><span class="n">add</span><span class="p">(</span>
+    <span class="s2">"1. User Guide"</span><span class="p">,</span>
+    <span class="s2">"SqlSession lifecycle, XML &amp; Annotations,</span><span class="se">\n</span><span class="s2">ResultMaps, Dynamic SQL &amp; Caching"</span><span class="p">,</span>
+    <span class="n">badge_text</span><span class="o">=</span><span class="s2">"GUIDE"</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">cards</span><span class="o">.</span><span class="n">add</span><span class="p">(</span>
+    <span class="s2">"2. API &amp; XML Catalog"</span><span class="p">,</span>
+    <span class="s2">"40+ Core classes/SPIs, 39 Annotations,</span><span class="se">\n</span><span class="s2">Config &amp; Mapper DTDs with '/' search"</span><span class="p">,</span>
+    <span class="n">badge_text</span><span class="o">=</span><span class="s2">"API"</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">cards</span><span class="o">.</span><span class="n">add</span><span class="p">(</span>
+    <span class="s2">"3. Architecture Guide"</span><span class="p">,</span>
+    <span class="s2">"22-package layering, JDK Proxy, OGNL,</span><span class="se">\n</span><span class="s2">L1/L2 Cache &amp; ResultSet Automapper"</span><span class="p">,</span>
+    <span class="n">badge_text</span><span class="o">=</span><span class="s2">"ARCH"</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">cards</span><span class="o">.</span><span class="n">add</span><span class="p">(</span>
+    <span class="s2">"4. PNI501 Audit Report"</span><span class="p">,</span>
+    <span class="s2">"15-Stage Evaluation (Score 90/100, S):</span><span class="se">\n</span><span class="s2">Security, Threading &amp; Test Metrics"</span><span class="p">,</span>
+    <span class="n">badge_text</span><span class="o">=</span><span class="s2">"AUDIT"</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">cards</span><span class="o">.</span><span class="n">draw</span><span class="p">((</span><span class="mf">4.0</span><span class="p">,</span> <span class="mf">4.0</span><span class="p">),</span> <span class="n">width</span><span class="o">=</span><span class="mf">136.0</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mf">32.0</span><span class="p">,</span> <span class="n">align</span><span class="o">=</span><span class="s2">"bottom_left"</span><span class="p">)</span>
+<span class="n">save</span><span class="p">()</span>
+</code></pre>
+</details>
+<hr />
+<h2>60-Second Quickstart</h2>
+<h3>1. Add Maven Dependency</h3>
+<pre><code class="language-xml"><span class="nt">&lt;dependency&gt;</span>
+<span class="w">  </span><span class="nt">&lt;groupId&gt;</span>org.mybatis<span class="nt">&lt;/groupId&gt;</span>
+<span class="w">  </span><span class="nt">&lt;artifactId&gt;</span>mybatis<span class="nt">&lt;/artifactId&gt;</span>
+<span class="w">  </span><span class="nt">&lt;version&gt;</span>3.6.0<span class="nt">&lt;/version&gt;</span>
+<span class="nt">&lt;/dependency&gt;</span>
+</code></pre>
+<h3>2. Define a Java Record &amp; Mapper Interface</h3>
+<p>MyBatis 3 natively maps SQL columns directly into immutable Java <code>record</code> canonical constructors:</p>
+<pre><code class="language-java"><span class="kn">package</span><span class="w"> </span><span class="nn">com.example.blog</span><span class="p">;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">java.time.LocalDateTime</span><span class="p">;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">java.util.List</span><span class="p">;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">org.apache.ibatis.annotations.Insert</span><span class="p">;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">org.apache.ibatis.annotations.Options</span><span class="p">;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">org.apache.ibatis.annotations.Param</span><span class="p">;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">org.apache.ibatis.annotations.Select</span><span class="p">;</span>
+
+<span class="kd">public</span><span class="w"> </span><span class="kd">record</span> <span class="nc">Author</span><span class="p">(</span><span class="n">Long</span><span class="w"> </span><span class="n">id</span><span class="p">,</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">username</span><span class="p">,</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">email</span><span class="p">,</span><span class="w"> </span><span class="n">LocalDateTime</span><span class="w"> </span><span class="n">createdAt</span><span class="p">)</span><span class="w"> </span><span class="p">{}</span>
+
+<span class="kd">public</span><span class="w"> </span><span class="kd">interface</span> <span class="nc">AuthorMapper</span><span class="w"> </span><span class="p">{</span>
+
+<span class="w">  </span><span class="nd">@Select</span><span class="p">(</span><span class="s">"""</span>
+<span class="s">      SELECT id, username, email, created_at AS createdAt</span>
+<span class="s">      FROM authors</span>
+<span class="s">      WHERE id = #{id}</span>
+<span class="s">      """</span><span class="p">)</span>
+<span class="w">  </span><span class="n">Author</span><span class="w"> </span><span class="nf">findById</span><span class="p">(</span><span class="nd">@Param</span><span class="p">(</span><span class="s">"id"</span><span class="p">)</span><span class="w"> </span><span class="kt">long</span><span class="w"> </span><span class="n">id</span><span class="p">);</span>
+
+<span class="w">  </span><span class="nd">@Select</span><span class="p">(</span><span class="s">"""</span>
+<span class="s">      SELECT id, username, email, created_at AS createdAt</span>
+<span class="s">      FROM authors</span>
+<span class="s">      WHERE username LIKE #{pattern}</span>
+<span class="s">      ORDER BY id ASC</span>
+<span class="s">      """</span><span class="p">)</span>
+<span class="w">  </span><span class="n">List</span><span class="o">&lt;</span><span class="n">Author</span><span class="o">&gt;</span><span class="w"> </span><span class="nf">searchByUsername</span><span class="p">(</span><span class="nd">@Param</span><span class="p">(</span><span class="s">"pattern"</span><span class="p">)</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">pattern</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre>
+<h3>3. Bootstrap <code>SqlSessionFactory</code> and Execute Queries</h3>
+<p>Build <code>SqlSessionFactory</code> <strong>once</strong> at application startup, then open short-lived <code>SqlSession</code> instances inside <code>try-with-resources</code> blocks per request:</p>
+<pre><code class="language-java"><span class="kn">import</span><span class="w"> </span><span class="nn">javax.sql.DataSource</span><span class="p">;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">org.apache.ibatis.mapping.Environment</span><span class="p">;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">org.apache.ibatis.session.Configuration</span><span class="p">;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">org.apache.ibatis.session.SqlSession</span><span class="p">;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">org.apache.ibatis.session.SqlSessionFactory</span><span class="p">;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">org.apache.ibatis.session.SqlSessionFactoryBuilder</span><span class="p">;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">org.apache.ibatis.transaction.jdbc.JdbcTransactionFactory</span><span class="p">;</span>
+
+<span class="c1">// 1. Application-scoped singleton initialization</span>
+<span class="n">DataSource</span><span class="w"> </span><span class="n">dataSource</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">createHikariDataSource</span><span class="p">();</span>
+<span class="n">Environment</span><span class="w"> </span><span class="n">environment</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">Environment</span><span class="p">(</span><span class="s">"prod"</span><span class="p">,</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">JdbcTransactionFactory</span><span class="p">(),</span><span class="w"> </span><span class="n">dataSource</span><span class="p">);</span>
+
+<span class="n">Configuration</span><span class="w"> </span><span class="n">config</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">Configuration</span><span class="p">(</span><span class="n">environment</span><span class="p">);</span>
+<span class="n">config</span><span class="p">.</span><span class="na">setMapUnderscoreToCamelCase</span><span class="p">(</span><span class="kc">true</span><span class="p">);</span><span class="w"> </span><span class="c1">// Maps created_at -&gt; createdAt automatically</span>
+<span class="n">config</span><span class="p">.</span><span class="na">addMapper</span><span class="p">(</span><span class="n">AuthorMapper</span><span class="p">.</span><span class="na">class</span><span class="p">);</span>
+
+<span class="n">SqlSessionFactory</span><span class="w"> </span><span class="n">sessionFactory</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">SqlSessionFactoryBuilder</span><span class="p">().</span><span class="na">build</span><span class="p">(</span><span class="n">config</span><span class="p">);</span>
+
+<span class="c1">// 2. Per-request execution using try-with-resources</span>
+<span class="k">try</span><span class="w"> </span><span class="p">(</span><span class="n">SqlSession</span><span class="w"> </span><span class="n">session</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">sessionFactory</span><span class="p">.</span><span class="na">openSession</span><span class="p">())</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="n">AuthorMapper</span><span class="w"> </span><span class="n">mapper</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">session</span><span class="p">.</span><span class="na">getMapper</span><span class="p">(</span><span class="n">AuthorMapper</span><span class="p">.</span><span class="na">class</span><span class="p">);</span>
+<span class="w">  </span><span class="n">Author</span><span class="w"> </span><span class="n">author</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mapper</span><span class="p">.</span><span class="na">findById</span><span class="p">(</span><span class="mi">42L</span><span class="p">);</span>
+<span class="w">  </span><span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="s">"Loaded author: "</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">author</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre>
+<hr />
+<h2>Chapter Roadmap</h2>
+<ol>
+<li><strong><a href="en/01_getting_started.html">1. Installation &amp; SqlSession Lifecycle</a></strong>: Maven/Gradle setup, <code>SqlSessionFactoryBuilder</code> -&gt; <code>SqlSessionFactory</code> -&gt; <code>SqlSession</code> -&gt; <code>Mapper</code> thread-safety rules, and <code>try-with-resources</code>.</li>
+<li><strong><a href="en/02_xml_configuration.html">2. XML Configuration (<code>mybatis-config.xml</code>)</a></strong>: Ordering of <code>&lt;configuration&gt;</code> elements, essential <code>&lt;settings&gt;</code> (<code>mapUnderscoreToCamelCase</code>, <code>localCacheScope</code>, <code>defaultFetchSize</code>), <code>&lt;typeAliases&gt;</code>, and <code>&lt;environments&gt;</code>.</li>
+<li><strong><a href="en/03_mapper_xml_and_sql.html">3. Mapper XML &amp; SQL Statements</a></strong>: <code>&lt;select&gt;</code>, <code>&lt;insert&gt;</code>, <code>&lt;update&gt;</code>, <code>&lt;delete&gt;</code>, auto-generated keys (<code>useGeneratedKeys=&quot;true&quot;</code> &amp; <code>&lt;selectKey&gt;</code>), <code>#{}</code> PreparedStatement binding vs <code>${}</code> string substitution, and reusable <code>&lt;sql&gt;</code> fragments.</li>
+<li><strong><a href="en/04_result_maps_and_associations.html">4. ResultMaps, Records &amp; Associations</a></strong>: <code>&lt;resultMap&gt;</code>, immutable Java <code>record</code> <code>&lt;constructor&gt;</code> mapping, <code>1:1</code> <code>&lt;association&gt;</code>, <code>1:N</code> <code>&lt;collection&gt;</code>, and avoiding the N+1 query pitfall with JOIN result maps.</li>
+<li><strong><a href="en/05_dynamic_sql.html">5. Dynamic SQL &amp; OGNL Tags</a></strong>: <code>&lt;if&gt;</code>, <code>&lt;choose&gt;</code>/<code>&lt;when&gt;</code>/<code>&lt;otherwise&gt;</code>, <code>&lt;where&gt;</code>, <code>&lt;set&gt;</code>, <code>&lt;trim&gt;</code>, <code>&lt;foreach&gt;</code> batch &amp; <code>IN (...)</code> clauses, and <code>&lt;bind&gt;</code>.</li>
+<li><strong><a href="en/06_java_annotations_and_sql_builder.html">6. Java Annotations &amp; SQL Builder</a></strong>: <code>@Select</code>, <code>@Results</code>, <code>@Arg</code>, <code>@One</code>/<code>@Many</code>, and dynamic providers (<code>@SelectProvider</code> + <code>org.apache.ibatis.jdbc.SQL</code>).</li>
+<li><strong><a href="en/07_caching_and_transactions.html">7. L1/L2 Caching, Transactions &amp; Batching</a></strong>: L1 session cache (<code>localCacheScope</code>), L2 namespace <code>&lt;cache&gt;</code>, <code>jdk.serialFilter</code> security, <code>ExecutorType.BATCH</code>, and <code>Cursor&lt;T&gt;</code> streaming.</li>
+<li><strong><a href="en/08_typehandlers_plugins_and_testing.html">8. TypeHandlers, Plugins &amp; Testing</a></strong>: Custom <code>BaseTypeHandler&lt;T&gt;</code>, <code>@Intercepts</code> plugins on <code>Executor</code>/<code>StatementHandler</code>, and integration testing with <code>ScriptRunner</code>.</li>
+</ol>
+
+            </main>
+        </div>
+    </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Theme toggle
+            const themeBtn = document.getElementById('theme-toggle');
+            if (themeBtn) {
+                themeBtn.addEventListener('click', function() {
+                    const current = document.documentElement.getAttribute('data-theme');
+                    const next = current === 'dark' ? 'light' : 'dark';
+                    document.documentElement.setAttribute('data-theme', next);
+                    localStorage.setItem('drawlib-theme', next);
+                });
+            }
+
+            // Language dropdown outside-click & Escape close
+            const langDropdowns = document.querySelectorAll('.lang-dropdown');
+            if (langDropdowns.length > 0) {
+                document.addEventListener('click', function(e) {
+                    langDropdowns.forEach(function(dd) {
+                        if (dd.hasAttribute('open') && !dd.contains(e.target)) {
+                            dd.removeAttribute('open');
+                        }
+                    });
+                });
+                document.addEventListener('keydown', function(e) {
+                    if (e.key === 'Escape') {
+                        langDropdowns.forEach(function(dd) {
+                            dd.removeAttribute('open');
+                        });
+                    }
+                });
+            }
+
+            // Mobile menu toggle
+            const menuBtn = document.getElementById('menu-toggle');
+            const sidebar = document.querySelector('.sidebar');
+            if (menuBtn && sidebar) {
+                function setMenuOpen(open) {
+                    sidebar.classList.toggle('is-open', open);
+                    menuBtn.setAttribute('aria-expanded', open ? 'true' : 'false');
+                    document.body.classList.toggle('menu-open', open);
+                    if (open) {
+                        const menu = sidebar.querySelector('.sidebar-menu');
+                        if (menu) {
+                            menu.scrollTop = 0;
+                        }
+                    }
+                }
+
+                menuBtn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    const willOpen = !sidebar.classList.contains('is-open');
+                    setMenuOpen(willOpen);
+                });
+
+                // Close menu when clicking outside sidebar
+                document.addEventListener('click', function(e) {
+                    if (sidebar.classList.contains('is-open') && !sidebar.contains(e.target)) {
+                        setMenuOpen(false);
+                    }
+                });
+
+                // Close menu when a navigation link is clicked
+                const navLinks = sidebar.querySelectorAll('.nav-item a');
+                navLinks.forEach(function(link) {
+                    link.addEventListener('click', function() {
+                        setMenuOpen(false);
+                    });
+                });
+
+                // Close on Escape key
+                document.addEventListener('keydown', function(e) {
+                    if (e.key === 'Escape' && sidebar.classList.contains('is-open')) {
+                        setMenuOpen(false);
+                    }
+                });
+
+                // Reset menu state when resized above mobile breakpoint
+                window.addEventListener('resize', function() {
+                    if (window.innerWidth > 768 && sidebar.classList.contains('is-open')) {
+                        setMenuOpen(false);
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>

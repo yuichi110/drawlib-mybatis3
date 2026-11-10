@@ -1,0 +1,1242 @@
+<!DOCTYPE html>
+<html lang="ja" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Annotations &amp; SQL Builder — MyBatis 3 API &amp; XML Reference Catalog (Unofficial · PNI501 + Drawlib Demo)</title>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-S9N5BZ1VRC"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-S9N5BZ1VRC');
+    </script>
+    <script>
+        (function() {
+            try {
+                var savedTheme = localStorage.getItem('drawlib-theme');
+                if (savedTheme === 'dark' || savedTheme === 'light') {
+                    document.documentElement.setAttribute('data-theme', savedTheme);
+                } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                    document.documentElement.setAttribute('data-theme', 'dark');
+                }
+            } catch (e) {}
+        })();
+    </script>
+    
+    <link rel="icon" href="../_assets/favicon.png">
+    
+    
+    
+    <link rel="alternate" hreflang="en" href="https://mybatis3.drawlib.com/api/en/02_annotations_and_sql.html">
+    
+    <link rel="alternate" hreflang="ja" href="https://mybatis3.drawlib.com/api/ja/02_annotations_and_sql.html">
+    
+    <link rel="alternate" hreflang="x-default" href="https://mybatis3.drawlib.com/api/en/02_annotations_and_sql.html">
+    
+    
+    
+    <meta name="description" content="宣言的 Java マッパーアノテーション (org.apache.ibatis.annotations, 全 39 ファイル) およびプログラマティック SQL ビルダ／JDBC ユーティリティ (org.apache.ibatis.jdbc, 全 13 ファイル) のリファレンスです。">
+    <link rel="canonical" href="https://mybatis3.drawlib.com/api/ja/02_annotations_and_sql.html">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="MyBatis 3 API &amp; XML Reference Catalog (Unofficial · PNI501 + Drawlib Demo)">
+    <meta property="og:title" content="Annotations &amp; SQL Builder — MyBatis 3 API &amp; XML Reference Catalog (Unofficial · PNI501 + Drawlib Demo)">
+    <meta property="og:description" content="宣言的 Java マッパーアノテーション (org.apache.ibatis.annotations, 全 39 ファイル) およびプログラマティック SQL ビルダ／JDBC ユーティリティ (org.apache.ibatis.jdbc, 全 13 ファイル) のリファレンスです。">
+    <meta property="og:url" content="https://mybatis3.drawlib.com/api/ja/02_annotations_and_sql.html">
+    <meta property="og:image" content="https://mybatis3.drawlib.com/api/_assets/ogp.png">
+    <meta property="og:locale" content="ja_JP">
+    <meta property="og:locale:alternate" content="en_US">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Annotations &amp; SQL Builder — MyBatis 3 API &amp; XML Reference Catalog (Unofficial · PNI501 + Drawlib Demo)">
+    <meta name="twitter:description" content="宣言的 Java マッパーアノテーション (org.apache.ibatis.annotations, 全 39 ファイル) およびプログラマティック SQL ビルダ／JDBC ユーティリティ (org.apache.ibatis.jdbc, 全 13 ファイル) のリファレンスです。">
+    <meta name="twitter:image" content="https://mybatis3.drawlib.com/api/_assets/ogp.png">
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+    
+    
+    <link rel="stylesheet" href="style.css">
+    
+</head>
+<body>
+    <div class="demo-banner" role="region" aria-label="Unofficial Showcase Notice">
+        <div class="demo-banner-inner">
+            <span class="demo-banner-badge">UNOFFICIAL DEMO</span>
+            <span class="demo-banner-text">
+                
+                <a href="https://pypi.org/project/pni501/" target="_blank" rel="noopener noreferrer">PNI501</a> と <a href="https://www.drawlib.com/" target="_blank" rel="noopener noreferrer">Drawlib</a> で構築した <a href="https://mybatis.org/mybatis-3/" target="_blank" rel="noopener noreferrer">MyBatis 3</a> (v3.6.0, Apache-2.0) の非公式 API &amp; XML カタログです。
+                
+            </span>
+            <span class="demo-banner-links">
+                <a href="https://mybatis3.drawlib.com/ja/">ユーザーガイド</a>
+                <span class="demo-banner-sep">·</span>
+                <strong style="color:#ffffff;">API リファレンス</strong>
+                <span class="demo-banner-sep">·</span>
+                <a href="https://mybatis3.drawlib.com/architecture/ja/">アーキテクチャ</a>
+                <span class="demo-banner-sep">·</span>
+                <a href="https://mybatis3.drawlib.com/reports/pni501/">PNI501 Audit</a>
+                <span class="demo-banner-sep">·</span>
+                <a href="https://mybatis.org/mybatis-3/" target="_blank" rel="noopener noreferrer">公式 Docs ↗</a>
+                <span class="demo-banner-sep">·</span>
+                <a href="https://github.com/yuichi110/drawlib-mybatis3" target="_blank" rel="noopener noreferrer">GitHub ↗</a>
+            </span>
+        </div>
+    </div>
+    
+    <div class="doc-layout">
+        <aside class="sidebar" id="catalog-sidebar">
+            <div class="sidebar-header has-subbar">
+                <a href="index.html" class="site-title">
+                    
+                    MyBatis 3 API &amp; XML Reference Catalog (Unofficial · PNI501 + Drawlib Demo)
+                    
+                </a>
+                <div class="sidebar-header-actions">
+                    <button id="theme-toggle" class="theme-toggle-btn" aria-label="Toggle color theme" title="Toggle light/dark mode">
+                        <svg class="icon-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+                        <svg class="icon-moon" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+                    </button>
+                    <button id="menu-toggle" class="menu-toggle-btn" aria-label="Toggle navigation menu">
+                        <svg class="icon-hamburger" viewBox="0 0 24 24"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+                        <svg class="icon-close" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="sidebar-subbar">
+                
+                
+                <a href="index.html" class="sidebar-version-badge">
+                    <span class="sidebar-version-dot"></span>
+                    <span>MyBatis 3 · v3.6.0</span>
+                </a>
+                
+                
+                
+                <a href="https://github.com/yuichi110/drawlib-mybatis3" target="_blank" rel="noopener noreferrer" class="sidebar-github-link" aria-label="Repository" title="View Source Repository">
+                    <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg>
+                </a>
+                
+            </div>
+            
+
+            <div class="sidebar-menu">
+                <div class="catalog-sidebar-toolbar">
+                    <div class="catalog-filter-box">
+                        <svg class="catalog-filter-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                        <input id="catalog-filter-input" type="search" class="catalog-filter-input" placeholder="項目を絞り込み..." autocomplete="off" spellcheck="false" aria-label="項目を絞り込み...">
+                        <kbd class="catalog-filter-kbd">/</kbd>
+                    </div>
+                    <div class="catalog-toolbar-meta">
+                        <span class="catalog-toolbar-label">カテゴリ &amp; 項目</span>
+                        <button type="button" id="catalog-expand-toggle" class="catalog-expand-btn" data-expand-label="すべて展開" data-collapse-label="すべて折りたたむ">すべて折りたたむ</button>
+                    </div>
+                </div>
+
+                <nav class="catalog-sidebar-nav" id="catalog-sidebar-nav" aria-label="Catalog Navigation">
+                    
+                    
+                    
+                    <details class="catalog-nav-group" data-cat="API &amp; XML カタログ概要" open>
+                        <summary class="catalog-nav-summary">
+                            <svg class="catalog-nav-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                            <a href="00_overview.html" class="catalog-nav-cat-link is-prose-cat">API &amp; XML カタログ概要</a>
+                            
+                            <span class="catalog-nav-count">2</span>
+                            
+                        </summary>
+                        
+                        <ul class="catalog-nav-sublist">
+                            
+                            <li class="catalog-nav-subitem" data-sym="Maven / Gradle 座標と基本メタデータ">
+                                <a href="00_overview.html#maven-gradle-座標と基本メタデータ" class="catalog-nav-sublink is-prose-sublink">
+                                    
+                                    <span class="catalog-nav-sym-text">Maven / Gradle 座標と基本メタデータ</span>
+                                </a>
+                            </li>
+                            
+                            <li class="catalog-nav-subitem" data-sym="カタログ章一覧">
+                                <a href="00_overview.html#カタログ章一覧" class="catalog-nav-sublink is-prose-sublink">
+                                    
+                                    <span class="catalog-nav-sym-text">カタログ章一覧</span>
+                                </a>
+                            </li>
+                            
+                        </ul>
+                        
+                    </details>
+                    
+                    <details class="catalog-nav-group" data-cat="Session &amp; Binding API" open>
+                        <summary class="catalog-nav-summary">
+                            <svg class="catalog-nav-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                            <a href="01_session_and_binding.html" class="catalog-nav-cat-link is-prose-cat">Session &amp; Binding API</a>
+                            
+                            <span class="catalog-nav-count">9</span>
+                            
+                        </summary>
+                        
+                        <ul class="catalog-nav-sublist">
+                            
+                            <li class="catalog-nav-subitem" data-sym="class SqlSessionFactoryBuilder">
+                                <a href="01_session_and_binding.html#sqlsessionfactorybuilder" class="catalog-nav-sublink is-prose-sublink">
+                                    
+                                    <span class="catalog-badge catalog-badge-class">class</span>
+                                    
+                                    <span class="catalog-nav-sym-text">SqlSessionFactoryBuilder</span>
+                                </a>
+                            </li>
+                            
+                            <li class="catalog-nav-subitem" data-sym="interface SqlSessionFactory">
+                                <a href="01_session_and_binding.html#sqlsessionfactory" class="catalog-nav-sublink is-prose-sublink">
+                                    
+                                    <span class="catalog-badge catalog-badge-class">interface</span>
+                                    
+                                    <span class="catalog-nav-sym-text">SqlSessionFactory</span>
+                                </a>
+                            </li>
+                            
+                            <li class="catalog-nav-subitem" data-sym="interface SqlSession">
+                                <a href="01_session_and_binding.html#sqlsession" class="catalog-nav-sublink is-prose-sublink">
+                                    
+                                    <span class="catalog-badge catalog-badge-class">interface</span>
+                                    
+                                    <span class="catalog-nav-sym-text">SqlSession</span>
+                                </a>
+                            </li>
+                            
+                            <li class="catalog-nav-subitem" data-sym="class Configuration">
+                                <a href="01_session_and_binding.html#configuration" class="catalog-nav-sublink is-prose-sublink">
+                                    
+                                    <span class="catalog-badge catalog-badge-class">class</span>
+                                    
+                                    <span class="catalog-nav-sym-text">Configuration</span>
+                                </a>
+                            </li>
+                            
+                            <li class="catalog-nav-subitem" data-sym="enum ExecutorType">
+                                <a href="01_session_and_binding.html#executortype" class="catalog-nav-sublink is-prose-sublink">
+                                    
+                                    <span class="catalog-badge catalog-badge-type">enum</span>
+                                    
+                                    <span class="catalog-nav-sym-text">ExecutorType</span>
+                                </a>
+                            </li>
+                            
+                            <li class="catalog-nav-subitem" data-sym="class RowBounds">
+                                <a href="01_session_and_binding.html#rowbounds" class="catalog-nav-sublink is-prose-sublink">
+                                    
+                                    <span class="catalog-badge catalog-badge-class">class</span>
+                                    
+                                    <span class="catalog-nav-sym-text">RowBounds</span>
+                                </a>
+                            </li>
+                            
+                            <li class="catalog-nav-subitem" data-sym="interface ResultHandler&lt;T&gt;">
+                                <a href="01_session_and_binding.html#resulthandler-t" class="catalog-nav-sublink is-prose-sublink">
+                                    
+                                    <span class="catalog-badge catalog-badge-class">interface</span>
+                                    
+                                    <span class="catalog-nav-sym-text">ResultHandler&lt;T&gt;</span>
+                                </a>
+                            </li>
+                            
+                            <li class="catalog-nav-subitem" data-sym="interface Cursor&lt;T&gt;">
+                                <a href="01_session_and_binding.html#cursor-t" class="catalog-nav-sublink is-prose-sublink">
+                                    
+                                    <span class="catalog-badge catalog-badge-class">interface</span>
+                                    
+                                    <span class="catalog-nav-sym-text">Cursor&lt;T&gt;</span>
+                                </a>
+                            </li>
+                            
+                            <li class="catalog-nav-subitem" data-sym="class MapperRegistry">
+                                <a href="01_session_and_binding.html#mapperregistry" class="catalog-nav-sublink is-prose-sublink">
+                                    
+                                    <span class="catalog-badge catalog-badge-class">class</span>
+                                    
+                                    <span class="catalog-nav-sym-text">MapperRegistry</span>
+                                </a>
+                            </li>
+                            
+                        </ul>
+                        
+                    </details>
+                    
+                    <details class="catalog-nav-group is-current-page" data-cat="Annotations &amp; SQL Builder" open>
+                        <summary class="catalog-nav-summary">
+                            <svg class="catalog-nav-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                            <a href="02_annotations_and_sql.html" class="catalog-nav-cat-link is-prose-cat">Annotations &amp; SQL Builder</a>
+                            
+                            <span class="catalog-nav-count">11</span>
+                            
+                        </summary>
+                        
+                        <ul class="catalog-nav-sublist">
+                            
+                            <li class="catalog-nav-subitem" data-sym="annotation @Select / @Insert / @Update / @Delete">
+                                <a href="#annotation-select-insert-update-delete" class="catalog-nav-sublink is-prose-sublink" data-target="annotation-select-insert-update-delete">
+                                    
+                                    <span class="catalog-nav-sym-text">annotation @Select / @Insert / @Update / @Delete</span>
+                                </a>
+                            </li>
+                            
+                            <li class="catalog-nav-subitem" data-sym="annotation @Param">
+                                <a href="#annotation-param" class="catalog-nav-sublink is-prose-sublink" data-target="annotation-param">
+                                    
+                                    <span class="catalog-nav-sym-text">annotation @Param</span>
+                                </a>
+                            </li>
+                            
+                            <li class="catalog-nav-subitem" data-sym="annotation @Options">
+                                <a href="#annotation-options" class="catalog-nav-sublink is-prose-sublink" data-target="annotation-options">
+                                    
+                                    <span class="catalog-nav-sym-text">annotation @Options</span>
+                                </a>
+                            </li>
+                            
+                            <li class="catalog-nav-subitem" data-sym="annotation @Results &amp; @Result &amp; @ResultMap">
+                                <a href="#annotation-results-result-resultmap" class="catalog-nav-sublink is-prose-sublink" data-target="annotation-results-result-resultmap">
+                                    
+                                    <span class="catalog-nav-sym-text">annotation @Results &amp; @Result &amp; @ResultMap</span>
+                                </a>
+                            </li>
+                            
+                            <li class="catalog-nav-subitem" data-sym="annotation @ConstructorArgs &amp; @Arg">
+                                <a href="#annotation-constructorargs-arg" class="catalog-nav-sublink is-prose-sublink" data-target="annotation-constructorargs-arg">
+                                    
+                                    <span class="catalog-nav-sym-text">annotation @ConstructorArgs &amp; @Arg</span>
+                                </a>
+                            </li>
+                            
+                            <li class="catalog-nav-subitem" data-sym="annotation @One &amp; @Many">
+                                <a href="#annotation-one-many" class="catalog-nav-sublink is-prose-sublink" data-target="annotation-one-many">
+                                    
+                                    <span class="catalog-nav-sym-text">annotation @One &amp; @Many</span>
+                                </a>
+                            </li>
+                            
+                            <li class="catalog-nav-subitem" data-sym="annotation @SelectKey">
+                                <a href="#annotation-selectkey" class="catalog-nav-sublink is-prose-sublink" data-target="annotation-selectkey">
+                                    
+                                    <span class="catalog-nav-sym-text">annotation @SelectKey</span>
+                                </a>
+                            </li>
+                            
+                            <li class="catalog-nav-subitem" data-sym="annotation @SelectProvider / @InsertProvider / @UpdateProvider / @DeleteProvider">
+                                <a href="#annotation-selectprovider-insertprovider-updateprovider-deleteprovider" class="catalog-nav-sublink is-prose-sublink" data-target="annotation-selectprovider-insertprovider-updateprovider-deleteprovider">
+                                    
+                                    <span class="catalog-nav-sym-text">annotation @SelectProvider / @InsertProvider / @UpdateProvider / @DeleteProvider</span>
+                                </a>
+                            </li>
+                            
+                            <li class="catalog-nav-subitem" data-sym="annotation @CacheNamespace &amp; @CacheNamespaceRef">
+                                <a href="#annotation-cachenamespace-cachenamespaceref" class="catalog-nav-sublink is-prose-sublink" data-target="annotation-cachenamespace-cachenamespaceref">
+                                    
+                                    <span class="catalog-nav-sym-text">annotation @CacheNamespace &amp; @CacheNamespaceRef</span>
+                                </a>
+                            </li>
+                            
+                            <li class="catalog-nav-subitem" data-sym="class SQL">
+                                <a href="#sql" class="catalog-nav-sublink is-prose-sublink" data-target="sql">
+                                    
+                                    <span class="catalog-badge catalog-badge-class">class</span>
+                                    
+                                    <span class="catalog-nav-sym-text">SQL</span>
+                                </a>
+                            </li>
+                            
+                            <li class="catalog-nav-subitem" data-sym="class ScriptRunner &amp; SqlRunner">
+                                <a href="#scriptrunner-sqlrunner" class="catalog-nav-sublink is-prose-sublink" data-target="scriptrunner-sqlrunner">
+                                    
+                                    <span class="catalog-badge catalog-badge-class">class</span>
+                                    
+                                    <span class="catalog-nav-sym-text">ScriptRunner &amp; SqlRunner</span>
+                                </a>
+                            </li>
+                            
+                        </ul>
+                        
+                    </details>
+                    
+                    <details class="catalog-nav-group" data-cat="XML Configuration &amp; Mapper 要素" open>
+                        <summary class="catalog-nav-summary">
+                            <svg class="catalog-nav-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                            <a href="03_xml_config_and_mapper.html" class="catalog-nav-cat-link is-prose-cat">XML Configuration &amp; Mapper 要素</a>
+                            
+                            <span class="catalog-nav-count">8</span>
+                            
+                        </summary>
+                        
+                        <ul class="catalog-nav-sublist">
+                            
+                            <li class="catalog-nav-subitem" data-sym="xml &lt;configuration&gt; (mybatis-3-config.dtd)">
+                                <a href="03_xml_config_and_mapper.html#xml-configuration-mybatis-3-config-dtd" class="catalog-nav-sublink is-prose-sublink">
+                                    
+                                    <span class="catalog-nav-sym-text">xml &lt;configuration&gt; (mybatis-3-config.dtd)</span>
+                                </a>
+                            </li>
+                            
+                            <li class="catalog-nav-subitem" data-sym="xml &lt;settings&gt; &amp; &lt;setting&gt;">
+                                <a href="03_xml_config_and_mapper.html#xml-settings-setting" class="catalog-nav-sublink is-prose-sublink">
+                                    
+                                    <span class="catalog-nav-sym-text">xml &lt;settings&gt; &amp; &lt;setting&gt;</span>
+                                </a>
+                            </li>
+                            
+                            <li class="catalog-nav-subitem" data-sym="xml &lt;environments&gt;, &lt;transactionManager&gt; &amp; &lt;dataSource&gt;">
+                                <a href="03_xml_config_and_mapper.html#xml-environments-transactionmanager-datasource" class="catalog-nav-sublink is-prose-sublink">
+                                    
+                                    <span class="catalog-nav-sym-text">xml &lt;environments&gt;, &lt;transactionManager&gt; &amp; &lt;dataSource&gt;</span>
+                                </a>
+                            </li>
+                            
+                            <li class="catalog-nav-subitem" data-sym="xml &lt;mappers&gt;">
+                                <a href="03_xml_config_and_mapper.html#xml-mappers" class="catalog-nav-sublink is-prose-sublink">
+                                    
+                                    <span class="catalog-nav-sym-text">xml &lt;mappers&gt;</span>
+                                </a>
+                            </li>
+                            
+                            <li class="catalog-nav-subitem" data-sym="xml &lt;select&gt;, &lt;insert&gt;, &lt;update&gt; &amp; &lt;delete&gt;">
+                                <a href="03_xml_config_and_mapper.html#xml-select-insert-update-delete" class="catalog-nav-sublink is-prose-sublink">
+                                    
+                                    <span class="catalog-nav-sym-text">xml &lt;select&gt;, &lt;insert&gt;, &lt;update&gt; &amp; &lt;delete&gt;</span>
+                                </a>
+                            </li>
+                            
+                            <li class="catalog-nav-subitem" data-sym="xml &lt;resultMap&gt;, &lt;id&gt;, &lt;result&gt;, &lt;constructor&gt;, &lt;association&gt; &amp; &lt;collection&gt;">
+                                <a href="03_xml_config_and_mapper.html#xml-resultmap-id-result-constructor-association-collection" class="catalog-nav-sublink is-prose-sublink">
+                                    
+                                    <span class="catalog-nav-sym-text">xml &lt;resultMap&gt;, &lt;id&gt;, &lt;result&gt;, &lt;constructor&gt;, &lt;association&gt; &amp; &lt;collection&gt;</span>
+                                </a>
+                            </li>
+                            
+                            <li class="catalog-nav-subitem" data-sym="xml &lt;if&gt;, &lt;choose&gt;, &lt;when&gt;, &lt;otherwise&gt;, &lt;where&gt;, &lt;set&gt;, &lt;trim&gt;, &lt;foreach&gt; &amp; &lt;bind&gt;">
+                                <a href="03_xml_config_and_mapper.html#xml-if-choose-when-otherwise-where-set-trim-foreach-bind" class="catalog-nav-sublink is-prose-sublink">
+                                    
+                                    <span class="catalog-nav-sym-text">xml &lt;if&gt;, &lt;choose&gt;, &lt;when&gt;, &lt;otherwise&gt;, &lt;where&gt;, &lt;set&gt;, &lt;trim&gt;, &lt;foreach&gt; &amp; &lt;bind&gt;</span>
+                                </a>
+                            </li>
+                            
+                            <li class="catalog-nav-subitem" data-sym="xml &lt;cache&gt; &amp; &lt;cache-ref&gt;">
+                                <a href="03_xml_config_and_mapper.html#xml-cache-cache-ref" class="catalog-nav-sublink is-prose-sublink">
+                                    
+                                    <span class="catalog-nav-sym-text">xml &lt;cache&gt; &amp; &lt;cache-ref&gt;</span>
+                                </a>
+                            </li>
+                            
+                        </ul>
+                        
+                    </details>
+                    
+                    <details class="catalog-nav-group" data-cat="TypeHandler・キャッシュ・トランザクション・DataSource" open>
+                        <summary class="catalog-nav-summary">
+                            <svg class="catalog-nav-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                            <a href="04_type_cache_tx_datasource.html" class="catalog-nav-cat-link is-prose-cat">TypeHandler・キャッシュ・トランザクション・DataSource</a>
+                            
+                            <span class="catalog-nav-count">15</span>
+                            
+                        </summary>
+                        
+                        <ul class="catalog-nav-sublist">
+                            
+                            <li class="catalog-nav-subitem" data-sym="interface TypeHandler&amp;lt;T&amp;gt;">
+                                <a href="04_type_cache_tx_datasource.html#typehandler-lt-t-gt" class="catalog-nav-sublink is-prose-sublink">
+                                    
+                                    <span class="catalog-badge catalog-badge-class">interface</span>
+                                    
+                                    <span class="catalog-nav-sym-text">TypeHandler&amp;lt;T&amp;gt;</span>
+                                </a>
+                            </li>
+                            
+                            <li class="catalog-nav-subitem" data-sym="class BaseTypeHandler&amp;lt;T&amp;gt;">
+                                <a href="04_type_cache_tx_datasource.html#basetypehandler-lt-t-gt" class="catalog-nav-sublink is-prose-sublink">
+                                    
+                                    <span class="catalog-badge catalog-badge-class">class</span>
+                                    
+                                    <span class="catalog-nav-sym-text">BaseTypeHandler&amp;lt;T&amp;gt;</span>
+                                </a>
+                            </li>
+                            
+                            <li class="catalog-nav-subitem" data-sym="class TypeHandlerRegistry">
+                                <a href="04_type_cache_tx_datasource.html#typehandlerregistry" class="catalog-nav-sublink is-prose-sublink">
+                                    
+                                    <span class="catalog-badge catalog-badge-class">class</span>
+                                    
+                                    <span class="catalog-nav-sym-text">TypeHandlerRegistry</span>
+                                </a>
+                            </li>
+                            
+                            <li class="catalog-nav-subitem" data-sym="class TypeAliasRegistry">
+                                <a href="04_type_cache_tx_datasource.html#typealiasregistry" class="catalog-nav-sublink is-prose-sublink">
+                                    
+                                    <span class="catalog-badge catalog-badge-class">class</span>
+                                    
+                                    <span class="catalog-nav-sym-text">TypeAliasRegistry</span>
+                                </a>
+                            </li>
+                            
+                            <li class="catalog-nav-subitem" data-sym="enum JdbcType">
+                                <a href="04_type_cache_tx_datasource.html#jdbctype" class="catalog-nav-sublink is-prose-sublink">
+                                    
+                                    <span class="catalog-badge catalog-badge-type">enum</span>
+                                    
+                                    <span class="catalog-nav-sym-text">JdbcType</span>
+                                </a>
+                            </li>
+                            
+                            <li class="catalog-nav-subitem" data-sym="annotation @MappedTypes">
+                                <a href="04_type_cache_tx_datasource.html#annotation-mappedtypes" class="catalog-nav-sublink is-prose-sublink">
+                                    
+                                    <span class="catalog-nav-sym-text">annotation @MappedTypes</span>
+                                </a>
+                            </li>
+                            
+                            <li class="catalog-nav-subitem" data-sym="annotation @MappedJdbcTypes">
+                                <a href="04_type_cache_tx_datasource.html#annotation-mappedjdbctypes" class="catalog-nav-sublink is-prose-sublink">
+                                    
+                                    <span class="catalog-nav-sym-text">annotation @MappedJdbcTypes</span>
+                                </a>
+                            </li>
+                            
+                            <li class="catalog-nav-subitem" data-sym="interface Cache">
+                                <a href="04_type_cache_tx_datasource.html#cache" class="catalog-nav-sublink is-prose-sublink">
+                                    
+                                    <span class="catalog-badge catalog-badge-class">interface</span>
+                                    
+                                    <span class="catalog-nav-sym-text">Cache</span>
+                                </a>
+                            </li>
+                            
+                            <li class="catalog-nav-subitem" data-sym="class PerpetualCache">
+                                <a href="04_type_cache_tx_datasource.html#perpetualcache" class="catalog-nav-sublink is-prose-sublink">
+                                    
+                                    <span class="catalog-badge catalog-badge-class">class</span>
+                                    
+                                    <span class="catalog-nav-sym-text">PerpetualCache</span>
+                                </a>
+                            </li>
+                            
+                            <li class="catalog-nav-subitem" data-sym="class LruCache">
+                                <a href="04_type_cache_tx_datasource.html#lrucache" class="catalog-nav-sublink is-prose-sublink">
+                                    
+                                    <span class="catalog-badge catalog-badge-class">class</span>
+                                    
+                                    <span class="catalog-nav-sym-text">LruCache</span>
+                                </a>
+                            </li>
+                            
+                            <li class="catalog-nav-subitem" data-sym="class SerializedCache">
+                                <a href="04_type_cache_tx_datasource.html#serializedcache" class="catalog-nav-sublink is-prose-sublink">
+                                    
+                                    <span class="catalog-badge catalog-badge-class">class</span>
+                                    
+                                    <span class="catalog-nav-sym-text">SerializedCache</span>
+                                </a>
+                            </li>
+                            
+                            <li class="catalog-nav-subitem" data-sym="interface Transaction">
+                                <a href="04_type_cache_tx_datasource.html#transaction" class="catalog-nav-sublink is-prose-sublink">
+                                    
+                                    <span class="catalog-badge catalog-badge-class">interface</span>
+                                    
+                                    <span class="catalog-nav-sym-text">Transaction</span>
+                                </a>
+                            </li>
+                            
+                            <li class="catalog-nav-subitem" data-sym="interface TransactionFactory">
+                                <a href="04_type_cache_tx_datasource.html#transactionfactory" class="catalog-nav-sublink is-prose-sublink">
+                                    
+                                    <span class="catalog-badge catalog-badge-class">interface</span>
+                                    
+                                    <span class="catalog-nav-sym-text">TransactionFactory</span>
+                                </a>
+                            </li>
+                            
+                            <li class="catalog-nav-subitem" data-sym="class PooledDataSource">
+                                <a href="04_type_cache_tx_datasource.html#pooleddatasource" class="catalog-nav-sublink is-prose-sublink">
+                                    
+                                    <span class="catalog-badge catalog-badge-class">class</span>
+                                    
+                                    <span class="catalog-nav-sym-text">PooledDataSource</span>
+                                </a>
+                            </li>
+                            
+                            <li class="catalog-nav-subitem" data-sym="class UnpooledDataSource">
+                                <a href="04_type_cache_tx_datasource.html#unpooleddatasource" class="catalog-nav-sublink is-prose-sublink">
+                                    
+                                    <span class="catalog-badge catalog-badge-class">class</span>
+                                    
+                                    <span class="catalog-nav-sym-text">UnpooledDataSource</span>
+                                </a>
+                            </li>
+                            
+                        </ul>
+                        
+                    </details>
+                    
+                    <details class="catalog-nav-group" data-cat="プラグイン・リフレクション・例外" open>
+                        <summary class="catalog-nav-summary">
+                            <svg class="catalog-nav-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                            <a href="05_plugin_reflection_exceptions.html" class="catalog-nav-cat-link is-prose-cat">プラグイン・リフレクション・例外</a>
+                            
+                            <span class="catalog-nav-count">11</span>
+                            
+                        </summary>
+                        
+                        <ul class="catalog-nav-sublist">
+                            
+                            <li class="catalog-nav-subitem" data-sym="interface Interceptor">
+                                <a href="05_plugin_reflection_exceptions.html#interceptor" class="catalog-nav-sublink is-prose-sublink">
+                                    
+                                    <span class="catalog-badge catalog-badge-class">interface</span>
+                                    
+                                    <span class="catalog-nav-sym-text">Interceptor</span>
+                                </a>
+                            </li>
+                            
+                            <li class="catalog-nav-subitem" data-sym="annotation @Intercepts">
+                                <a href="05_plugin_reflection_exceptions.html#annotation-intercepts" class="catalog-nav-sublink is-prose-sublink">
+                                    
+                                    <span class="catalog-nav-sym-text">annotation @Intercepts</span>
+                                </a>
+                            </li>
+                            
+                            <li class="catalog-nav-subitem" data-sym="annotation @Signature">
+                                <a href="05_plugin_reflection_exceptions.html#annotation-signature" class="catalog-nav-sublink is-prose-sublink">
+                                    
+                                    <span class="catalog-nav-sym-text">annotation @Signature</span>
+                                </a>
+                            </li>
+                            
+                            <li class="catalog-nav-subitem" data-sym="class Invocation">
+                                <a href="05_plugin_reflection_exceptions.html#invocation" class="catalog-nav-sublink is-prose-sublink">
+                                    
+                                    <span class="catalog-badge catalog-badge-class">class</span>
+                                    
+                                    <span class="catalog-nav-sym-text">Invocation</span>
+                                </a>
+                            </li>
+                            
+                            <li class="catalog-nav-subitem" data-sym="class Plugin">
+                                <a href="05_plugin_reflection_exceptions.html#plugin" class="catalog-nav-sublink is-prose-sublink">
+                                    
+                                    <span class="catalog-badge catalog-badge-class">class</span>
+                                    
+                                    <span class="catalog-nav-sym-text">Plugin</span>
+                                </a>
+                            </li>
+                            
+                            <li class="catalog-nav-subitem" data-sym="class MetaObject">
+                                <a href="05_plugin_reflection_exceptions.html#metaobject" class="catalog-nav-sublink is-prose-sublink">
+                                    
+                                    <span class="catalog-badge catalog-badge-class">class</span>
+                                    
+                                    <span class="catalog-nav-sym-text">MetaObject</span>
+                                </a>
+                            </li>
+                            
+                            <li class="catalog-nav-subitem" data-sym="class SystemMetaObject">
+                                <a href="05_plugin_reflection_exceptions.html#systemmetaobject" class="catalog-nav-sublink is-prose-sublink">
+                                    
+                                    <span class="catalog-badge catalog-badge-class">class</span>
+                                    
+                                    <span class="catalog-nav-sym-text">SystemMetaObject</span>
+                                </a>
+                            </li>
+                            
+                            <li class="catalog-nav-subitem" data-sym="class Reflector">
+                                <a href="05_plugin_reflection_exceptions.html#reflector" class="catalog-nav-sublink is-prose-sublink">
+                                    
+                                    <span class="catalog-badge catalog-badge-class">class</span>
+                                    
+                                    <span class="catalog-nav-sym-text">Reflector</span>
+                                </a>
+                            </li>
+                            
+                            <li class="catalog-nav-subitem" data-sym="interface ObjectFactory">
+                                <a href="05_plugin_reflection_exceptions.html#objectfactory" class="catalog-nav-sublink is-prose-sublink">
+                                    
+                                    <span class="catalog-badge catalog-badge-class">interface</span>
+                                    
+                                    <span class="catalog-nav-sym-text">ObjectFactory</span>
+                                </a>
+                            </li>
+                            
+                            <li class="catalog-nav-subitem" data-sym="class PersistenceException">
+                                <a href="05_plugin_reflection_exceptions.html#persistenceexception" class="catalog-nav-sublink is-prose-sublink">
+                                    
+                                    <span class="catalog-badge catalog-badge-class">class</span>
+                                    
+                                    <span class="catalog-nav-sym-text">PersistenceException</span>
+                                </a>
+                            </li>
+                            
+                            <li class="catalog-nav-subitem" data-sym="class TooManyResultsException">
+                                <a href="05_plugin_reflection_exceptions.html#toomanyresultsexception" class="catalog-nav-sublink is-prose-sublink">
+                                    
+                                    <span class="catalog-badge catalog-badge-class">class</span>
+                                    
+                                    <span class="catalog-nav-sym-text">TooManyResultsException</span>
+                                </a>
+                            </li>
+                            
+                        </ul>
+                        
+                    </details>
+                    
+                    
+                    <div id="catalog-nav-empty" class="catalog-nav-empty" hidden>一致する項目が見つかりません。</div>
+                </nav>
+            </div>
+        </aside>
+        <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
+
+        <div class="content-wrapper">
+            <div class="top-bar">
+                <div class="breadcrumbs">
+                    <a href="index.html" class="crumb">MyBatis 3 API</a>
+                    <span class="crumb-separator">/</span>
+                    <span class="crumb active">Annotations &amp; SQL Builder</span>
+                </div>
+                
+                <div class="top-bar-right">
+                    
+                    <div class="top-bar-links">
+                        
+                        <a href="https://mybatis3.drawlib.com/" target="_blank" rel="noopener noreferrer" class="top-bar-ext-link">
+                            <span>User Guide</span>
+                            
+                            <svg viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+                            
+                        </a>
+                        
+                        <a href="https://mybatis3.drawlib.com/architecture/" target="_blank" rel="noopener noreferrer" class="top-bar-ext-link">
+                            <span>Architecture</span>
+                            
+                            <svg viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+                            
+                        </a>
+                        
+                        <a href="https://mybatis3.drawlib.com/reports/pni501/" target="_blank" rel="noopener noreferrer" class="top-bar-ext-link">
+                            <span>PNI501 Audit</span>
+                            
+                            <svg viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+                            
+                        </a>
+                        
+                    </div>
+                    
+                    
+                    <div class="lang-switcher" aria-label="Language switcher">
+                        <details class="lang-dropdown">
+                            <summary class="lang-dropdown-btn" aria-haspopup="listbox">
+                                <svg class="lang-globe-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
+                                <span class="lang-current-label">日本語</span>
+                                <svg class="lang-caret-icon" viewBox="0 0 24 24" aria-hidden="true"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                            </summary>
+                            <div class="lang-dropdown-menu" role="listbox">
+                                
+                                
+                                <a href="../en/02_annotations_and_sql.html" class="lang-option" role="option" hreflang="">
+                                    <span>English</span>
+                                </a>
+                                
+                                
+                                
+                                <span class="lang-option active" role="option" aria-selected="true">
+                                    <span>日本語</span>
+                                    <svg class="lang-check-icon" viewBox="0 0 24 24" aria-hidden="true"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                                </span>
+                                
+                                
+                            </div>
+                        </details>
+                    </div>
+                    
+                </div>
+                
+            </div>
+
+            <main class="main-content catalog-main-content">
+                <h1 class="catalog-page-title">Annotations &amp; SQL Builder</h1>
+<p>宣言的 Java マッパーアノテーション (<code>org.apache.ibatis.annotations</code>, 全 <code>39</code> ファイル) およびプログラマティック SQL ビルダ／JDBC ユーティリティ (<code>org.apache.ibatis.jdbc</code>, 全 <code>13</code> ファイル) のリファレンスです。</p>
+<figure class="drawlib-image" style="text-align: center;">
+  <img src="../images/02_annotations_and_sql/api_annotations_taxonomy_ja.png" alt="02_annotations_and_sql_1" />
+  <figcaption class="drawlib-caption">MyBatis 3 v3.6.0 — マッパーアノテーション体系と SQL Builder パイプライン</figcaption>
+</figure>
+<details class="drawlib-code-details">
+<summary>Source Code</summary>
+<pre><code class="language-python"><span class="kn">from</span><span class="w"> </span><span class="nn">drawlib.canvas</span><span class="w"> </span><span class="kn">import</span> <span class="n">save</span><span class="p">,</span> <span class="n">setup</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">drawlib.icons</span><span class="w"> </span><span class="kn">import</span> <span class="n">phosphor</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">drawlib.smartarts</span><span class="w"> </span><span class="kn">import</span> <span class="n">CardList</span><span class="p">,</span> <span class="n">Panel</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">drawlib.styles</span><span class="w"> </span><span class="kn">import</span> <span class="n">Colors</span><span class="p">,</span> <span class="n">Styles</span>
+
+<span class="n">setup</span><span class="p">(</span><span class="n">width</span><span class="o">=</span><span class="mi">144</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mi">64</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">150</span><span class="p">)</span>
+
+<span class="n">white_card</span> <span class="o">=</span> <span class="n">Styles</span><span class="o">.</span><span class="n">Neutral</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="n">shape_fill_color</span><span class="o">=</span><span class="n">Colors</span><span class="o">.</span><span class="n">White</span><span class="p">)</span>
+
+<span class="n">left_panel</span> <span class="o">=</span> <span class="n">Panel</span><span class="p">(</span>
+    <span class="s2">"SQL &amp; Provider Annotations"</span><span class="p">,</span>
+    <span class="s2">"org.apache.ibatis.annotations"</span><span class="p">,</span>
+    <span class="n">style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">Neutral</span><span class="p">,</span>
+    <span class="n">header_style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">PrimaryNeutral</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="n">shape_line_width</span><span class="o">=</span><span class="mf">1.2</span><span class="p">),</span>
+    <span class="n">text_style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">DarkBold</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="n">text_size</span><span class="o">=</span><span class="mf">10.8</span><span class="p">),</span>
+    <span class="n">description_style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">Muted</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="n">text_size</span><span class="o">=</span><span class="mf">9.5</span><span class="p">),</span>
+    <span class="n">icon</span><span class="o">=</span><span class="n">phosphor</span><span class="o">.</span><span class="n">code</span><span class="p">,</span>
+    <span class="n">icon_style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">PrimaryBold</span><span class="p">,</span>
+    <span class="n">header_variant</span><span class="o">=</span><span class="s2">"filled"</span><span class="p">,</span>
+    <span class="n">header_height</span><span class="o">=</span><span class="mf">8.0</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">left_panel</span><span class="o">.</span><span class="n">draw</span><span class="p">((</span><span class="mf">4.0</span><span class="p">,</span> <span class="mf">4.5</span><span class="p">),</span> <span class="n">width</span><span class="o">=</span><span class="mf">66.5</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mf">55.0</span><span class="p">,</span> <span class="n">align</span><span class="o">=</span><span class="s2">"bottom_left"</span><span class="p">)</span>
+<span class="n">l_xy</span><span class="p">,</span> <span class="n">l_w</span><span class="p">,</span> <span class="n">l_h</span> <span class="o">=</span> <span class="n">left_panel</span><span class="o">.</span><span class="n">get_content_box</span><span class="p">((</span><span class="mf">4.0</span><span class="p">,</span> <span class="mf">4.5</span><span class="p">),</span> <span class="n">width</span><span class="o">=</span><span class="mf">66.5</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mf">55.0</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="p">(</span><span class="mf">2.6</span><span class="p">,</span> <span class="mf">2.4</span><span class="p">),</span> <span class="n">align</span><span class="o">=</span><span class="s2">"bottom_left"</span><span class="p">)</span>
+
+<span class="n">sql_cards</span> <span class="o">=</span> <span class="n">CardList</span><span class="p">(</span>
+    <span class="n">style</span><span class="o">=</span><span class="n">white_card</span><span class="p">,</span>
+    <span class="n">text_style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">DarkBold</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="n">text_size</span><span class="o">=</span><span class="mf">10.0</span><span class="p">),</span>
+    <span class="n">description_style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">Muted</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="n">text_size</span><span class="o">=</span><span class="mf">9.4</span><span class="p">),</span>
+    <span class="n">badge_shape</span><span class="o">=</span><span class="s2">"rounded_rect"</span><span class="p">,</span>
+    <span class="n">badge_style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">PrimaryFlat</span><span class="p">,</span>
+    <span class="n">badge_text_style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">WhiteBold</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="n">text_size</span><span class="o">=</span><span class="mf">9.5</span><span class="p">),</span>
+    <span class="n">direction</span><span class="o">=</span><span class="s2">"vertical"</span><span class="p">,</span>
+    <span class="n">spacing</span><span class="o">=</span><span class="mf">1.8</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">sql_cards</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">"@Select / @Insert / @Update / @Delete"</span><span class="p">,</span> <span class="s2">"Inline SQL or &lt;script&gt; dynamic XML tags"</span><span class="p">,</span> <span class="n">badge_text</span><span class="o">=</span><span class="s2">"SQL"</span><span class="p">)</span>
+<span class="n">sql_cards</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">"@SelectProvider / @*Provider"</span><span class="p">,</span> <span class="s2">"Delegates SQL generation to SQL builder"</span><span class="p">,</span> <span class="n">badge_text</span><span class="o">=</span><span class="s2">"PRV"</span><span class="p">)</span>
+<span class="n">sql_cards</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">"@Param &amp; @Options &amp; @SelectKey"</span><span class="p">,</span> <span class="s2">"Named params, generated keys &amp; timeouts"</span><span class="p">,</span> <span class="n">badge_text</span><span class="o">=</span><span class="s2">"OPT"</span><span class="p">)</span>
+<span class="n">sql_cards</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="n">l_xy</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="n">l_w</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="n">l_h</span><span class="p">,</span> <span class="n">align</span><span class="o">=</span><span class="s2">"bottom_left"</span><span class="p">)</span>
+
+<span class="n">right_panel</span> <span class="o">=</span> <span class="n">Panel</span><span class="p">(</span>
+    <span class="s2">"Result Mapping &amp; Cache Annotations"</span><span class="p">,</span>
+    <span class="s2">"Hydration, Joins &amp; L2 Namespace"</span><span class="p">,</span>
+    <span class="n">style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">Neutral</span><span class="p">,</span>
+    <span class="n">header_style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">SecondaryNeutral</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="n">shape_line_width</span><span class="o">=</span><span class="mf">1.2</span><span class="p">),</span>
+    <span class="n">text_style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">DarkBold</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="n">text_size</span><span class="o">=</span><span class="mf">10.8</span><span class="p">),</span>
+    <span class="n">description_style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">Muted</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="n">text_size</span><span class="o">=</span><span class="mf">9.5</span><span class="p">),</span>
+    <span class="n">icon</span><span class="o">=</span><span class="n">phosphor</span><span class="o">.</span><span class="n">table</span><span class="p">,</span>
+    <span class="n">icon_style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">DarkBold</span><span class="p">,</span>
+    <span class="n">header_variant</span><span class="o">=</span><span class="s2">"filled"</span><span class="p">,</span>
+    <span class="n">header_height</span><span class="o">=</span><span class="mf">8.0</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">right_panel</span><span class="o">.</span><span class="n">draw</span><span class="p">((</span><span class="mf">73.5</span><span class="p">,</span> <span class="mf">4.5</span><span class="p">),</span> <span class="n">width</span><span class="o">=</span><span class="mf">66.5</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mf">55.0</span><span class="p">,</span> <span class="n">align</span><span class="o">=</span><span class="s2">"bottom_left"</span><span class="p">)</span>
+<span class="n">r_xy</span><span class="p">,</span> <span class="n">r_w</span><span class="p">,</span> <span class="n">r_h</span> <span class="o">=</span> <span class="n">right_panel</span><span class="o">.</span><span class="n">get_content_box</span><span class="p">((</span><span class="mf">73.5</span><span class="p">,</span> <span class="mf">4.5</span><span class="p">),</span> <span class="n">width</span><span class="o">=</span><span class="mf">66.5</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mf">55.0</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="p">(</span><span class="mf">2.6</span><span class="p">,</span> <span class="mf">2.4</span><span class="p">),</span> <span class="n">align</span><span class="o">=</span><span class="s2">"bottom_left"</span><span class="p">)</span>
+
+<span class="n">map_cards</span> <span class="o">=</span> <span class="n">CardList</span><span class="p">(</span>
+    <span class="n">style</span><span class="o">=</span><span class="n">white_card</span><span class="p">,</span>
+    <span class="n">text_style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">DarkBold</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="n">text_size</span><span class="o">=</span><span class="mf">10.0</span><span class="p">),</span>
+    <span class="n">description_style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">Muted</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="n">text_size</span><span class="o">=</span><span class="mf">9.4</span><span class="p">),</span>
+    <span class="n">badge_shape</span><span class="o">=</span><span class="s2">"rounded_rect"</span><span class="p">,</span>
+    <span class="n">badge_style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">SecondaryFlat</span><span class="p">,</span>
+    <span class="n">badge_text_style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">WhiteBold</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="n">text_size</span><span class="o">=</span><span class="mf">9.5</span><span class="p">),</span>
+    <span class="n">direction</span><span class="o">=</span><span class="s2">"vertical"</span><span class="p">,</span>
+    <span class="n">spacing</span><span class="o">=</span><span class="mf">1.8</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">map_cards</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">"@Results, @Result, @ResultMap"</span><span class="p">,</span> <span class="s2">"Reusable property/column result mappings"</span><span class="p">,</span> <span class="n">badge_text</span><span class="o">=</span><span class="s2">"MAP"</span><span class="p">)</span>
+<span class="n">map_cards</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">"@ConstructorArgs &amp; @Arg"</span><span class="p">,</span> <span class="s2">"Immutable Java record &amp; constructor args"</span><span class="p">,</span> <span class="n">badge_text</span><span class="o">=</span><span class="s2">"CON"</span><span class="p">)</span>
+<span class="n">map_cards</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">"@One, @Many &amp; @CacheNamespace"</span><span class="p">,</span> <span class="s2">"1:1 / 1:N joins &amp; L2 cache configuration"</span><span class="p">,</span> <span class="n">badge_text</span><span class="o">=</span><span class="s2">"L2"</span><span class="p">)</span>
+<span class="n">map_cards</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="n">r_xy</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="n">r_w</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="n">l_h</span><span class="p">,</span> <span class="n">align</span><span class="o">=</span><span class="s2">"bottom_left"</span><span class="p">)</span>
+
+<span class="n">save</span><span class="p">()</span>
+</code></pre>
+</details>
+<h2 id="annotation-select-insert-update-delete" class="catalog-section-heading"><span><code>annotation</code> @Select / @Insert / @Update / @Delete</span><a class="header-anchor" href="#annotation-select-insert-update-delete" aria-label="Permalink to annotation @Select / @Insert / @Update / @Delete">#</a></h2>
+<p>マッパーインターフェースのメソッド上に直接 SQL 文を宣言します (<code>org.apache.ibatis.annotations.Select</code>, <code>Insert</code>, <code>Update</code>, <code>Delete</code>)。<code>String[] value()</code>（空白で結合）および <code>String databaseId() default &quot;&quot;</code> を受け取ります。<code>&lt;script&gt;...&lt;/script&gt;</code> で囲むと <code>&lt;if&gt;</code> や <code>&lt;foreach&gt;</code> 等の動的 SQL タグを使用できます。</p>
+<pre><code class="language-java"><span class="nd">@Select</span><span class="p">({</span>
+<span class="w">    </span><span class="s">"SELECT id, email, status, created_at"</span><span class="p">,</span>
+<span class="w">    </span><span class="s">"FROM users"</span><span class="p">,</span>
+<span class="w">    </span><span class="s">"WHERE id = #{id}"</span>
+<span class="p">})</span>
+<span class="n">Optional</span><span class="o">&lt;</span><span class="n">User</span><span class="o">&gt;</span><span class="w"> </span><span class="nf">findById</span><span class="p">(</span><span class="nd">@Param</span><span class="p">(</span><span class="s">"id"</span><span class="p">)</span><span class="w"> </span><span class="kt">long</span><span class="w"> </span><span class="n">id</span><span class="p">);</span>
+</code></pre>
+<h2 id="annotation-param" class="catalog-section-heading"><span><code>annotation</code> @Param</span><a class="header-anchor" href="#annotation-param" aria-label="Permalink to annotation @Param">#</a></h2>
+<p><code>#{name}</code> プレースホルダや OGNL 条件式 <code>&lt;if test=&quot;name != null&quot;&gt;</code> から参照するための明示的なパラメータ名を付与します (<code>org.apache.ibatis.annotations.Param</code>)。引数が2つ以上あるメソッドでは必須です。</p>
+<h2 id="annotation-options" class="catalog-section-heading"><span><code>annotation</code> @Options</span><a class="header-anchor" href="#annotation-options" aria-label="Permalink to annotation @Options">#</a></h2>
+<p>XML の <code>&lt;select&gt;</code> / <code>&lt;insert&gt;</code> 属性に相当するステートメント単位の実行オプション (<code>org.apache.ibatis.annotations.Options</code>) を指定します。</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">属性名</th>
+<th style="text-align:left">型</th>
+<th style="text-align:left">デフォルト値</th>
+<th style="text-align:left">説明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"><code>useGeneratedKeys</code></td>
+<td style="text-align:left"><code>boolean</code></td>
+<td style="text-align:left"><code>false</code></td>
+<td style="text-align:left"><code>INSERT</code> / <code>UPDATE</code> で JDBC <code>getGeneratedKeys()</code> (<code>Jdbc3KeyGenerator</code>) を有効化します。</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>keyProperty</code></td>
+<td style="text-align:left"><code>String</code></td>
+<td style="text-align:left"><code>&quot;&quot;</code></td>
+<td style="text-align:left">自動生成キーを格納する Java プロパティ名（例: <code>&quot;id&quot;</code>、カンマ区切り可）。</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>keyColumn</code></td>
+<td style="text-align:left"><code>String</code></td>
+<td style="text-align:left"><code>&quot;&quot;</code></td>
+<td style="text-align:left">自動生成キーを持つ DB カラム名（PostgreSQL 等で先頭カラム以外の場合に指定）。</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>useCache</code></td>
+<td style="text-align:left"><code>boolean</code></td>
+<td style="text-align:left"><code>true</code></td>
+<td style="text-align:left">この <code>SELECT</code> で L2 キャッシュを使用するかどうかを制御します。</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>flushCache</code></td>
+<td style="text-align:left"><code>FlushCachePolicy</code></td>
+<td style="text-align:left"><code>DEFAULT</code></td>
+<td style="text-align:left">実行時の L1/L2 キャッシュクリア動作（<code>DEFAULT</code>, <code>TRUE</code>, <code>FALSE</code>）。</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>fetchSize</code></td>
+<td style="text-align:left"><code>int</code></td>
+<td style="text-align:left"><code>-1</code></td>
+<td style="text-align:left">JDBC <code>Statement.setFetchSize(行数)</code> ヒント。</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>timeout</code></td>
+<td style="text-align:left"><code>int</code></td>
+<td style="text-align:left"><code>-1</code></td>
+<td style="text-align:left">JDBC <code>Statement.setQueryTimeout(秒)</code> タイムアウト値。</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>resultSetType</code></td>
+<td style="text-align:left"><code>ResultSetType</code></td>
+<td style="text-align:left"><code>DEFAULT</code></td>
+<td style="text-align:left"><code>FORWARD_ONLY</code>, <code>SCROLL_INSENSITIVE</code>, <code>SCROLL_SENSITIVE</code>。</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>statementType</code></td>
+<td style="text-align:left"><code>StatementType</code></td>
+<td style="text-align:left"><code>PREPARED</code></td>
+<td style="text-align:left"><code>STATEMENT</code>, <code>PREPARED</code>（デフォルト）, <code>CALLABLE</code>（ストアドプロシージャ）。</td>
+</tr>
+</tbody>
+</table>
+<h2 id="annotation-results-result-resultmap" class="catalog-section-heading"><span><code>annotation</code> @Results &amp; @Result &amp; @ResultMap</span><a class="header-anchor" href="#annotation-results-result-resultmap" aria-label="Permalink to annotation @Results &amp; @Result &amp; @ResultMap">#</a></h2>
+<p>メソッド上でカラムとプロパティのマッピング (<code>org.apache.ibatis.annotations.Results</code>, <code>Result</code>, <code>ResultMap</code>) を定義します。<code>@Results(id = &quot;userResultMap&quot;, ...)</code> のように <code>id</code> を付与すると、<code>Configuration</code> に再利用可能な <code>ResultMap</code> として登録され、他メソッドから <code>@ResultMap(&quot;userResultMap&quot;)</code> で参照できます。</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left"><code>@Result</code> 属性</th>
+<th style="text-align:left">型</th>
+<th style="text-align:left">デフォルト値</th>
+<th style="text-align:left">説明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"><code>id</code></td>
+<td style="text-align:left"><code>boolean</code></td>
+<td style="text-align:left"><code>false</code></td>
+<td style="text-align:left">主キーカラムであることを示します（JOIN 集約時の <code>CacheKey</code> 計算を高速化）。</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>column</code></td>
+<td style="text-align:left"><code>String</code></td>
+<td style="text-align:left"><code>&quot;&quot;</code></td>
+<td style="text-align:left">DB カラム名またはエイリアス（複合キー時は <code>&quot;{id=user_id,status=status}&quot;</code>）。</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>property</code></td>
+<td style="text-align:left"><code>String</code></td>
+<td style="text-align:left"><code>&quot;&quot;</code></td>
+<td style="text-align:left">マッピング先の Java プロパティ名。</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>javaType</code></td>
+<td style="text-align:left"><code>Class&lt;?&gt;</code></td>
+<td style="text-align:left"><code>void.class</code></td>
+<td style="text-align:left">明示的な Java 型クラス。</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>jdbcType</code></td>
+<td style="text-align:left"><code>JdbcType</code></td>
+<td style="text-align:left"><code>UNDEFINED</code></td>
+<td style="text-align:left">明示的な JDBC 型（<code>JdbcType.VARCHAR</code>, <code>JdbcType.TIMESTAMP</code> 等）。</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>typeHandler</code></td>
+<td style="text-align:left"><code>Class&lt;? extends TypeHandler&gt;</code></td>
+<td style="text-align:left"><code>UnknownTypeHandler.class</code></td>
+<td style="text-align:left">カスタム <code>TypeHandler</code> 実装クラス。</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>one</code></td>
+<td style="text-align:left"><code>@One</code></td>
+<td style="text-align:left"><code>@One</code></td>
+<td style="text-align:left">ネストされた <code>1:1</code> 関連（<code>select = &quot;...&quot;</code> または <code>resultMap = &quot;...&quot;</code>, <code>fetchType</code>）。</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>many</code></td>
+<td style="text-align:left"><code>@Many</code></td>
+<td style="text-align:left"><code>@Many</code></td>
+<td style="text-align:left">ネストされた <code>1:N</code> コレクション（<code>select = &quot;...&quot;</code> または <code>resultMap = &quot;...&quot;</code>, <code>fetchType</code>）。</td>
+</tr>
+</tbody>
+</table>
+<h2 id="annotation-constructorargs-arg" class="catalog-section-heading"><span><code>annotation</code> @ConstructorArgs &amp; @Arg</span><a class="header-anchor" href="#annotation-constructorargs-arg" aria-label="Permalink to annotation @ConstructorArgs &amp; @Arg">#</a></h2>
+<p><code>ResultSet</code> のカラムをコンストラクタ引数に直接マッピングします (<code>org.apache.ibatis.annotations.ConstructorArgs</code>, <code>Arg</code>)。セッターを持たない不変ドメインオブジェクトや Java <code>record</code> クラスの構築に最適です。</p>
+<h2 id="annotation-one-many" class="catalog-section-heading"><span><code>annotation</code> @One &amp; @Many</span><a class="header-anchor" href="#annotation-one-many" aria-label="Permalink to annotation @One &amp; @Many">#</a></h2>
+<p><code>@Result</code> 内で <code>1:1</code> (<code>@One</code>) および <code>1:N</code> (<code>@Many</code>) の関連マッピングを定義します。</p>
+<ul>
+<li><code>select</code>: 別クエリを実行するステートメント ID (<code>&quot;com.example.OrderMapper.findByUserId&quot;</code>)。</li>
+<li><code>resultMap</code>: 単一 JOIN クエリの結果をマッピングする既存 <code>ResultMap</code> の ID。</li>
+<li><code>columnPrefix</code>: ネスト <code>ResultMap</code> に適用するカラム接頭辞 (<code>&quot;ord_&quot;</code>)。</li>
+<li><code>fetchType</code>: <code>FetchType.LAZY</code>（遅延ロード）、<code>FetchType.EAGER</code>（即時ロード）、<code>FetchType.DEFAULT</code>。</li>
+</ul>
+<h2 id="annotation-selectkey" class="catalog-section-heading"><span><code>annotation</code> @SelectKey</span><a class="header-anchor" href="#annotation-selectkey" aria-label="Permalink to annotation @SelectKey">#</a></h2>
+<p>シーケンス等を用いる DB 向けに、<code>INSERT</code> の前後でキー取得 SQL を実行します (<code>org.apache.ibatis.annotations.SelectKey</code>, XML の <code>&lt;selectKey&gt;</code> 相当: <code>statement</code>, <code>keyProperty</code>, <code>keyColumn</code>, <code>before = true|false</code>, <code>resultType</code>)。</p>
+<h2 id="annotation-selectprovider-insertprovider-updateprovider-deleteprovider" class="catalog-section-heading"><span><code>annotation</code> @SelectProvider / @InsertProvider / @UpdateProvider / @DeleteProvider</span><a class="header-anchor" href="#annotation-selectprovider-insertprovider-updateprovider-deleteprovider" aria-label="Permalink to annotation @SelectProvider / @InsertProvider / @UpdateProvider / @DeleteProvider">#</a></h2>
+<p>Java のプロバイダクラス (<code>type</code> / <code>value</code>) とメソッド (<code>method</code>、または <code>ProviderMethodResolver</code> 実装時は同名メソッド) に動的 SQL 構築を委譲します。</p>
+<pre><code class="language-java"><span class="nd">@SelectProvider</span><span class="p">(</span><span class="n">type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">UserSqlProvider</span><span class="p">.</span><span class="na">class</span><span class="p">,</span><span class="w"> </span><span class="n">method</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"buildFindUsers"</span><span class="p">)</span>
+<span class="n">List</span><span class="o">&lt;</span><span class="n">User</span><span class="o">&gt;</span><span class="w"> </span><span class="nf">findUsers</span><span class="p">(</span><span class="nd">@Param</span><span class="p">(</span><span class="s">"status"</span><span class="p">)</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">status</span><span class="p">,</span><span class="w"> </span><span class="nd">@Param</span><span class="p">(</span><span class="s">"emailLike"</span><span class="p">)</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">emailLike</span><span class="p">);</span>
+</code></pre>
+<h2 id="annotation-cachenamespace-cachenamespaceref" class="catalog-section-heading"><span><code>annotation</code> @CacheNamespace &amp; @CacheNamespaceRef</span><a class="header-anchor" href="#annotation-cachenamespace-cachenamespaceref" aria-label="Permalink to annotation @CacheNamespace &amp; @CacheNamespaceRef">#</a></h2>
+<p>マッパーインターフェースの名前空間に対して L2 キャッシュを有効化・設定します (<code>org.apache.ibatis.annotations.CacheNamespace</code>): <code>implementation</code>, <code>eviction = LruCache.class</code>, <code>flushInterval</code>, <code>size = 1024</code>, <code>readWrite = true</code> (<code>SerializedCache</code> 使用), <code>blocking = false</code>。別マッパーとキャッシュを共有する場合は <code>@CacheNamespaceRef</code> を使用します。</p>
+<h2 id="sql" class="catalog-symbol-heading"><span class="catalog-badge catalog-badge-class">class</span><code class="catalog-sig"><span class="catalog-sig-name">SQL</span></code><a class="header-anchor" href="#sql" aria-label="Permalink to SQL">#</a></h2>
+<p><code>@SelectProvider</code> 等で安全に動的 SQL を組み立てるための流れるような（Fluent）ビルダークラス (<code>org.apache.ibatis.jdbc.SQL extends AbstractSQL&lt;SQL&gt;</code>) です。<code>WHERE</code> 句の先頭 <code>AND</code>/<code>OR</code> や <code>SET</code> 句の末尾カンマを自動整形します。</p>
+<pre><code class="language-java"><span class="n">String</span><span class="w"> </span><span class="n">sql</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">SQL</span><span class="p">()</span>
+<span class="w">    </span><span class="p">.</span><span class="na">SELECT</span><span class="p">(</span><span class="s">"u.id"</span><span class="p">,</span><span class="w"> </span><span class="s">"u.email"</span><span class="p">,</span><span class="w"> </span><span class="s">"u.status"</span><span class="p">)</span>
+<span class="w">    </span><span class="p">.</span><span class="na">FROM</span><span class="p">(</span><span class="s">"users u"</span><span class="p">)</span>
+<span class="w">    </span><span class="p">.</span><span class="na">WHERE</span><span class="p">(</span><span class="s">"u.active = #{active}"</span><span class="p">)</span>
+<span class="w">    </span><span class="p">.</span><span class="na">applyIf</span><span class="p">(</span><span class="n">email</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w"> </span><span class="n">s</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">s</span><span class="p">.</span><span class="na">WHERE</span><span class="p">(</span><span class="s">"u.email LIKE #{email}"</span><span class="p">))</span>
+<span class="w">    </span><span class="p">.</span><span class="na">ORDER_BY</span><span class="p">(</span><span class="s">"u.id DESC"</span><span class="p">)</span>
+<span class="w">    </span><span class="p">.</span><span class="na">OFFSET_ROWS</span><span class="p">(</span><span class="s">"#{offset}"</span><span class="p">)</span>
+<span class="w">    </span><span class="p">.</span><span class="na">FETCH_FIRST_ROWS_ONLY</span><span class="p">(</span><span class="s">"#{limit}"</span><span class="p">)</span>
+<span class="w">    </span><span class="p">.</span><span class="na">toString</span><span class="p">();</span>
+</code></pre>
+<h2 id="scriptrunner-sqlrunner" class="catalog-symbol-heading"><span class="catalog-badge catalog-badge-class">class</span><code class="catalog-sig"><span class="catalog-sig-name">ScriptRunner &amp; SqlRunner</span></code><a class="header-anchor" href="#scriptrunner-sqlrunner" aria-label="Permalink to ScriptRunner &amp; SqlRunner">#</a></h2>
+<p><code>org.apache.ibatis.jdbc</code> パッケージの軽量 JDBC ユーティリティです。</p>
+<ul>
+<li><strong><code>ScriptRunner</code></strong>: DDL / シード SQL スクリプト (<code>Reader</code>) を実行します（<code>BaseDataTest</code> の HSQLDB / Derby / H2 初期化でも使用）。</li>
+<li><strong><code>SqlRunner</code></strong>: 生の <code>java.sql.Connection</code> に対して単発の <code>selectOne</code> / <code>selectAll</code> / <code>insert</code> / <code>update</code> / <code>delete</code> を実行し、<code>Map&lt;String, Object&gt;</code> を返します。</li>
+</ul>
+
+
+                
+                <nav class="catalog-pager" aria-label="Catalog Page Navigation">
+                    
+                    <a href="01_session_and_binding.html" class="catalog-pager-card is-prev">
+                        <span class="catalog-pager-dir">&larr; 前へ</span>
+                        <span class="catalog-pager-title">Session &amp; Binding API</span>
+                    </a>
+                    
+                    
+                    <a href="03_xml_config_and_mapper.html" class="catalog-pager-card is-next">
+                        <span class="catalog-pager-dir">次へ &rarr;</span>
+                        <span class="catalog-pager-title">XML Configuration &amp; Mapper 要素</span>
+                    </a>
+                    
+                </nav>
+                
+            </main>
+
+            <footer class="footer">
+                Generated by <a href="https://github.com/yuichi110/drawlib" target="_blank" rel="noopener noreferrer">Drawlib</a>.
+            </footer>
+        </div>
+    </div>
+
+    <script>
+        (function() {
+            var toggleBtn = document.getElementById('theme-toggle');
+            if (toggleBtn) {
+                toggleBtn.addEventListener('click', function() {
+                    var current = document.documentElement.getAttribute('data-theme');
+                    if (!current) {
+                        current = (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
+                    }
+                    var next = current === 'dark' ? 'light' : 'dark';
+                    document.documentElement.setAttribute('data-theme', next);
+                    try { localStorage.setItem('drawlib-theme', next); } catch (e) {}
+                });
+            }
+
+            var menuBtn = document.getElementById('menu-toggle');
+            var sidebar = document.getElementById('catalog-sidebar');
+            var backdrop = document.getElementById('sidebar-backdrop');
+            function closeMenu() {
+                if (sidebar) sidebar.classList.remove('is-open');
+                if (backdrop) backdrop.classList.remove('is-open');
+            }
+            if (menuBtn && sidebar && backdrop) {
+                menuBtn.addEventListener('click', function() {
+                    sidebar.classList.toggle('is-open');
+                    backdrop.classList.toggle('is-open');
+                });
+                backdrop.addEventListener('click', closeMenu);
+            }
+
+            document.querySelectorAll('.catalog-nav-cat-link').forEach(function(link) {
+                link.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                });
+            });
+
+            if (sidebar) {
+                try {
+                    var savedScroll = sessionStorage.getItem('drawlib-catalog-sidebar-scroll');
+                    if (savedScroll !== null) {
+                        sidebar.scrollTop = parseInt(savedScroll, 10) || 0;
+                    }
+                    sidebar.addEventListener('scroll', function() {
+                        try { sessionStorage.setItem('drawlib-catalog-sidebar-scroll', String(sidebar.scrollTop)); } catch (e) {}
+                    }, { passive: true });
+                } catch (e) {}
+            }
+
+            var groups = Array.prototype.slice.call(document.querySelectorAll('.catalog-nav-group'));
+            var expandBtn = document.getElementById('catalog-expand-toggle');
+            function updateExpandBtnLabel() {
+                if (!expandBtn || groups.length === 0) return;
+                var visibleGroups = groups.filter(function(g) { return !g.hidden; });
+                var allOpen = visibleGroups.length > 0 && visibleGroups.every(function(g) { return g.open; });
+                var expandText = expandBtn.getAttribute('data-expand-label') || 'Expand All';
+                var collapseText = expandBtn.getAttribute('data-collapse-label') || 'Collapse All';
+                expandBtn.textContent = allOpen ? collapseText : expandText;
+            }
+            if (expandBtn) {
+                updateExpandBtnLabel();
+                expandBtn.addEventListener('click', function() {
+                    var visibleGroups = groups.filter(function(g) { return !g.hidden; });
+                    var allOpen = visibleGroups.length > 0 && visibleGroups.every(function(g) { return g.open; });
+                    visibleGroups.forEach(function(g) { g.open = !allOpen; });
+                    updateExpandBtnLabel();
+                });
+                groups.forEach(function(g) {
+                    g.addEventListener('toggle', updateExpandBtnLabel);
+                });
+            }
+
+            var filterInput = document.getElementById('catalog-filter-input');
+            var emptyNotice = document.getElementById('catalog-nav-empty');
+            var savedOpenState = null;
+
+            if (filterInput) {
+                filterInput.addEventListener('input', function() {
+                    var q = filterInput.value.trim().toLowerCase();
+                    if (q && !savedOpenState) {
+                        savedOpenState = groups.map(function(g) { return g.open; });
+                    }
+                    var anyMatch = false;
+                    groups.forEach(function(g, idx) {
+                        var catText = (g.getAttribute('data-cat') || '').toLowerCase();
+                        var catMatches = q !== '' && catText.indexOf(q) !== -1;
+                        var items = Array.prototype.slice.call(g.querySelectorAll('.catalog-nav-subitem'));
+                        var visibleCount = 0;
+
+                        items.forEach(function(li) {
+                            var symText = (li.getAttribute('data-sym') || '').toLowerCase();
+                            var show = (q === '') || catMatches || symText.indexOf(q) !== -1;
+                            li.hidden = !show;
+                            if (show) visibleCount += 1;
+                        });
+
+                        if (q === '') {
+                            g.hidden = false;
+                            if (savedOpenState && typeof savedOpenState[idx] === 'boolean') {
+                                g.open = savedOpenState[idx];
+                            }
+                            anyMatch = true;
+                        } else if (catMatches || visibleCount > 0) {
+                            g.hidden = false;
+                            g.open = true;
+                            anyMatch = true;
+                        } else {
+                            g.hidden = true;
+                        }
+                    });
+
+                    if (q === '') {
+                        savedOpenState = null;
+                    }
+                    if (emptyNotice) {
+                        emptyNotice.hidden = anyMatch;
+                    }
+                    updateExpandBtnLabel();
+                });
+
+                document.addEventListener('keydown', function(e) {
+                    if (e.key === '/' && document.activeElement !== filterInput) {
+                        var tag = document.activeElement ? document.activeElement.tagName : '';
+                        if (tag !== 'INPUT' && tag !== 'TEXTAREA' && tag !== 'SELECT') {
+                            e.preventDefault();
+                            filterInput.focus();
+                        }
+                    } else if (e.key === 'Escape' && document.activeElement === filterInput) {
+                        filterInput.value = '';
+                        filterInput.dispatchEvent(new Event('input'));
+                        filterInput.blur();
+                    }
+                });
+            }
+
+            document.addEventListener('click', function(e) {
+                document.querySelectorAll('.lang-dropdown[open]').forEach(function(dd) {
+                    if (!dd.contains(e.target)) {
+                        dd.removeAttribute('open');
+                    }
+                });
+            });
+
+            var activeLinks = Array.prototype.slice.call(document.querySelectorAll('.catalog-nav-sublink[data-target]'));
+            if (activeLinks.length > 0 && 'IntersectionObserver' in window) {
+                var linkBySlug = {};
+                var headings = [];
+                activeLinks.forEach(function(a) {
+                    var slug = a.getAttribute('data-target');
+                    var el = slug ? document.getElementById(slug) : null;
+                    if (slug && el) {
+                        linkBySlug[slug] = a;
+                        headings.push(el);
+                    }
+                    a.addEventListener('click', closeMenu);
+                });
+
+                function setActiveSlug(slug) {
+                    activeLinks.forEach(function(a) {
+                        if (a.getAttribute('data-target') === slug) {
+                            a.classList.add('is-active');
+                        } else {
+                            a.classList.remove('is-active');
+                        }
+                    });
+                }
+
+                if (window.location.hash) {
+                    var initSlug = decodeURIComponent(window.location.hash.slice(1));
+                    if (linkBySlug[initSlug]) setActiveSlug(initSlug);
+                } else if (headings.length > 0) {
+                    setActiveSlug(headings[0].id);
+                }
+
+                var visibleIds = {};
+                var observer = new IntersectionObserver(function(entries) {
+                    entries.forEach(function(entry) {
+                        visibleIds[entry.target.id] = entry.isIntersecting;
+                    });
+                    for (var i = 0; i < headings.length; i++) {
+                        if (visibleIds[headings[i].id]) {
+                            setActiveSlug(headings[i].id);
+                            break;
+                        }
+                    }
+                }, { rootMargin: '-70px 0px -68% 0px', threshold: [0, 1] });
+
+                headings.forEach(function(h) { observer.observe(h); });
+            }
+        })();
+    </script>
+</body>
+</html>

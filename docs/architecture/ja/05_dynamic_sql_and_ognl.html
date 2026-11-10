@@ -1,0 +1,482 @@
+<!--
+ Copyright (c) 2026 Yuichi Ito (yuichi@yuichi.com)
+
+ This software is licensed under the Apache License, Version 2.0.
+ For more information, please visit: https://github.com/yuichi110/drawlib
+-->
+<!DOCTYPE html>
+<html lang="ja" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>5. 動的 SQL AST と OGNL 評価 — MyBatis 3 Architecture (Unofficial · PNI501 + Drawlib Demo)</title>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-S9N5BZ1VRC"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-S9N5BZ1VRC');
+    </script>
+    <script>
+        (function() {
+            const saved = localStorage.getItem('drawlib-theme');
+            if (saved === 'dark' || (!saved && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                document.documentElement.setAttribute('data-theme', 'dark');
+            } else {
+                document.documentElement.setAttribute('data-theme', 'light');
+            }
+        })();
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+    
+    
+    <link rel="alternate" hreflang="en" href="https://mybatis3.drawlib.com/architecture/en/05_dynamic_sql_and_ognl.html">
+    
+    <link rel="alternate" hreflang="ja" href="https://mybatis3.drawlib.com/architecture/ja/05_dynamic_sql_and_ognl.html">
+    
+    <link rel="alternate" hreflang="x-default" href="https://mybatis3.drawlib.com/architecture/en/05_dynamic_sql_and_ognl.html">
+    
+    
+    
+    <meta name="description" content="MyBatis 3 の動的 SQL エンジン (org.apache.ibatis.scripting.*, 全 25 ファイル) は、Interpreter パターンと Composite パターンを組み合わせることで、XML タグ（ , , , , , , , , ）を実行可能な SqlNode…">
+    <link rel="canonical" href="https://mybatis3.drawlib.com/architecture/ja/05_dynamic_sql_and_ognl.html">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="MyBatis 3 内部設計">
+    <meta property="og:title" content="5. 動的 SQL AST と OGNL 評価 — MyBatis 3 内部設計">
+    <meta property="og:description" content="MyBatis 3 の動的 SQL エンジン (org.apache.ibatis.scripting.*, 全 25 ファイル) は、Interpreter パターンと Composite パターンを組み合わせることで、XML タグ（ , , , , , , , , ）を実行可能な SqlNode…">
+    <meta property="og:url" content="https://mybatis3.drawlib.com/architecture/ja/05_dynamic_sql_and_ognl.html">
+    <meta property="og:image" content="https://mybatis3.drawlib.com/architecture/_assets/ogp.png">
+    <meta property="og:locale" content="ja_JP">
+    <meta property="og:locale:alternate" content="en_US">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="5. 動的 SQL AST と OGNL 評価 — MyBatis 3 内部設計">
+    <meta name="twitter:description" content="MyBatis 3 の動的 SQL エンジン (org.apache.ibatis.scripting.*, 全 25 ファイル) は、Interpreter パターンと Composite パターンを組み合わせることで、XML タグ（ , , , , , , , , ）を実行可能な SqlNode…">
+    <meta name="twitter:image" content="https://mybatis3.drawlib.com/architecture/_assets/ogp.png">
+    
+    
+    <link rel="icon" type="image/png" href="../_assets/favicon.png">
+    
+    
+    <link rel="stylesheet" href="style.css">
+    
+    
+</head>
+<body>
+    <div class="demo-banner" role="region" aria-label="Unofficial Showcase Notice">
+        <div class="demo-banner-inner">
+            <span class="demo-banner-badge">UNOFFICIAL DEMO</span>
+            <span class="demo-banner-text">
+                
+                <a href="https://pypi.org/project/pni501/" target="_blank" rel="noopener noreferrer">PNI501</a> と <a href="https://www.drawlib.com/" target="_blank" rel="noopener noreferrer">Drawlib</a> で構築した <a href="https://mybatis.org/mybatis-3/" target="_blank" rel="noopener noreferrer">MyBatis 3</a> (v3.6.0, Apache-2.0) の非公式内部アーキテクチャ解説です。
+                
+            </span>
+            <span class="demo-banner-links">
+                <a href="https://mybatis3.drawlib.com/ja/">ユーザーガイド</a>
+                <span class="demo-banner-sep">·</span>
+                <a href="https://mybatis3.drawlib.com/api/ja/">API リファレンス</a>
+                <span class="demo-banner-sep">·</span>
+                <strong style="color:#ffffff;">アーキテクチャ</strong>
+                <span class="demo-banner-sep">·</span>
+                <a href="https://mybatis3.drawlib.com/reports/pni501/">PNI501 Audit</a>
+                <span class="demo-banner-sep">·</span>
+                <a href="https://mybatis.org/mybatis-3/" target="_blank" rel="noopener noreferrer">公式 Docs ↗</a>
+                <span class="demo-banner-sep">·</span>
+                <a href="https://github.com/yuichi110/drawlib-mybatis3" target="_blank" rel="noopener noreferrer">GitHub ↗</a>
+            </span>
+        </div>
+    </div>
+    
+    <div class="doc-layout">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <a href="index.html" class="sidebar-brand" aria-label="MyBatis 3 内部設計">
+                    
+                    MyBatis 3 内部設計
+                    
+                </a>
+                <div class="sidebar-header-actions">
+                    <button type="button" id="theme-toggle" class="theme-toggle-btn" aria-label="Toggle theme">
+                        <svg class="icon-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+                        <svg class="icon-moon" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+                    </button>
+                    <button type="button" id="menu-toggle" class="menu-toggle-btn" aria-label="Toggle navigation" aria-expanded="false">
+                        <svg class="icon-hamburger" viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+                        <svg class="icon-close" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                    </button>
+                </div>
+            </div>
+            <div class="sidebar-menu">
+                
+                    
+                        
+                        <ul class="nav-list">
+                            
+                            <li class="nav-item ">
+                                <a href="index.html" >アーキテクチャ概要</a>
+                            </li>
+                            
+                        </ul>
+                    
+                        
+                        <div class="sidebar-heading">コア内部機構</div>
+                        
+                        <ul class="nav-list">
+                            
+                            <li class="nav-item ">
+                                <a href="01_package_and_layers.html" >1. 3層パッケージ構成とShading</a>
+                            </li>
+                            
+                            <li class="nav-item ">
+                                <a href="02_bootstrap_and_builders.html" >2. 起動コンパイルとBuilder群</a>
+                            </li>
+                            
+                            <li class="nav-item ">
+                                <a href="03_mapper_proxy_engine.html" >3. MapperProxy 動的ディスパッチ</a>
+                            </li>
+                            
+                            <li class="nav-item ">
+                                <a href="04_executor_and_caching.html" >4. Executor・L1/L2キャッシュ・Plugin</a>
+                            </li>
+                            
+                            <li class="nav-item active">
+                                <a href="05_dynamic_sql_and_ognl.html" >5. 動的SQL AST と OGNL 評価</a>
+                            </li>
+                            
+                            <li class="nav-item ">
+                                <a href="06_resultset_and_reflection.html" >6. ResultSet マッピングと Reflection</a>
+                            </li>
+                            
+                        </ul>
+                    
+                        
+                        <div class="sidebar-heading">関連ポータル</div>
+                        
+                        <ul class="nav-list">
+                            
+                            <li class="nav-item ">
+                                <a href="https://mybatis3.drawlib.com/" target="_blank" rel="noopener noreferrer">ユーザーガイド ↗<svg class="nav-external-icon" viewBox="0 0 24 24" aria-hidden="true"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg></a>
+                            </li>
+                            
+                            <li class="nav-item ">
+                                <a href="https://mybatis3.drawlib.com/api/" target="_blank" rel="noopener noreferrer">API &amp; XML カタログ ↗<svg class="nav-external-icon" viewBox="0 0 24 24" aria-hidden="true"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg></a>
+                            </li>
+                            
+                            <li class="nav-item ">
+                                <a href="https://mybatis3.drawlib.com/reports/pni501/" target="_blank" rel="noopener noreferrer">PNI501 診断レポート ↗<svg class="nav-external-icon" viewBox="0 0 24 24" aria-hidden="true"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg></a>
+                            </li>
+                            
+                        </ul>
+                    
+                
+            </div>
+        </aside>
+        <div class="content-wrapper">
+            <header class="top-bar">
+                <div class="breadcrumbs">
+                    <span class="crumb">内部アーキテクチャ</span>
+                    <span class="crumb-separator">&raquo;</span>
+                    <span class="crumb active">5. 動的 SQL AST と OGNL 評価</span>
+                </div>
+                
+                <div class="lang-switcher">
+                    <details class="lang-dropdown">
+                        <summary class="lang-dropdown-btn" aria-label="Select language">
+                            <svg class="lang-globe-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
+                            <span class="lang-current-label">日本語</span>
+                            <svg class="lang-caret-icon" viewBox="0 0 24 24" aria-hidden="true"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                        </summary>
+                        <div class="lang-dropdown-menu" role="menu">
+                            
+                            <a href="../en/05_dynamic_sql_and_ognl.html" class="lang-option" lang="en" hreflang="en" >
+                                <span>English</span>
+                                
+                            </a>
+                            
+                            <a href="05_dynamic_sql_and_ognl.html" class="lang-option active" lang="ja" hreflang="ja" aria-current="page">
+                                <span>日本語</span>
+                                
+                                <svg class="lang-check-icon" viewBox="0 0 24 24" aria-hidden="true"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                                
+                            </a>
+                            
+                        </div>
+                    </details>
+                </div>
+                
+            </header>
+            <main class="main-content">
+                <h1>5. 動的 SQL AST と OGNL 評価</h1>
+<p>MyBatis 3 の動的 SQL エンジン (<code>org.apache.ibatis.scripting.*</code>, 全 <code>25</code> ファイル) は、<strong>Interpreter パターン</strong>と <strong>Composite パターン</strong>を組み合わせることで、XML タグ（<code>&lt;if&gt;</code>, <code>&lt;choose&gt;</code>, <code>&lt;when&gt;</code>, <code>&lt;otherwise&gt;</code>, <code>&lt;where&gt;</code>, <code>&lt;set&gt;</code>, <code>&lt;trim&gt;</code>, <code>&lt;foreach&gt;</code>, <code>&lt;bind&gt;</code>）を実行可能な <code>SqlNode</code> 抽象構文木（AST）へとコンパイルします。</p>
+<figure class="drawlib-image" style="text-align: center;">
+  <img src="../images/05_dynamic_sql_and_ognl/arch_sqlnode_composite.png" alt="05_dynamic_sql_and_ognl_1" />
+  <figcaption class="drawlib-caption">MyBatis 3 v3.6.0 — SqlSource と Composite SqlNode AST クラス階層 (org.apache.ibatis.scripting.xmltags)</figcaption>
+</figure>
+<details class="drawlib-code-details">
+<summary>Source Code</summary>
+<pre><code class="language-python"><span class="kn">from</span><span class="w"> </span><span class="nn">drawlib.canvas</span><span class="w"> </span><span class="kn">import</span> <span class="n">save</span><span class="p">,</span> <span class="n">setup</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">drawlib.diagrams.class_diagram</span><span class="w"> </span><span class="kn">import</span> <span class="n">ClassDiagram</span><span class="p">,</span> <span class="n">ClassNode</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">drawlib.fonts</span><span class="w"> </span><span class="kn">import</span> <span class="n">FontMonoSpace</span><span class="p">,</span> <span class="n">FontRoboto</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">drawlib.styles</span><span class="w"> </span><span class="kn">import</span> <span class="n">Colors</span><span class="p">,</span> <span class="n">Styles</span>
+
+<span class="n">setup</span><span class="p">(</span><span class="n">width</span><span class="o">=</span><span class="mi">144</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mi">76</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">150</span><span class="p">)</span>
+
+<span class="n">cd</span> <span class="o">=</span> <span class="n">ClassDiagram</span><span class="p">(</span>
+    <span class="n">width</span><span class="o">=</span><span class="mf">144.0</span><span class="p">,</span>
+    <span class="n">height</span><span class="o">=</span><span class="mf">76.0</span><span class="p">,</span>
+    <span class="n">node_style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">Neutral</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span>
+        <span class="n">shape_fill_color</span><span class="o">=</span><span class="n">Colors</span><span class="o">.</span><span class="n">White</span><span class="p">,</span>
+        <span class="n">shape_line_color</span><span class="o">=</span><span class="n">Colors</span><span class="o">.</span><span class="n">Gray6</span><span class="p">,</span>
+        <span class="n">text_color</span><span class="o">=</span><span class="n">Colors</span><span class="o">.</span><span class="n">Dark</span><span class="p">,</span>
+        <span class="n">text_font</span><span class="o">=</span><span class="n">FontMonoSpace</span><span class="o">.</span><span class="n">ROBOTO_MONO_REGULAR</span><span class="p">,</span>
+        <span class="n">text_size</span><span class="o">=</span><span class="mf">9.2</span><span class="p">,</span>
+    <span class="p">),</span>
+    <span class="n">header_style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">PrimaryNeutral</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span>
+        <span class="n">shape_line_color</span><span class="o">=</span><span class="n">Colors</span><span class="o">.</span><span class="n">Gray6</span><span class="p">,</span>
+        <span class="n">text_color</span><span class="o">=</span><span class="n">Colors</span><span class="o">.</span><span class="n">Dark</span><span class="p">,</span>
+        <span class="n">text_font</span><span class="o">=</span><span class="n">FontRoboto</span><span class="o">.</span><span class="n">ROBOTO_BOLD</span><span class="p">,</span>
+        <span class="n">text_size</span><span class="o">=</span><span class="mf">9.8</span><span class="p">,</span>
+    <span class="p">),</span>
+    <span class="n">edge_style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">Dark</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="n">line_width</span><span class="o">=</span><span class="mf">1.4</span><span class="p">),</span>
+    <span class="n">edge_text_style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">DarkBold</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="n">text_font</span><span class="o">=</span><span class="n">FontRoboto</span><span class="o">.</span><span class="n">ROBOTO_BOLD</span><span class="p">,</span> <span class="n">text_size</span><span class="o">=</span><span class="mf">9.2</span><span class="p">),</span>
+<span class="p">)</span>
+
+<span class="n">hero_hdr</span> <span class="o">=</span> <span class="n">Styles</span><span class="o">.</span><span class="n">PrimaryFlat</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="n">text_color</span><span class="o">=</span><span class="n">Colors</span><span class="o">.</span><span class="n">White</span><span class="p">,</span> <span class="n">text_font</span><span class="o">=</span><span class="n">FontRoboto</span><span class="o">.</span><span class="n">ROBOTO_BOLD</span><span class="p">,</span> <span class="n">text_size</span><span class="o">=</span><span class="mf">9.8</span><span class="p">)</span>
+<span class="n">sec_hdr</span> <span class="o">=</span> <span class="n">Styles</span><span class="o">.</span><span class="n">SecondaryNeutral</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="n">shape_line_color</span><span class="o">=</span><span class="n">Colors</span><span class="o">.</span><span class="n">Gray6</span><span class="p">,</span> <span class="n">text_color</span><span class="o">=</span><span class="n">Colors</span><span class="o">.</span><span class="n">Dark</span><span class="p">,</span> <span class="n">text_font</span><span class="o">=</span><span class="n">FontRoboto</span><span class="o">.</span><span class="n">ROBOTO_BOLD</span><span class="p">,</span> <span class="n">text_size</span><span class="o">=</span><span class="mf">9.8</span><span class="p">)</span>
+
+<span class="n">n_src</span> <span class="o">=</span> <span class="n">cd</span><span class="o">.</span><span class="n">add</span><span class="p">(</span>
+    <span class="n">ClassNode</span><span class="p">(</span><span class="s2">"SqlSource"</span><span class="p">,</span> <span class="n">stereotype</span><span class="o">=</span><span class="s2">"interface"</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mf">42.0</span><span class="p">,</span> <span class="n">header_style</span><span class="o">=</span><span class="n">hero_hdr</span><span class="p">)</span>
+    <span class="o">.</span><span class="n">add_method</span><span class="p">(</span><span class="s2">"getBoundSql"</span><span class="p">,</span> <span class="s2">"parameterObject"</span><span class="p">,</span> <span class="s2">"BoundSql"</span><span class="p">),</span>
+    <span class="n">xy</span><span class="o">=</span><span class="p">(</span><span class="mf">28.0</span><span class="p">,</span> <span class="mf">60.0</span><span class="p">),</span>
+<span class="p">)</span>
+
+<span class="n">n_node</span> <span class="o">=</span> <span class="n">cd</span><span class="o">.</span><span class="n">add</span><span class="p">(</span>
+    <span class="n">ClassNode</span><span class="p">(</span><span class="s2">"SqlNode  [Composite AST]"</span><span class="p">,</span> <span class="n">stereotype</span><span class="o">=</span><span class="s2">"interface"</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mf">44.0</span><span class="p">,</span> <span class="n">header_style</span><span class="o">=</span><span class="n">hero_hdr</span><span class="p">)</span>
+    <span class="o">.</span><span class="n">add_method</span><span class="p">(</span><span class="s2">"apply"</span><span class="p">,</span> <span class="s2">"DynamicContext"</span><span class="p">,</span> <span class="s2">"boolean"</span><span class="p">),</span>
+    <span class="n">xy</span><span class="o">=</span><span class="p">(</span><span class="mf">104.0</span><span class="p">,</span> <span class="mf">60.0</span><span class="p">),</span>
+<span class="p">)</span>
+
+<span class="n">n_raw</span> <span class="o">=</span> <span class="n">cd</span><span class="o">.</span><span class="n">add</span><span class="p">(</span>
+    <span class="n">ClassNode</span><span class="p">(</span><span class="s2">"RawSqlSource  [Fast Path]"</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mf">42.0</span><span class="p">,</span> <span class="n">header_style</span><span class="o">=</span><span class="n">sec_hdr</span><span class="p">)</span>
+    <span class="o">.</span><span class="n">add_attribute</span><span class="p">(</span><span class="s2">"sqlSource"</span><span class="p">,</span> <span class="s2">"StaticSqlSource"</span><span class="p">)</span>
+    <span class="o">.</span><span class="n">add_method</span><span class="p">(</span><span class="s2">"compiled once at startup"</span><span class="p">,</span> <span class="s2">""</span><span class="p">,</span> <span class="s2">""</span><span class="p">),</span>
+    <span class="n">xy</span><span class="o">=</span><span class="p">(</span><span class="mf">26.0</span><span class="p">,</span> <span class="mf">34.0</span><span class="p">),</span>
+<span class="p">)</span>
+
+<span class="n">n_dyn</span> <span class="o">=</span> <span class="n">cd</span><span class="o">.</span><span class="n">add</span><span class="p">(</span>
+    <span class="n">ClassNode</span><span class="p">(</span><span class="s2">"DynamicSqlSource"</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mf">42.0</span><span class="p">,</span> <span class="n">header_style</span><span class="o">=</span><span class="n">sec_hdr</span><span class="p">)</span>
+    <span class="o">.</span><span class="n">add_attribute</span><span class="p">(</span><span class="s2">"rootSqlNode"</span><span class="p">,</span> <span class="s2">"SqlNode"</span><span class="p">)</span>
+    <span class="o">.</span><span class="n">add_method</span><span class="p">(</span><span class="s2">"getBoundSql (per call)"</span><span class="p">,</span> <span class="s2">"param"</span><span class="p">,</span> <span class="s2">"BoundSql"</span><span class="p">),</span>
+    <span class="n">xy</span><span class="o">=</span><span class="p">(</span><span class="mf">72.0</span><span class="p">,</span> <span class="mf">34.0</span><span class="p">),</span>
+<span class="p">)</span>
+
+<span class="n">n_if</span> <span class="o">=</span> <span class="n">cd</span><span class="o">.</span><span class="n">add</span><span class="p">(</span>
+    <span class="n">ClassNode</span><span class="p">(</span><span class="s2">"IfSqlNode &amp; ChooseSqlNode"</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mf">42.0</span><span class="p">)</span>
+    <span class="o">.</span><span class="n">add_attribute</span><span class="p">(</span><span class="s2">"evaluator"</span><span class="p">,</span> <span class="s2">"ExpressionEvaluator (OGNL)"</span><span class="p">)</span>
+    <span class="o">.</span><span class="n">add_attribute</span><span class="p">(</span><span class="s2">"test"</span><span class="p">,</span> <span class="s2">"String"</span><span class="p">),</span>
+    <span class="n">xy</span><span class="o">=</span><span class="p">(</span><span class="mf">46.0</span><span class="p">,</span> <span class="mf">11.0</span><span class="p">),</span>
+<span class="p">)</span>
+
+<span class="n">n_for</span> <span class="o">=</span> <span class="n">cd</span><span class="o">.</span><span class="n">add</span><span class="p">(</span>
+    <span class="n">ClassNode</span><span class="p">(</span><span class="s2">"ForEachSqlNode &amp; TrimSqlNode"</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mf">46.0</span><span class="p">)</span>
+    <span class="o">.</span><span class="n">add_attribute</span><span class="p">(</span><span class="s2">"collectionExpression"</span><span class="p">,</span> <span class="s2">"String"</span><span class="p">)</span>
+    <span class="o">.</span><span class="n">add_method</span><span class="p">(</span><span class="s2">"apply (binds __frch_item_0)"</span><span class="p">,</span> <span class="s2">"ctx"</span><span class="p">,</span> <span class="s2">"bool"</span><span class="p">),</span>
+    <span class="n">xy</span><span class="o">=</span><span class="p">(</span><span class="mf">106.0</span><span class="p">,</span> <span class="mf">11.0</span><span class="p">),</span>
+<span class="p">)</span>
+
+<span class="n">cd</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">n_raw</span><span class="p">,</span> <span class="n">n_src</span><span class="p">,</span> <span class="s2">"realization"</span><span class="p">,</span> <span class="n">start_side</span><span class="o">=</span><span class="s2">"top"</span><span class="p">,</span> <span class="n">end_side</span><span class="o">=</span><span class="s2">"bottom"</span><span class="p">)</span>
+<span class="n">cd</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">n_dyn</span><span class="p">,</span> <span class="n">n_src</span><span class="p">,</span> <span class="s2">"realization"</span><span class="p">,</span> <span class="n">start_side</span><span class="o">=</span><span class="s2">"top"</span><span class="p">,</span> <span class="n">end_side</span><span class="o">=</span><span class="s2">"bottom"</span><span class="p">)</span>
+<span class="n">cd</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">n_dyn</span><span class="p">,</span> <span class="n">n_node</span><span class="p">,</span> <span class="s2">"association"</span><span class="p">,</span> <span class="n">directed</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">start_side</span><span class="o">=</span><span class="s2">"right"</span><span class="p">,</span> <span class="n">end_side</span><span class="o">=</span><span class="s2">"bottom"</span><span class="p">)</span>
+<span class="n">cd</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">n_if</span><span class="p">,</span> <span class="n">n_node</span><span class="p">,</span> <span class="s2">"realization"</span><span class="p">,</span> <span class="n">start_side</span><span class="o">=</span><span class="s2">"top"</span><span class="p">,</span> <span class="n">end_side</span><span class="o">=</span><span class="s2">"bottom"</span><span class="p">)</span>
+<span class="n">cd</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">n_for</span><span class="p">,</span> <span class="n">n_node</span><span class="p">,</span> <span class="s2">"realization"</span><span class="p">,</span> <span class="n">start_side</span><span class="o">=</span><span class="s2">"top"</span><span class="p">,</span> <span class="n">end_side</span><span class="o">=</span><span class="s2">"bottom"</span><span class="p">)</span>
+
+<span class="n">cd</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="n">xy</span><span class="o">=</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">))</span>
+<span class="n">save</span><span class="p">()</span>
+</code></pre>
+</details>
+<hr />
+<h2><code>RawSqlSource</code>（起動時一括コンパイル高速パス）と <code>DynamicSqlSource</code>（実行時 AST 評価）</h2>
+<p><code>XMLScriptBuilder.parseScriptNode()</code> (<code>src/main/java/org/apache/ibatis/scripting/xmltags/XMLScriptBuilder.java:53-68</code>) は、マッパー内の SQL 定義を解析して2種類の <code>SqlSource</code> のいずれかを生成します。</p>
+<ol>
+<li><strong>静的 SQL 高速パス (<code>RawSqlSource</code> -&gt; <code>StaticSqlSource</code>)</strong>:
+<ul>
+<li><code>&lt;if&gt;</code> や <code>&lt;foreach&gt;</code> 等の動的 XML タグを含まず、かつ <code>${}</code> 文字列置換も含まない場合（<code>#{}</code> のみの場合）、<strong><code>RawSqlSource</code></strong> が選択されます。</li>
+<li><code>RawSqlSource</code> は<strong>アプリケーション起動時に1度だけ</strong> <code>SqlSourceBuilder.parse()</code> を実行し、<code>#{id,jdbcType=BIGINT}</code> を JDBC <code>?</code> プレースホルダへ置換した上で不変の <code>List&lt;ParameterMapping&gt;</code> を構築します。実行時はトークン解析コストがゼロになります。</li>
+</ul>
+</li>
+<li><strong>動的 SQL 実行時パス (<code>DynamicSqlSource</code>)</strong>:
+<ul>
+<li>動的 XML タグまたは <code>${}</code> を含む場合は <strong><code>DynamicSqlSource</code></strong> が生成されます。</li>
+<li>クエリ実行ごとに <code>DynamicContext</code> を生成して <code>rootSqlNode.apply(context)</code> を走査し（<code>&lt;if test=&quot;...&quot;&gt;</code> の条件式は <code>OgnlCache</code> にキャッシュされた OGNL 構文木で評価）、組み立てられた SQL 文字列に対して <code>SqlSourceBuilder.parse()</code> を実行して <code>BoundSql</code> を生成します。</li>
+</ul>
+</li>
+</ol>
+<hr />
+<h2>セキュリティとパフォーマンスの決定的な違い：<code>#{}</code> と <code>${}</code></h2>
+<figure class="drawlib-image" style="text-align: center;">
+  <img src="../images/05_dynamic_sql_and_ognl/arch_param_binding_pipeline.png" alt="05_dynamic_sql_and_ognl_2" />
+  <figcaption class="drawlib-caption">MyBatis 3 v3.6.0 — #{} PreparedStatement バインディングと ${} TextSqlNode 文字列展開の内部比較</figcaption>
+</figure>
+<details class="drawlib-code-details">
+<summary>Source Code</summary>
+<pre><code class="language-python"><span class="kn">from</span><span class="w"> </span><span class="nn">drawlib.canvas</span><span class="w"> </span><span class="kn">import</span> <span class="n">save</span><span class="p">,</span> <span class="n">setup</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">drawlib.icons</span><span class="w"> </span><span class="kn">import</span> <span class="n">phosphor</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">drawlib.smartarts</span><span class="w"> </span><span class="kn">import</span> <span class="n">CardList</span><span class="p">,</span> <span class="n">Panel</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">drawlib.styles</span><span class="w"> </span><span class="kn">import</span> <span class="n">Colors</span><span class="p">,</span> <span class="n">Styles</span>
+
+<span class="n">setup</span><span class="p">(</span><span class="n">width</span><span class="o">=</span><span class="mi">144</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mi">62</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">150</span><span class="p">)</span>
+
+<span class="n">white_card</span> <span class="o">=</span> <span class="n">Styles</span><span class="o">.</span><span class="n">Neutral</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="n">shape_fill_color</span><span class="o">=</span><span class="n">Colors</span><span class="o">.</span><span class="n">White</span><span class="p">)</span>
+
+<span class="n">left_panel</span> <span class="o">=</span> <span class="n">Panel</span><span class="p">(</span>
+    <span class="s2">"#</span><span class="si">{}</span><span class="s2"> Token Pipeline (Safe JDBC Binding)"</span><span class="p">,</span>
+    <span class="s2">"SqlSourceBuilder -&gt; DefaultParameterHandler"</span><span class="p">,</span>
+    <span class="n">style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">Neutral</span><span class="p">,</span>
+    <span class="n">header_style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">PrimaryNeutral</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="n">shape_line_width</span><span class="o">=</span><span class="mf">1.2</span><span class="p">),</span>
+    <span class="n">text_style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">DarkBold</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="n">text_size</span><span class="o">=</span><span class="mf">10.8</span><span class="p">),</span>
+    <span class="n">description_style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">Muted</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="n">text_size</span><span class="o">=</span><span class="mf">9.5</span><span class="p">),</span>
+    <span class="n">icon</span><span class="o">=</span><span class="n">phosphor</span><span class="o">.</span><span class="n">shield_check</span><span class="p">,</span>
+    <span class="n">icon_style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">PrimaryBold</span><span class="p">,</span>
+    <span class="n">header_variant</span><span class="o">=</span><span class="s2">"filled"</span><span class="p">,</span>
+    <span class="n">header_height</span><span class="o">=</span><span class="mf">8.0</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">left_panel</span><span class="o">.</span><span class="n">draw</span><span class="p">((</span><span class="mf">4.0</span><span class="p">,</span> <span class="mf">4.5</span><span class="p">),</span> <span class="n">width</span><span class="o">=</span><span class="mf">66.5</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mf">53.0</span><span class="p">,</span> <span class="n">align</span><span class="o">=</span><span class="s2">"bottom_left"</span><span class="p">)</span>
+<span class="n">l_xy</span><span class="p">,</span> <span class="n">l_w</span><span class="p">,</span> <span class="n">l_h</span> <span class="o">=</span> <span class="n">left_panel</span><span class="o">.</span><span class="n">get_content_box</span><span class="p">((</span><span class="mf">4.0</span><span class="p">,</span> <span class="mf">4.5</span><span class="p">),</span> <span class="n">width</span><span class="o">=</span><span class="mf">66.5</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mf">53.0</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="p">(</span><span class="mf">2.6</span><span class="p">,</span> <span class="mf">2.4</span><span class="p">),</span> <span class="n">align</span><span class="o">=</span><span class="s2">"bottom_left"</span><span class="p">)</span>
+
+<span class="n">safe_cards</span> <span class="o">=</span> <span class="n">CardList</span><span class="p">(</span>
+    <span class="n">style</span><span class="o">=</span><span class="n">white_card</span><span class="p">,</span>
+    <span class="n">text_style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">DarkBold</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="n">text_size</span><span class="o">=</span><span class="mf">10.0</span><span class="p">),</span>
+    <span class="n">description_style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">Muted</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="n">text_size</span><span class="o">=</span><span class="mf">9.4</span><span class="p">),</span>
+    <span class="n">badge_shape</span><span class="o">=</span><span class="s2">"rounded_rect"</span><span class="p">,</span>
+    <span class="n">badge_style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">PrimaryFlat</span><span class="p">,</span>
+    <span class="n">badge_text_style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">WhiteBold</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="n">text_size</span><span class="o">=</span><span class="mf">9.5</span><span class="p">),</span>
+    <span class="n">direction</span><span class="o">=</span><span class="s2">"vertical"</span><span class="p">,</span>
+    <span class="n">spacing</span><span class="o">=</span><span class="mf">2.0</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">safe_cards</span><span class="o">.</span><span class="n">add</span><span class="p">(</span>
+    <span class="s2">"1. GenericTokenParser ('#{', '}')"</span><span class="p">,</span>
+    <span class="s2">"Replaces #</span><span class="si">{id}</span><span class="s2"> with '?' &amp; builds ParameterMapping"</span><span class="p">,</span>
+    <span class="n">badge_text</span><span class="o">=</span><span class="s2">"S1"</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">safe_cards</span><span class="o">.</span><span class="n">add</span><span class="p">(</span>
+    <span class="s2">"2. DefaultParameterHandler.setParameters"</span><span class="p">,</span>
+    <span class="s2">"Resolves value from additionalParameters / MetaObject"</span><span class="p">,</span>
+    <span class="n">badge_text</span><span class="o">=</span><span class="s2">"S2"</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">safe_cards</span><span class="o">.</span><span class="n">add</span><span class="p">(</span>
+    <span class="s2">"3. TypeHandler.setParameter(ps, i, val)"</span><span class="p">,</span>
+    <span class="s2">"Binds typed JDBC parameter; immune to SQLi (CWE-89)"</span><span class="p">,</span>
+    <span class="n">badge_text</span><span class="o">=</span><span class="s2">"S3"</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">safe_cards</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="n">l_xy</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="n">l_w</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="n">l_h</span><span class="p">,</span> <span class="n">align</span><span class="o">=</span><span class="s2">"bottom_left"</span><span class="p">)</span>
+
+<span class="n">right_panel</span> <span class="o">=</span> <span class="n">Panel</span><span class="p">(</span>
+    <span class="s2">"$</span><span class="si">{}</span><span class="s2"> Token Pipeline (Raw String Interpolation)"</span><span class="p">,</span>
+    <span class="s2">"TextSqlNode.BindingTokenParser (Static Metadata Only)"</span><span class="p">,</span>
+    <span class="n">style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">Neutral</span><span class="p">,</span>
+    <span class="n">header_style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">SecondaryNeutral</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="n">shape_line_width</span><span class="o">=</span><span class="mf">1.2</span><span class="p">),</span>
+    <span class="n">text_style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">DarkBold</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="n">text_size</span><span class="o">=</span><span class="mf">10.8</span><span class="p">),</span>
+    <span class="n">description_style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">Muted</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="n">text_size</span><span class="o">=</span><span class="mf">9.5</span><span class="p">),</span>
+    <span class="n">icon</span><span class="o">=</span><span class="n">phosphor</span><span class="o">.</span><span class="n">warning_circle</span><span class="p">,</span>
+    <span class="n">icon_style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">WarningBold</span><span class="p">,</span>
+    <span class="n">header_variant</span><span class="o">=</span><span class="s2">"filled"</span><span class="p">,</span>
+    <span class="n">header_height</span><span class="o">=</span><span class="mf">8.0</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">right_panel</span><span class="o">.</span><span class="n">draw</span><span class="p">((</span><span class="mf">73.5</span><span class="p">,</span> <span class="mf">4.5</span><span class="p">),</span> <span class="n">width</span><span class="o">=</span><span class="mf">66.5</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mf">53.0</span><span class="p">,</span> <span class="n">align</span><span class="o">=</span><span class="s2">"bottom_left"</span><span class="p">)</span>
+<span class="n">r_xy</span><span class="p">,</span> <span class="n">r_w</span><span class="p">,</span> <span class="n">r_h</span> <span class="o">=</span> <span class="n">right_panel</span><span class="o">.</span><span class="n">get_content_box</span><span class="p">((</span><span class="mf">73.5</span><span class="p">,</span> <span class="mf">4.5</span><span class="p">),</span> <span class="n">width</span><span class="o">=</span><span class="mf">66.5</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mf">53.0</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="p">(</span><span class="mf">2.6</span><span class="p">,</span> <span class="mf">2.4</span><span class="p">),</span> <span class="n">align</span><span class="o">=</span><span class="s2">"bottom_left"</span><span class="p">)</span>
+
+<span class="n">raw_cards</span> <span class="o">=</span> <span class="n">CardList</span><span class="p">(</span>
+    <span class="n">style</span><span class="o">=</span><span class="n">white_card</span><span class="p">,</span>
+    <span class="n">text_style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">DarkBold</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="n">text_size</span><span class="o">=</span><span class="mf">10.0</span><span class="p">),</span>
+    <span class="n">description_style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">Muted</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="n">text_size</span><span class="o">=</span><span class="mf">9.4</span><span class="p">),</span>
+    <span class="n">badge_shape</span><span class="o">=</span><span class="s2">"rounded_rect"</span><span class="p">,</span>
+    <span class="n">badge_style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">WarningFlat</span><span class="p">,</span>
+    <span class="n">badge_text_style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">WhiteBold</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="n">text_size</span><span class="o">=</span><span class="mf">9.5</span><span class="p">),</span>
+    <span class="n">direction</span><span class="o">=</span><span class="s2">"vertical"</span><span class="p">,</span>
+    <span class="n">spacing</span><span class="o">=</span><span class="mf">2.0</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">raw_cards</span><span class="o">.</span><span class="n">add</span><span class="p">(</span>
+    <span class="s2">"1. TextSqlNode ('${', '}')"</span><span class="p">,</span>
+    <span class="s2">"Evaluates OGNL &amp; appends raw string into SQL text"</span><span class="p">,</span>
+    <span class="n">badge_text</span><span class="o">=</span><span class="s2">"R1"</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">raw_cards</span><span class="o">.</span><span class="n">add</span><span class="p">(</span>
+    <span class="s2">"2. Forces DynamicSqlSource Path"</span><span class="p">,</span>
+    <span class="s2">"Disables RawSqlSource compile-time pre-parsing"</span><span class="p">,</span>
+    <span class="n">badge_text</span><span class="o">=</span><span class="s2">"R2"</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">raw_cards</span><span class="o">.</span><span class="n">add</span><span class="p">(</span>
+    <span class="s2">"3. Restrict to Allowlisted Identifiers"</span><span class="p">,</span>
+    <span class="s2">"Never pass untrusted user input into $</span><span class="si">{orderBy}</span><span class="s2">"</span><span class="p">,</span>
+    <span class="n">badge_text</span><span class="o">=</span><span class="s2">"R3"</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">raw_cards</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="n">r_xy</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="n">r_w</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="n">r_h</span><span class="p">,</span> <span class="n">align</span><span class="o">=</span><span class="s2">"bottom_left"</span><span class="p">)</span>
+
+<span class="n">save</span><span class="p">()</span>
+</code></pre>
+</details>
+<h3><code>DefaultParameterHandler.setParameters(PreparedStatement ps)</code> の内部解決順序</h3>
+<p><code>src/main/java/org/apache/ibatis/scripting/defaults/DefaultParameterHandler.java:89-160</code>（コードベース内で認知的複雑度が最大の <code>cognitive=129</code> メソッド）は、<code>boundSql.getParameterMappings()</code> を走査して以下の優先順位で各パラメータ値を解決します。</p>
+<ol>
+<li><strong><code>boundSql.hasAdditionalParameter(propertyName)</code></strong>: <code>&lt;foreach&gt;</code> が自動生成する合成パラメータ（<code>__frch_item_0</code>, <code>__frch_item_1</code>）や <code>&lt;bind&gt;</code> 変数を最優先で取得。</li>
+<li><strong><code>parameterObject == null</code></strong>: <code>null</code> として <code>TypeHandler</code>（<code>JdbcType</code> 指定付き）でバインド。</li>
+<li><strong><code>typeHandlerRegistry.hasTypeHandler(parameterObject.getClass())</code></strong>: <code>Long</code>・<code>String</code>・<code>UUID</code> 等の単一プリミティブ／値型はそのままバインド。</li>
+<li><strong><code>MetaObject.getValue(propertyName)</code></strong>: ドメインオブジェクト（JavaBean / Record）や <code>ParamMap</code> からネストプロパティを解決してバインド。</li>
+</ol>
+
+            </main>
+        </div>
+    </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const themeBtn = document.getElementById('theme-toggle');
+            if (themeBtn) {
+                themeBtn.addEventListener('click', function() {
+                    const current = document.documentElement.getAttribute('data-theme');
+                    const next = current === 'dark' ? 'light' : 'dark';
+                    document.documentElement.setAttribute('data-theme', next);
+                    localStorage.setItem('drawlib-theme', next);
+                });
+            }
+            const langDropdowns = document.querySelectorAll('.lang-dropdown');
+            if (langDropdowns.length > 0) {
+                document.addEventListener('click', function(e) {
+                    langDropdowns.forEach(function(dd) {
+                        if (dd.hasAttribute('open') && !dd.contains(e.target)) {
+                            dd.removeAttribute('open');
+                        }
+                    });
+                });
+                document.addEventListener('keydown', function(e) {
+                    if (e.key === 'Escape') {
+                        langDropdowns.forEach(function(dd) {
+                            dd.removeAttribute('open');
+                        });
+                    }
+                });
+            }
+            const menuBtn = document.getElementById('menu-toggle');
+            const sidebar = document.querySelector('.sidebar');
+            if (menuBtn && sidebar) {
+                function setMenuOpen(open) {
+                    sidebar.classList.toggle('is-open', open);
+                    menuBtn.setAttribute('aria-expanded', open ? 'true' : 'false');
+                    document.body.classList.toggle('menu-open', open);
+                }
+                menuBtn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    setMenuOpen(!sidebar.classList.contains('is-open'));
+                });
+                document.addEventListener('click', function(e) {
+                    if (sidebar.classList.contains('is-open') && !sidebar.contains(e.target)) {
+                        setMenuOpen(false);
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>

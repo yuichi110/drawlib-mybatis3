@@ -1,0 +1,65 @@
+id: pni501
+category: audit
+name: MyBatis 3.6.0 Engineering & Architecture Diagnostic (PNI501)
+description: Deterministic Java AST, package dependency DAG, library hygiene, hermetic container runtime, and supply-chain diagnostic of MyBatis 3.6.0, compiled into HTML and A4 PDF under docs/reports/pni501/.
+
+targets:
+  root: "."
+  source:
+    - "src/main/java"
+  tests:
+    - "src/test/java"
+  docs:
+    - "README.md"
+  exclude:
+    - "reports/**"
+    - "reports_src/**"
+    - "docs/**"
+    - "docs_src/**"
+    - "api_src/**"
+    - "architecture_src/**"
+
+steps:
+  - id: repo_and_deps
+    uses: repo_structure_audit
+
+  - id: ast_and_quality
+    uses: java_ast_audit
+
+  - id: arch_recording
+    uses: architecture_analysis
+
+  - id: library_hygiene
+    uses: library_hygiene_audit
+
+  - id: test_health
+    uses: java_test_audit
+
+  - id: runtime_verification
+    uses: container_runtime_audit
+    with:
+      dockerfile: ".pni/dockerfiles/root/Dockerfile"
+      build_timeout_sec: 420
+      test_timeout_sec: 600
+      test_cmd: "mvn -B -o -Dmaven.repo.local=/m2repo -DargLine='-javaagent:/m2repo/org/jacoco/org.jacoco.agent/0.8.15/org.jacoco.agent-0.8.15-runtime.jar=destfile=/workspace/target/jacoco.exec,excludes=org.apache.ibatis.ognl.*:org.apache.ibatis.javassist.* -Xmx768m -javaagent:/m2repo/net/bytebuddy/byte-buddy-agent/1.18.15/byte-buddy-agent-1.18.15.jar --add-opens java.base/java.lang=ALL-UNNAMED' surefire:test jacoco:report; rc=$?; mkdir -p /out/surefire; cp target/surefire-reports/TEST-*.xml /out/surefire/ 2>/dev/null || true; cp target/site/jacoco/jacoco.xml /out/jacoco.xml 2>/dev/null || true; exit $rc"
+
+  - id: security_audit
+    uses: security_vulnerability_audit
+
+  - id: output_score
+    uses: emit_score
+    with:
+      target: "pni501"
+      save_file: false
+
+  - id: create_report
+    uses: write_drawlib_report
+    with:
+      target: "pni501"
+      src_dir: "reports_src"
+      output_dir: "docs/reports/pni501"
+      formats:
+        - "pdf"
+        - "html"
+      lang: "en"
+      style: "google"

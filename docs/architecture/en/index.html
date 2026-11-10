@@ -1,0 +1,532 @@
+<!--
+ Copyright (c) 2026 Yuichi Ito (yuichi@yuichi.com)
+
+ This software is licensed under the Apache License, Version 2.0.
+ For more information, please visit: https://github.com/yuichi110/drawlib
+-->
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MyBatis 3 Internal Architecture Overview — MyBatis 3 Architecture (Unofficial · PNI501 + Drawlib Demo)</title>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-S9N5BZ1VRC"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-S9N5BZ1VRC');
+    </script>
+    <script>
+        (function() {
+            const saved = localStorage.getItem('drawlib-theme');
+            if (saved === 'dark' || (!saved && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                document.documentElement.setAttribute('data-theme', 'dark');
+            } else {
+                document.documentElement.setAttribute('data-theme', 'light');
+            }
+        })();
+    </script>
+    
+    
+    
+    <link rel="alternate" hreflang="en" href="https://mybatis3.drawlib.com/architecture/en/">
+    
+    <link rel="alternate" hreflang="ja" href="https://mybatis3.drawlib.com/architecture/ja/">
+    
+    <link rel="alternate" hreflang="x-default" href="https://mybatis3.drawlib.com/architecture/">
+    
+    
+    
+    <meta name="description" content="Unofficial bilingual (English/Japanese) source-code architecture guide for MyBatis 3 v3.6.0 — 3-tier package topology, XML/annotation bootstrap builders, JDK…">
+    <link rel="canonical" href="https://mybatis3.drawlib.com/architecture/en/">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="MyBatis 3 Architecture">
+    <meta property="og:title" content="MyBatis 3 Internal Architecture Overview — MyBatis 3 Architecture">
+    <meta property="og:description" content="Unofficial bilingual (English/Japanese) source-code architecture guide for MyBatis 3 v3.6.0 — 3-tier package topology, XML/annotation bootstrap builders, JDK…">
+    <meta property="og:url" content="https://mybatis3.drawlib.com/architecture/en/">
+    <meta property="og:image" content="https://mybatis3.drawlib.com/architecture/_assets/ogp.png">
+    <meta property="og:locale" content="en_US">
+    <meta property="og:locale:alternate" content="ja_JP">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="MyBatis 3 Internal Architecture Overview — MyBatis 3 Architecture">
+    <meta name="twitter:description" content="Unofficial bilingual (English/Japanese) source-code architecture guide for MyBatis 3 v3.6.0 — 3-tier package topology, XML/annotation bootstrap builders, JDK…">
+    <meta name="twitter:image" content="https://mybatis3.drawlib.com/architecture/_assets/ogp.png">
+    
+    
+    <link rel="icon" type="image/png" href="../_assets/favicon.png">
+    
+    
+    <link rel="stylesheet" href="style.css">
+    
+    
+</head>
+<body>
+    <div class="demo-banner" role="region" aria-label="Unofficial Showcase Notice">
+        <div class="demo-banner-inner">
+            <span class="demo-banner-badge">UNOFFICIAL DEMO</span>
+            <span class="demo-banner-text">
+                
+                Unofficial internal architecture deep dive of <a href="https://mybatis.org/mybatis-3/" target="_blank" rel="noopener noreferrer">MyBatis 3</a> (v3.6.0, Apache-2.0) built with <a href="https://pypi.org/project/pni501/" target="_blank" rel="noopener noreferrer">PNI501</a> &amp; <a href="https://www.drawlib.com/" target="_blank" rel="noopener noreferrer">Drawlib</a>.
+                
+            </span>
+            <span class="demo-banner-links">
+                <a href="https://mybatis3.drawlib.com/">User Guide</a>
+                <span class="demo-banner-sep">·</span>
+                <a href="https://mybatis3.drawlib.com/api/">API Reference</a>
+                <span class="demo-banner-sep">·</span>
+                <strong style="color:#ffffff;">Architecture</strong>
+                <span class="demo-banner-sep">·</span>
+                <a href="https://mybatis3.drawlib.com/reports/pni501/">PNI501 Audit</a>
+                <span class="demo-banner-sep">·</span>
+                <a href="https://mybatis.org/mybatis-3/" target="_blank" rel="noopener noreferrer">Official Docs ↗</a>
+                <span class="demo-banner-sep">·</span>
+                <a href="https://github.com/yuichi110/drawlib-mybatis3" target="_blank" rel="noopener noreferrer">GitHub ↗</a>
+            </span>
+        </div>
+    </div>
+    
+    <div class="doc-layout">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <a href="index.html" class="sidebar-brand" aria-label="MyBatis 3 Architecture">
+                    
+                    MyBatis 3 Architecture
+                    
+                </a>
+                <div class="sidebar-header-actions">
+                    <button type="button" id="theme-toggle" class="theme-toggle-btn" aria-label="Toggle theme">
+                        <svg class="icon-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+                        <svg class="icon-moon" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+                    </button>
+                    <button type="button" id="menu-toggle" class="menu-toggle-btn" aria-label="Toggle navigation" aria-expanded="false">
+                        <svg class="icon-hamburger" viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+                        <svg class="icon-close" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                    </button>
+                </div>
+            </div>
+            <div class="sidebar-menu">
+                
+                    
+                        
+                        <ul class="nav-list">
+                            
+                            <li class="nav-item active">
+                                <a href="index.html" >Architecture Overview</a>
+                            </li>
+                            
+                        </ul>
+                    
+                        
+                        <div class="sidebar-heading">Core Internals</div>
+                        
+                        <ul class="nav-list">
+                            
+                            <li class="nav-item ">
+                                <a href="01_package_and_layers.html" >1. 3-Tier Package Topology</a>
+                            </li>
+                            
+                            <li class="nav-item ">
+                                <a href="02_bootstrap_and_builders.html" >2. Bootstrap &amp; Builders</a>
+                            </li>
+                            
+                            <li class="nav-item ">
+                                <a href="03_mapper_proxy_engine.html" >3. MapperProxy Dispatch</a>
+                            </li>
+                            
+                            <li class="nav-item ">
+                                <a href="04_executor_and_caching.html" >4. Executor, Cache &amp; Plugins</a>
+                            </li>
+                            
+                            <li class="nav-item ">
+                                <a href="05_dynamic_sql_and_ognl.html" >5. Dynamic SQL &amp; OGNL AST</a>
+                            </li>
+                            
+                            <li class="nav-item ">
+                                <a href="06_resultset_and_reflection.html" >6. ResultSet &amp; Reflection</a>
+                            </li>
+                            
+                        </ul>
+                    
+                        
+                        <div class="sidebar-heading">Portals &amp; Reports</div>
+                        
+                        <ul class="nav-list">
+                            
+                            <li class="nav-item ">
+                                <a href="https://mybatis3.drawlib.com/" target="_blank" rel="noopener noreferrer">User Guide ↗<svg class="nav-external-icon" viewBox="0 0 24 24" aria-hidden="true"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg></a>
+                            </li>
+                            
+                            <li class="nav-item ">
+                                <a href="https://mybatis3.drawlib.com/api/" target="_blank" rel="noopener noreferrer">API &amp; XML Catalog ↗<svg class="nav-external-icon" viewBox="0 0 24 24" aria-hidden="true"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg></a>
+                            </li>
+                            
+                            <li class="nav-item ">
+                                <a href="https://mybatis3.drawlib.com/reports/pni501/" target="_blank" rel="noopener noreferrer">PNI501 Audit Report ↗<svg class="nav-external-icon" viewBox="0 0 24 24" aria-hidden="true"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg></a>
+                            </li>
+                            
+                        </ul>
+                    
+                
+            </div>
+        </aside>
+        <div class="content-wrapper">
+            <header class="top-bar">
+                <div class="breadcrumbs">
+                    <span class="crumb">Architecture</span>
+                    <span class="crumb-separator">&raquo;</span>
+                    <span class="crumb active">MyBatis 3 Internal Architecture Overview</span>
+                </div>
+                
+                <div class="lang-switcher">
+                    <details class="lang-dropdown">
+                        <summary class="lang-dropdown-btn" aria-label="Select language">
+                            <svg class="lang-globe-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
+                            <span class="lang-current-label">English</span>
+                            <svg class="lang-caret-icon" viewBox="0 0 24 24" aria-hidden="true"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                        </summary>
+                        <div class="lang-dropdown-menu" role="menu">
+                            
+                            <a href="index.html" class="lang-option active" lang="en" hreflang="en" aria-current="page">
+                                <span>English</span>
+                                
+                                <svg class="lang-check-icon" viewBox="0 0 24 24" aria-hidden="true"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                                
+                            </a>
+                            
+                            <a href="../ja/index.html" class="lang-option" lang="ja" hreflang="ja" >
+                                <span>日本語</span>
+                                
+                            </a>
+                            
+                        </div>
+                    </details>
+                </div>
+                
+            </header>
+            <main class="main-content">
+                <h1>MyBatis 3 Internal Architecture Overview</h1>
+<blockquote>
+<p><strong>Unofficial Source-Code Architecture Guide (<code>v3.6.0</code>)</strong> — Grounded in static AST analysis (<code>393</code> Java source files, <code>23,364</code> LOC, <code>374</code> classes across <code>20</code> packages under <code>org.apache.ibatis.*</code>) and hermetic JUnit 5 verification (<code>1,990</code> tests passed, <code>87.4%</code> JaCoCo line coverage).</p>
+</blockquote>
+<p>MyBatis 3 (<code>org.mybatis:mybatis</code>) is engineered around a <strong>3-Tier Layered Data-Mapper &amp; Interceptor Pipeline</strong> rather than a heavyweight stateful Unit-of-Work / Persistence Context ORM. Instead of generating SQL from entity graphs at runtime, MyBatis compiles XML configuration/mapper files and Java annotations at bootstrap into an immutable <code>Configuration</code> registry of <code>MappedStatement</code> and <code>ResultMap</code> objects, and dispatches every call through four pluggable runtime collaborates: <strong><code>Executor</code></strong>, <strong><code>StatementHandler</code></strong>, <strong><code>ParameterHandler</code></strong>, and <strong><code>ResultSetHandler</code></strong>.</p>
+<figure class="drawlib-image" style="text-align: center;">
+  <img src="../images/index/arch_overview_pipeline.png" alt="index_1" />
+  <figcaption class="drawlib-caption">MyBatis 3 v3.6.0 — End-to-End Runtime Architecture from MapperProxy to JDBC</figcaption>
+</figure>
+<details class="drawlib-code-details">
+<summary>Source Code</summary>
+<pre><code class="language-python"><span class="kn">from</span><span class="w"> </span><span class="nn">drawlib.canvas</span><span class="w"> </span><span class="kn">import</span> <span class="n">save</span><span class="p">,</span> <span class="n">setup</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">drawlib.diagrams.architecture</span><span class="w"> </span><span class="kn">import</span> <span class="n">ArchitectureDiagram</span><span class="p">,</span> <span class="n">Node</span><span class="p">,</span> <span class="n">NodeGroup</span><span class="p">,</span> <span class="n">PhosphorIcon</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">drawlib.styles</span><span class="w"> </span><span class="kn">import</span> <span class="n">Colors</span><span class="p">,</span> <span class="n">Styles</span>
+
+<span class="n">setup</span><span class="p">(</span><span class="n">width</span><span class="o">=</span><span class="mi">144</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mi">62</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">150</span><span class="p">)</span>
+
+<span class="n">d</span> <span class="o">=</span> <span class="n">ArchitectureDiagram</span><span class="p">(</span>
+    <span class="n">node_style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">Dark</span><span class="p">,</span>
+    <span class="n">node_text_style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">DarkBold</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="n">text_size</span><span class="o">=</span><span class="mf">10.0</span><span class="p">),</span>
+    <span class="n">edge_style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">Dark</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="n">line_width</span><span class="o">=</span><span class="mf">1.5</span><span class="p">),</span>
+    <span class="n">edge_text_style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">DarkBold</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="n">text_size</span><span class="o">=</span><span class="mf">9.5</span><span class="p">),</span>
+    <span class="n">node_card_style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">Neutral</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="n">shape_fill_color</span><span class="o">=</span><span class="n">Colors</span><span class="o">.</span><span class="n">White</span><span class="p">),</span>
+<span class="p">)</span>
+
+<span class="n">t1</span> <span class="o">=</span> <span class="n">d</span><span class="o">.</span><span class="n">add</span><span class="p">(</span>
+    <span class="n">NodeGroup</span><span class="p">(</span>
+        <span class="s2">"Tier 1: Session &amp; Proxy"</span><span class="p">,</span>
+        <span class="n">width</span><span class="o">=</span><span class="mi">40</span><span class="p">,</span>
+        <span class="n">height</span><span class="o">=</span><span class="mi">52</span><span class="p">,</span>
+        <span class="n">style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">PrimaryNeutral</span><span class="p">,</span>
+        <span class="n">text_style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">DarkBold</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="n">text_size</span><span class="o">=</span><span class="mf">10.5</span><span class="p">,</span> <span class="n">halign</span><span class="o">=</span><span class="s2">"left"</span><span class="p">,</span> <span class="n">valign</span><span class="o">=</span><span class="s2">"top"</span><span class="p">),</span>
+    <span class="p">),</span>
+    <span class="n">xy</span><span class="o">=</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">),</span>
+<span class="p">)</span>
+<span class="n">n_proxy</span> <span class="o">=</span> <span class="n">t1</span><span class="o">.</span><span class="n">add</span><span class="p">(</span>
+    <span class="n">Node</span><span class="p">(</span>
+        <span class="s2">"MapperProxy&lt;T&gt;</span><span class="se">\n</span><span class="s2">&amp; MapperMethod"</span><span class="p">,</span>
+        <span class="n">icon</span><span class="o">=</span><span class="n">PhosphorIcon</span><span class="o">.</span><span class="n">CODE</span><span class="p">,</span>
+        <span class="n">width</span><span class="o">=</span><span class="mi">32</span><span class="p">,</span>
+        <span class="n">height</span><span class="o">=</span><span class="mi">16</span><span class="p">,</span>
+        <span class="n">style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">White</span><span class="p">,</span>
+        <span class="n">text_style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">WhiteBold</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="n">text_size</span><span class="o">=</span><span class="mf">10.0</span><span class="p">),</span>
+        <span class="n">card_style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">PrimaryFlat</span><span class="p">,</span>
+    <span class="p">),</span>
+    <span class="n">xy</span><span class="o">=</span><span class="p">(</span><span class="mi">20</span><span class="p">,</span> <span class="mi">35</span><span class="p">),</span>
+<span class="p">)</span>
+<span class="n">n_sess</span> <span class="o">=</span> <span class="n">t1</span><span class="o">.</span><span class="n">add</span><span class="p">(</span>
+    <span class="n">Node</span><span class="p">(</span><span class="s2">"DefaultSqlSession</span><span class="se">\n</span><span class="s2">&amp; Configuration"</span><span class="p">,</span> <span class="n">icon</span><span class="o">=</span><span class="n">PhosphorIcon</span><span class="o">.</span><span class="n">STACK</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">32</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mi">16</span><span class="p">),</span>
+    <span class="n">xy</span><span class="o">=</span><span class="p">(</span><span class="mi">20</span><span class="p">,</span> <span class="mi">13</span><span class="p">),</span>
+<span class="p">)</span>
+
+<span class="n">t2</span> <span class="o">=</span> <span class="n">d</span><span class="o">.</span><span class="n">add</span><span class="p">(</span>
+    <span class="n">NodeGroup</span><span class="p">(</span>
+        <span class="s2">"Tier 2: Executor &amp; Scripting Pipeline"</span><span class="p">,</span>
+        <span class="n">width</span><span class="o">=</span><span class="mi">52</span><span class="p">,</span>
+        <span class="n">height</span><span class="o">=</span><span class="mi">52</span><span class="p">,</span>
+        <span class="n">style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">SecondaryNeutral</span><span class="p">,</span>
+        <span class="n">text_style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">DarkBold</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="n">text_size</span><span class="o">=</span><span class="mf">10.5</span><span class="p">,</span> <span class="n">halign</span><span class="o">=</span><span class="s2">"left"</span><span class="p">,</span> <span class="n">valign</span><span class="o">=</span><span class="s2">"top"</span><span class="p">),</span>
+    <span class="p">),</span>
+    <span class="n">xy</span><span class="o">=</span><span class="p">(</span><span class="mi">48</span><span class="p">,</span> <span class="mi">5</span><span class="p">),</span>
+<span class="p">)</span>
+<span class="n">n_exec</span> <span class="o">=</span> <span class="n">t2</span><span class="o">.</span><span class="n">add</span><span class="p">(</span>
+    <span class="n">Node</span><span class="p">(</span><span class="s2">"CachingExecutor</span><span class="se">\n</span><span class="s2">-&gt; BaseExecutor"</span><span class="p">,</span> <span class="n">icon</span><span class="o">=</span><span class="n">PhosphorIcon</span><span class="o">.</span><span class="n">LIGHTNING</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">42</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mi">16</span><span class="p">),</span>
+    <span class="n">xy</span><span class="o">=</span><span class="p">(</span><span class="mi">26</span><span class="p">,</span> <span class="mi">35</span><span class="p">),</span>
+<span class="p">)</span>
+<span class="n">n_stmt</span> <span class="o">=</span> <span class="n">t2</span><span class="o">.</span><span class="n">add</span><span class="p">(</span>
+    <span class="n">Node</span><span class="p">(</span><span class="s2">"StatementHandler</span><span class="se">\n</span><span class="s2">&amp; BoundSql (OGNL)"</span><span class="p">,</span> <span class="n">icon</span><span class="o">=</span><span class="n">PhosphorIcon</span><span class="o">.</span><span class="n">TERMINAL_WINDOW</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">42</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mi">16</span><span class="p">),</span>
+    <span class="n">xy</span><span class="o">=</span><span class="p">(</span><span class="mi">26</span><span class="p">,</span> <span class="mi">13</span><span class="p">),</span>
+<span class="p">)</span>
+
+<span class="n">t3</span> <span class="o">=</span> <span class="n">d</span><span class="o">.</span><span class="n">add</span><span class="p">(</span>
+    <span class="n">NodeGroup</span><span class="p">(</span>
+        <span class="s2">"Tier 3: Reflection &amp; JDBC"</span><span class="p">,</span>
+        <span class="n">width</span><span class="o">=</span><span class="mi">36</span><span class="p">,</span>
+        <span class="n">height</span><span class="o">=</span><span class="mi">52</span><span class="p">,</span>
+        <span class="n">style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">Neutral</span><span class="p">,</span>
+        <span class="n">text_style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">DarkBold</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="n">text_size</span><span class="o">=</span><span class="mf">10.5</span><span class="p">,</span> <span class="n">halign</span><span class="o">=</span><span class="s2">"left"</span><span class="p">,</span> <span class="n">valign</span><span class="o">=</span><span class="s2">"top"</span><span class="p">),</span>
+    <span class="p">),</span>
+    <span class="n">xy</span><span class="o">=</span><span class="p">(</span><span class="mi">104</span><span class="p">,</span> <span class="mi">5</span><span class="p">),</span>
+<span class="p">)</span>
+<span class="n">n_res</span> <span class="o">=</span> <span class="n">t3</span><span class="o">.</span><span class="n">add</span><span class="p">(</span>
+    <span class="n">Node</span><span class="p">(</span><span class="s2">"ResultSetHandler</span><span class="se">\n</span><span class="s2">&amp; MetaObject"</span><span class="p">,</span> <span class="n">icon</span><span class="o">=</span><span class="n">PhosphorIcon</span><span class="o">.</span><span class="n">SPARKLE</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">28</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mi">16</span><span class="p">),</span>
+    <span class="n">xy</span><span class="o">=</span><span class="p">(</span><span class="mi">18</span><span class="p">,</span> <span class="mi">35</span><span class="p">),</span>
+<span class="p">)</span>
+<span class="n">n_jdbc</span> <span class="o">=</span> <span class="n">t3</span><span class="o">.</span><span class="n">add</span><span class="p">(</span>
+    <span class="n">Node</span><span class="p">(</span><span class="s2">"TypeHandler&lt;T&gt;</span><span class="se">\n</span><span class="s2">&amp; PooledDataSource"</span><span class="p">,</span> <span class="n">icon</span><span class="o">=</span><span class="n">PhosphorIcon</span><span class="o">.</span><span class="n">DATABASE</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">28</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mi">16</span><span class="p">),</span>
+    <span class="n">xy</span><span class="o">=</span><span class="p">(</span><span class="mi">18</span><span class="p">,</span> <span class="mi">13</span><span class="p">),</span>
+<span class="p">)</span>
+
+<span class="n">n_proxy</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">n_sess</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">"invoke()"</span><span class="p">)</span>
+<span class="n">n_sess</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">n_exec</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">"query/update"</span><span class="p">)</span>
+<span class="n">n_exec</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">n_stmt</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">"prepare()"</span><span class="p">)</span>
+<span class="n">n_stmt</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">n_jdbc</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">"bind #</span><span class="si">{}</span><span class="s2">"</span><span class="p">)</span>
+<span class="n">n_jdbc</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">n_res</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">"ResultSet"</span><span class="p">)</span>
+
+<span class="n">d</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="n">xy</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+<span class="n">save</span><span class="p">()</span>
+</code></pre>
+</details>
+<hr />
+<h2>Core Architectural Pillars</h2>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">Pillar</th>
+<th style="text-align:left">Primary Packages (<code>org.apache.ibatis.*</code>)</th>
+<th style="text-align:left">Key Classes</th>
+<th style="text-align:left">Architectural Guarantee</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"><strong>1. Zero-Dependency Shading</strong></td>
+<td style="text-align:left"><code>ognl.*</code> (shaded), <code>javassist.*</code> (shaded)</td>
+<td style="text-align:left"><code>OgnlCache</code>, <code>JavassistProxyFactory</code></td>
+<td style="text-align:left"><code>0</code> mandatory external runtime JARs; all 9 <code>pom.xml</code> dependencies are <code>&lt;optional&gt;true&lt;/optional&gt;</code>.</td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>2. Bootstrap Lowering</strong></td>
+<td style="text-align:left"><code>builder</code>, <code>builder.xml</code>, <code>builder.annotation</code>, <code>mapping</code></td>
+<td style="text-align:left"><code>XMLConfigBuilder</code>, <code>XMLMapperBuilder</code>, <code>MapperAnnotationBuilder</code>, <code>MappedStatement</code></td>
+<td style="text-align:left">Parses XML &amp; annotations once at startup into thread-safe registries inside <code>Configuration</code>.</td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>3. JDK Dynamic Proxy Binding</strong></td>
+<td style="text-align:left"><code>binding</code>, <code>session.defaults</code></td>
+<td style="text-align:left"><code>MapperRegistry</code>, <code>MapperProxyFactory&lt;T&gt;</code>, <code>MapperProxy&lt;T&gt;</code>, <code>MapperMethod</code></td>
+<td style="text-align:left">Eliminates DAO boilerplate; caches <code>MapperMethodInvoker</code> per <code>Method</code> in a <code>ConcurrentHashMap</code>.</td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>4. Two-Tier Caching &amp; Interceptors</strong></td>
+<td style="text-align:left"><code>executor</code>, <code>cache</code>, <code>plugin</code></td>
+<td style="text-align:left"><code>CachingExecutor</code>, <code>BaseExecutor</code>, <code>TransactionalCache</code>, <code>Plugin</code></td>
+<td style="text-align:left">L2 transactional namespace cache + L1 session cache + JDK proxy <code>Interceptor</code> chain.</td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>5. Composite Dynamic SQL AST</strong></td>
+<td style="text-align:left"><code>scripting.xmltags</code>, <code>scripting.defaults</code></td>
+<td style="text-align:left"><code>DynamicSqlSource</code>, <code>RawSqlSource</code>, <code>SqlNode</code>, <code>DefaultParameterHandler</code></td>
+<td style="text-align:left">Evaluates <code>&lt;if&gt;</code>/<code>&lt;foreach&gt;</code> via cached OGNL ASTs and compiles <code>#{}</code> tokens into safe JDBC <code>?</code> parameters.</td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>6. MetaObject Reflection &amp; Hydration</strong></td>
+<td style="text-align:left"><code>executor.resultset</code>, <code>reflection</code>, <code>type</code></td>
+<td style="text-align:left"><code>DefaultResultSetHandler</code>, <code>MetaObject</code>, <code>Reflector</code>, <code>TypeHandlerRegistry</code></td>
+<td style="text-align:left">Hydrates nested graphs, constructor args, and lazy proxies without external bean-mapping libraries.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2>Object Lifecycle &amp; Thread-Safety Scopes</h2>
+<p>Understanding MyBatis 3's internal concurrency design begins with the strict separation between <strong>application-scoped immutable metadata</strong> and <strong>request-scoped stateful execution</strong>:</p>
+<figure class="drawlib-image" style="text-align: center;">
+  <img src="../images/index/arch_concurrency_lifecycle.png" alt="index_2" />
+  <figcaption class="drawlib-caption">MyBatis 3 v3.6.0 — Object Lifecycle Scopes & Thread-Safety Boundaries</figcaption>
+</figure>
+<details class="drawlib-code-details">
+<summary>Source Code</summary>
+<pre><code class="language-python"><span class="kn">from</span><span class="w"> </span><span class="nn">drawlib.canvas</span><span class="w"> </span><span class="kn">import</span> <span class="n">save</span><span class="p">,</span> <span class="n">setup</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">drawlib.icons</span><span class="w"> </span><span class="kn">import</span> <span class="n">phosphor</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">drawlib.smartarts</span><span class="w"> </span><span class="kn">import</span> <span class="n">CardList</span><span class="p">,</span> <span class="n">Panel</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">drawlib.styles</span><span class="w"> </span><span class="kn">import</span> <span class="n">Colors</span><span class="p">,</span> <span class="n">Styles</span>
+
+<span class="n">setup</span><span class="p">(</span><span class="n">width</span><span class="o">=</span><span class="mi">144</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mi">62</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">150</span><span class="p">)</span>
+
+<span class="n">white_card</span> <span class="o">=</span> <span class="n">Styles</span><span class="o">.</span><span class="n">Neutral</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="n">shape_fill_color</span><span class="o">=</span><span class="n">Colors</span><span class="o">.</span><span class="n">White</span><span class="p">)</span>
+
+<span class="n">left_panel</span> <span class="o">=</span> <span class="n">Panel</span><span class="p">(</span>
+    <span class="s2">"Application-Scoped (Thread-Safe)"</span><span class="p">,</span>
+    <span class="s2">"Shared Across All Threads"</span><span class="p">,</span>
+    <span class="n">style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">Neutral</span><span class="p">,</span>
+    <span class="n">header_style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">PrimaryNeutral</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="n">shape_line_width</span><span class="o">=</span><span class="mf">1.2</span><span class="p">),</span>
+    <span class="n">text_style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">DarkBold</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="n">text_size</span><span class="o">=</span><span class="mf">11.0</span><span class="p">),</span>
+    <span class="n">description_style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">Muted</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="n">text_size</span><span class="o">=</span><span class="mf">9.5</span><span class="p">),</span>
+    <span class="n">icon</span><span class="o">=</span><span class="n">phosphor</span><span class="o">.</span><span class="n">shield_check</span><span class="p">,</span>
+    <span class="n">icon_style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">PrimaryBold</span><span class="p">,</span>
+    <span class="n">header_variant</span><span class="o">=</span><span class="s2">"filled"</span><span class="p">,</span>
+    <span class="n">header_height</span><span class="o">=</span><span class="mf">8.0</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">left_panel</span><span class="o">.</span><span class="n">draw</span><span class="p">((</span><span class="mf">4.0</span><span class="p">,</span> <span class="mf">4.5</span><span class="p">),</span> <span class="n">width</span><span class="o">=</span><span class="mf">66.5</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mf">53.0</span><span class="p">,</span> <span class="n">align</span><span class="o">=</span><span class="s2">"bottom_left"</span><span class="p">)</span>
+<span class="n">l_xy</span><span class="p">,</span> <span class="n">l_w</span><span class="p">,</span> <span class="n">l_h</span> <span class="o">=</span> <span class="n">left_panel</span><span class="o">.</span><span class="n">get_content_box</span><span class="p">(</span>
+    <span class="p">(</span><span class="mf">4.0</span><span class="p">,</span> <span class="mf">4.5</span><span class="p">),</span> <span class="n">width</span><span class="o">=</span><span class="mf">66.5</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mf">53.0</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="p">(</span><span class="mf">2.6</span><span class="p">,</span> <span class="mf">2.4</span><span class="p">),</span> <span class="n">align</span><span class="o">=</span><span class="s2">"bottom_left"</span>
+<span class="p">)</span>
+
+<span class="n">app_cards</span> <span class="o">=</span> <span class="n">CardList</span><span class="p">(</span>
+    <span class="n">style</span><span class="o">=</span><span class="n">white_card</span><span class="p">,</span>
+    <span class="n">text_style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">DarkBold</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="n">text_size</span><span class="o">=</span><span class="mf">10.2</span><span class="p">),</span>
+    <span class="n">description_style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">Muted</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="n">text_size</span><span class="o">=</span><span class="mf">9.5</span><span class="p">),</span>
+    <span class="n">badge_shape</span><span class="o">=</span><span class="s2">"rounded_rect"</span><span class="p">,</span>
+    <span class="n">badge_style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">PrimaryFlat</span><span class="p">,</span>
+    <span class="n">badge_text_style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">WhiteBold</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="n">text_size</span><span class="o">=</span><span class="mf">9.8</span><span class="p">),</span>
+    <span class="n">direction</span><span class="o">=</span><span class="s2">"vertical"</span><span class="p">,</span>
+    <span class="n">spacing</span><span class="o">=</span><span class="mf">2.0</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">app_cards</span><span class="o">.</span><span class="n">add</span><span class="p">(</span>
+    <span class="s2">"SqlSessionFactory &amp; Configuration"</span><span class="p">,</span>
+    <span class="s2">"Built once at startup; holds StrictMap registries"</span><span class="p">,</span>
+    <span class="n">badge_text</span><span class="o">=</span><span class="s2">"APP"</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">app_cards</span><span class="o">.</span><span class="n">add</span><span class="p">(</span>
+    <span class="s2">"MapperProxyFactory &amp; OgnlCache"</span><span class="p">,</span>
+    <span class="s2">"ConcurrentHashMap caches for Method &amp; OGNL ASTs"</span><span class="p">,</span>
+    <span class="n">badge_text</span><span class="o">=</span><span class="s2">"APP"</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">app_cards</span><span class="o">.</span><span class="n">add</span><span class="p">(</span>
+    <span class="s2">"L2 Cache (Synchronized / LruCache)"</span><span class="p">,</span>
+    <span class="s2">"Shared namespace cache updated on commit()"</span><span class="p">,</span>
+    <span class="n">badge_text</span><span class="o">=</span><span class="s2">"APP"</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">app_cards</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="n">l_xy</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="n">l_w</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="n">l_h</span><span class="p">,</span> <span class="n">align</span><span class="o">=</span><span class="s2">"bottom_left"</span><span class="p">)</span>
+
+<span class="n">right_panel</span> <span class="o">=</span> <span class="n">Panel</span><span class="p">(</span>
+    <span class="s2">"Request / Method-Scoped (Thread-Confined)"</span><span class="p">,</span>
+    <span class="s2">"Never Share Across Threads"</span><span class="p">,</span>
+    <span class="n">style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">Neutral</span><span class="p">,</span>
+    <span class="n">header_style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">SecondaryNeutral</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="n">shape_line_width</span><span class="o">=</span><span class="mf">1.2</span><span class="p">),</span>
+    <span class="n">text_style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">DarkBold</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="n">text_size</span><span class="o">=</span><span class="mf">11.0</span><span class="p">),</span>
+    <span class="n">description_style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">Muted</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="n">text_size</span><span class="o">=</span><span class="mf">9.5</span><span class="p">),</span>
+    <span class="n">icon</span><span class="o">=</span><span class="n">phosphor</span><span class="o">.</span><span class="n">warning_circle</span><span class="p">,</span>
+    <span class="n">icon_style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">WarningBold</span><span class="p">,</span>
+    <span class="n">header_variant</span><span class="o">=</span><span class="s2">"filled"</span><span class="p">,</span>
+    <span class="n">header_height</span><span class="o">=</span><span class="mf">8.0</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">right_panel</span><span class="o">.</span><span class="n">draw</span><span class="p">((</span><span class="mf">73.5</span><span class="p">,</span> <span class="mf">4.5</span><span class="p">),</span> <span class="n">width</span><span class="o">=</span><span class="mf">66.5</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mf">53.0</span><span class="p">,</span> <span class="n">align</span><span class="o">=</span><span class="s2">"bottom_left"</span><span class="p">)</span>
+<span class="n">r_xy</span><span class="p">,</span> <span class="n">r_w</span><span class="p">,</span> <span class="n">r_h</span> <span class="o">=</span> <span class="n">right_panel</span><span class="o">.</span><span class="n">get_content_box</span><span class="p">(</span>
+    <span class="p">(</span><span class="mf">73.5</span><span class="p">,</span> <span class="mf">4.5</span><span class="p">),</span> <span class="n">width</span><span class="o">=</span><span class="mf">66.5</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mf">53.0</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="p">(</span><span class="mf">2.6</span><span class="p">,</span> <span class="mf">2.4</span><span class="p">),</span> <span class="n">align</span><span class="o">=</span><span class="s2">"bottom_left"</span>
+<span class="p">)</span>
+
+<span class="n">req_cards</span> <span class="o">=</span> <span class="n">CardList</span><span class="p">(</span>
+    <span class="n">style</span><span class="o">=</span><span class="n">white_card</span><span class="p">,</span>
+    <span class="n">text_style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">DarkBold</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="n">text_size</span><span class="o">=</span><span class="mf">10.2</span><span class="p">),</span>
+    <span class="n">description_style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">Muted</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="n">text_size</span><span class="o">=</span><span class="mf">9.5</span><span class="p">),</span>
+    <span class="n">badge_shape</span><span class="o">=</span><span class="s2">"rounded_rect"</span><span class="p">,</span>
+    <span class="n">badge_style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">SecondaryFlat</span><span class="p">,</span>
+    <span class="n">badge_text_style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">WhiteBold</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="n">text_size</span><span class="o">=</span><span class="mf">9.8</span><span class="p">),</span>
+    <span class="n">direction</span><span class="o">=</span><span class="s2">"vertical"</span><span class="p">,</span>
+    <span class="n">spacing</span><span class="o">=</span><span class="mf">2.0</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">req_cards</span><span class="o">.</span><span class="n">add</span><span class="p">(</span>
+    <span class="s2">"SqlSession &amp; MapperProxy&lt;T&gt;"</span><span class="p">,</span>
+    <span class="s2">"Open per unit-of-work in try-with-resources"</span><span class="p">,</span>
+    <span class="n">badge_text</span><span class="o">=</span><span class="s2">"REQ"</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">req_cards</span><span class="o">.</span><span class="n">add</span><span class="p">(</span>
+    <span class="s2">"Executor &amp; L1 PerpetualCache"</span><span class="p">,</span>
+    <span class="s2">"Holds uncommitted tx state &amp; L1 session cache"</span><span class="p">,</span>
+    <span class="n">badge_text</span><span class="o">=</span><span class="s2">"REQ"</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">req_cards</span><span class="o">.</span><span class="n">add</span><span class="p">(</span>
+    <span class="s2">"StatementHandler &amp; BoundSql"</span><span class="p">,</span>
+    <span class="s2">"Created per SQL execution; closed immediately"</span><span class="p">,</span>
+    <span class="n">badge_text</span><span class="o">=</span><span class="s2">"CALL"</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">req_cards</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="n">r_xy</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="n">r_w</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="n">r_h</span><span class="p">,</span> <span class="n">align</span><span class="o">=</span><span class="s2">"bottom_left"</span><span class="p">)</span>
+
+<span class="n">save</span><span class="p">()</span>
+</code></pre>
+</details>
+<hr />
+<h2>Chapter Guide</h2>
+<ol>
+<li><strong><a href="01_package_and_layers.html">3-Tier Package Topology &amp; Shading</a></strong> — How the 20 packages under <code>org.apache.ibatis.*</code> stratify into Public Session/Proxy, Core Execution/Scripting, and Foundation Reflection/Type/IO layers, plus how <code>maven-shade-plugin</code> embeds OGNL and Javassist.</li>
+<li><strong><a href="02_bootstrap_and_builders.html">Bootstrap Compilation &amp; Builders</a></strong> — How <code>SqlSessionFactoryBuilder</code>, <code>XMLConfigBuilder</code>, <code>XMLMapperBuilder</code>, and <code>MapperAnnotationBuilder</code> lower XML &amp; annotations into <code>Configuration</code> and <code>StrictMap</code>.</li>
+<li><strong><a href="03_mapper_proxy_engine.html">JDK Dynamic Proxy &amp; Mapper Dispatch</a></strong> — How <code>MapperRegistry</code>, <code>MapperProxyFactory&lt;T&gt;</code>, <code>MapperProxy&lt;T&gt;</code>, and <code>MapperMethod</code> route interface method calls to <code>SqlSession</code> commands.</li>
+<li><strong><a href="04_executor_and_caching.html">Executor Pipeline, L1/L2 Caching &amp; Plugin Interceptors</a></strong> — Inside <code>BaseExecutor</code> (<code>Simple</code>, <code>Reuse</code>, <code>Batch</code>), <code>CachingExecutor</code>, <code>TransactionalCacheManager</code>, and <code>Plugin.wrap()</code> interceptor chains.</li>
+<li><strong><a href="05_dynamic_sql_and_ognl.html">Dynamic SQL AST, OGNL &amp; Parameter Binding</a></strong> — How <code>XMLLanguageDriver</code> builds <code>RawSqlSource</code> vs. <code>DynamicSqlSource</code>, evaluates <code>SqlNode</code> trees via <code>OgnlCache</code>, and binds parameters in <code>DefaultParameterHandler</code>.</li>
+<li><strong><a href="06_resultset_and_reflection.html">ResultSet Hydration, MetaObject Reflection &amp; Lazy Proxies</a></strong> — How <code>DefaultResultSetHandler</code>, <code>MetaObject</code>, <code>Reflector</code>, and <code>JavassistProxyFactory</code> hydrate nested object graphs and on-demand lazy properties.</li>
+</ol>
+
+            </main>
+        </div>
+    </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const themeBtn = document.getElementById('theme-toggle');
+            if (themeBtn) {
+                themeBtn.addEventListener('click', function() {
+                    const current = document.documentElement.getAttribute('data-theme');
+                    const next = current === 'dark' ? 'light' : 'dark';
+                    document.documentElement.setAttribute('data-theme', next);
+                    localStorage.setItem('drawlib-theme', next);
+                });
+            }
+            const langDropdowns = document.querySelectorAll('.lang-dropdown');
+            if (langDropdowns.length > 0) {
+                document.addEventListener('click', function(e) {
+                    langDropdowns.forEach(function(dd) {
+                        if (dd.hasAttribute('open') && !dd.contains(e.target)) {
+                            dd.removeAttribute('open');
+                        }
+                    });
+                });
+                document.addEventListener('keydown', function(e) {
+                    if (e.key === 'Escape') {
+                        langDropdowns.forEach(function(dd) {
+                            dd.removeAttribute('open');
+                        });
+                    }
+                });
+            }
+            const menuBtn = document.getElementById('menu-toggle');
+            const sidebar = document.querySelector('.sidebar');
+            if (menuBtn && sidebar) {
+                function setMenuOpen(open) {
+                    sidebar.classList.toggle('is-open', open);
+                    menuBtn.setAttribute('aria-expanded', open ? 'true' : 'false');
+                    document.body.classList.toggle('menu-open', open);
+                }
+                menuBtn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    setMenuOpen(!sidebar.classList.contains('is-open'));
+                });
+                document.addEventListener('click', function(e) {
+                    if (sidebar.classList.contains('is-open') && !sidebar.contains(e.target)) {
+                        setMenuOpen(false);
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>

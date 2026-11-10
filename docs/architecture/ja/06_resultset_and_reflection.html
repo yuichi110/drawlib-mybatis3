@@ -1,0 +1,461 @@
+<!--
+ Copyright (c) 2026 Yuichi Ito (yuichi@yuichi.com)
+
+ This software is licensed under the Apache License, Version 2.0.
+ For more information, please visit: https://github.com/yuichi110/drawlib
+-->
+<!DOCTYPE html>
+<html lang="ja" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>6. ResultSet マッピングと Reflection — MyBatis 3 Architecture (Unofficial · PNI501 + Drawlib Demo)</title>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-S9N5BZ1VRC"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-S9N5BZ1VRC');
+    </script>
+    <script>
+        (function() {
+            const saved = localStorage.getItem('drawlib-theme');
+            if (saved === 'dark' || (!saved && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                document.documentElement.setAttribute('data-theme', 'dark');
+            } else {
+                document.documentElement.setAttribute('data-theme', 'light');
+            }
+        })();
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+    
+    
+    <link rel="alternate" hreflang="en" href="https://mybatis3.drawlib.com/architecture/en/06_resultset_and_reflection.html">
+    
+    <link rel="alternate" hreflang="ja" href="https://mybatis3.drawlib.com/architecture/ja/06_resultset_and_reflection.html">
+    
+    <link rel="alternate" hreflang="x-default" href="https://mybatis3.drawlib.com/architecture/en/06_resultset_and_reflection.html">
+    
+    
+    
+    <meta name="description" content="JDBC ドライバから ResultSet が返却されると、DefaultResultSetHandler (src/main/java/org/apache/ibatis/executor/resultset/DefaultResultSetHandler.java, 1,300 行超) が行データを…">
+    <link rel="canonical" href="https://mybatis3.drawlib.com/architecture/ja/06_resultset_and_reflection.html">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="MyBatis 3 内部設計">
+    <meta property="og:title" content="6. ResultSet マッピングと Reflection — MyBatis 3 内部設計">
+    <meta property="og:description" content="JDBC ドライバから ResultSet が返却されると、DefaultResultSetHandler (src/main/java/org/apache/ibatis/executor/resultset/DefaultResultSetHandler.java, 1,300 行超) が行データを…">
+    <meta property="og:url" content="https://mybatis3.drawlib.com/architecture/ja/06_resultset_and_reflection.html">
+    <meta property="og:image" content="https://mybatis3.drawlib.com/architecture/_assets/ogp.png">
+    <meta property="og:locale" content="ja_JP">
+    <meta property="og:locale:alternate" content="en_US">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="6. ResultSet マッピングと Reflection — MyBatis 3 内部設計">
+    <meta name="twitter:description" content="JDBC ドライバから ResultSet が返却されると、DefaultResultSetHandler (src/main/java/org/apache/ibatis/executor/resultset/DefaultResultSetHandler.java, 1,300 行超) が行データを…">
+    <meta name="twitter:image" content="https://mybatis3.drawlib.com/architecture/_assets/ogp.png">
+    
+    
+    <link rel="icon" type="image/png" href="../_assets/favicon.png">
+    
+    
+    <link rel="stylesheet" href="style.css">
+    
+    
+</head>
+<body>
+    <div class="demo-banner" role="region" aria-label="Unofficial Showcase Notice">
+        <div class="demo-banner-inner">
+            <span class="demo-banner-badge">UNOFFICIAL DEMO</span>
+            <span class="demo-banner-text">
+                
+                <a href="https://pypi.org/project/pni501/" target="_blank" rel="noopener noreferrer">PNI501</a> と <a href="https://www.drawlib.com/" target="_blank" rel="noopener noreferrer">Drawlib</a> で構築した <a href="https://mybatis.org/mybatis-3/" target="_blank" rel="noopener noreferrer">MyBatis 3</a> (v3.6.0, Apache-2.0) の非公式内部アーキテクチャ解説です。
+                
+            </span>
+            <span class="demo-banner-links">
+                <a href="https://mybatis3.drawlib.com/ja/">ユーザーガイド</a>
+                <span class="demo-banner-sep">·</span>
+                <a href="https://mybatis3.drawlib.com/api/ja/">API リファレンス</a>
+                <span class="demo-banner-sep">·</span>
+                <strong style="color:#ffffff;">アーキテクチャ</strong>
+                <span class="demo-banner-sep">·</span>
+                <a href="https://mybatis3.drawlib.com/reports/pni501/">PNI501 Audit</a>
+                <span class="demo-banner-sep">·</span>
+                <a href="https://mybatis.org/mybatis-3/" target="_blank" rel="noopener noreferrer">公式 Docs ↗</a>
+                <span class="demo-banner-sep">·</span>
+                <a href="https://github.com/yuichi110/drawlib-mybatis3" target="_blank" rel="noopener noreferrer">GitHub ↗</a>
+            </span>
+        </div>
+    </div>
+    
+    <div class="doc-layout">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <a href="index.html" class="sidebar-brand" aria-label="MyBatis 3 内部設計">
+                    
+                    MyBatis 3 内部設計
+                    
+                </a>
+                <div class="sidebar-header-actions">
+                    <button type="button" id="theme-toggle" class="theme-toggle-btn" aria-label="Toggle theme">
+                        <svg class="icon-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+                        <svg class="icon-moon" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+                    </button>
+                    <button type="button" id="menu-toggle" class="menu-toggle-btn" aria-label="Toggle navigation" aria-expanded="false">
+                        <svg class="icon-hamburger" viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+                        <svg class="icon-close" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                    </button>
+                </div>
+            </div>
+            <div class="sidebar-menu">
+                
+                    
+                        
+                        <ul class="nav-list">
+                            
+                            <li class="nav-item ">
+                                <a href="index.html" >アーキテクチャ概要</a>
+                            </li>
+                            
+                        </ul>
+                    
+                        
+                        <div class="sidebar-heading">コア内部機構</div>
+                        
+                        <ul class="nav-list">
+                            
+                            <li class="nav-item ">
+                                <a href="01_package_and_layers.html" >1. 3層パッケージ構成とShading</a>
+                            </li>
+                            
+                            <li class="nav-item ">
+                                <a href="02_bootstrap_and_builders.html" >2. 起動コンパイルとBuilder群</a>
+                            </li>
+                            
+                            <li class="nav-item ">
+                                <a href="03_mapper_proxy_engine.html" >3. MapperProxy 動的ディスパッチ</a>
+                            </li>
+                            
+                            <li class="nav-item ">
+                                <a href="04_executor_and_caching.html" >4. Executor・L1/L2キャッシュ・Plugin</a>
+                            </li>
+                            
+                            <li class="nav-item ">
+                                <a href="05_dynamic_sql_and_ognl.html" >5. 動的SQL AST と OGNL 評価</a>
+                            </li>
+                            
+                            <li class="nav-item active">
+                                <a href="06_resultset_and_reflection.html" >6. ResultSet マッピングと Reflection</a>
+                            </li>
+                            
+                        </ul>
+                    
+                        
+                        <div class="sidebar-heading">関連ポータル</div>
+                        
+                        <ul class="nav-list">
+                            
+                            <li class="nav-item ">
+                                <a href="https://mybatis3.drawlib.com/" target="_blank" rel="noopener noreferrer">ユーザーガイド ↗<svg class="nav-external-icon" viewBox="0 0 24 24" aria-hidden="true"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg></a>
+                            </li>
+                            
+                            <li class="nav-item ">
+                                <a href="https://mybatis3.drawlib.com/api/" target="_blank" rel="noopener noreferrer">API &amp; XML カタログ ↗<svg class="nav-external-icon" viewBox="0 0 24 24" aria-hidden="true"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg></a>
+                            </li>
+                            
+                            <li class="nav-item ">
+                                <a href="https://mybatis3.drawlib.com/reports/pni501/" target="_blank" rel="noopener noreferrer">PNI501 診断レポート ↗<svg class="nav-external-icon" viewBox="0 0 24 24" aria-hidden="true"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg></a>
+                            </li>
+                            
+                        </ul>
+                    
+                
+            </div>
+        </aside>
+        <div class="content-wrapper">
+            <header class="top-bar">
+                <div class="breadcrumbs">
+                    <span class="crumb">内部アーキテクチャ</span>
+                    <span class="crumb-separator">&raquo;</span>
+                    <span class="crumb active">6. ResultSet マッピングと Reflection</span>
+                </div>
+                
+                <div class="lang-switcher">
+                    <details class="lang-dropdown">
+                        <summary class="lang-dropdown-btn" aria-label="Select language">
+                            <svg class="lang-globe-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
+                            <span class="lang-current-label">日本語</span>
+                            <svg class="lang-caret-icon" viewBox="0 0 24 24" aria-hidden="true"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                        </summary>
+                        <div class="lang-dropdown-menu" role="menu">
+                            
+                            <a href="../en/06_resultset_and_reflection.html" class="lang-option" lang="en" hreflang="en" >
+                                <span>English</span>
+                                
+                            </a>
+                            
+                            <a href="06_resultset_and_reflection.html" class="lang-option active" lang="ja" hreflang="ja" aria-current="page">
+                                <span>日本語</span>
+                                
+                                <svg class="lang-check-icon" viewBox="0 0 24 24" aria-hidden="true"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                                
+                            </a>
+                            
+                        </div>
+                    </details>
+                </div>
+                
+            </header>
+            <main class="main-content">
+                <h1>6. ResultSet マッピングと Reflection</h1>
+<p>JDBC ドライバから <code>ResultSet</code> が返却されると、<strong><code>DefaultResultSetHandler</code></strong> (<code>src/main/java/org/apache/ibatis/executor/resultset/DefaultResultSetHandler.java</code>, <code>1,300</code> 行超) が行データを JavaBean、不変の Java <code>record</code>、ネストされた <code>1:N</code> コレクション、あるいはストリーミング <code>Cursor&lt;T&gt;</code> へと変換します。</p>
+<figure class="drawlib-image" style="text-align: center;">
+  <img src="../images/06_resultset_and_reflection/arch_resultset_hydration.png" alt="06_resultset_and_reflection_1" />
+  <figcaption class="drawlib-caption">MyBatis 3 v3.6.0 — DefaultResultSetHandler によるオブジェクト構築・コンストラクタ解決・ネスト結合パイプライン</figcaption>
+</figure>
+<details class="drawlib-code-details">
+<summary>Source Code</summary>
+<pre><code class="language-python"><span class="kn">from</span><span class="w"> </span><span class="nn">drawlib.canvas</span><span class="w"> </span><span class="kn">import</span> <span class="n">save</span><span class="p">,</span> <span class="n">setup</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">drawlib.diagrams.architecture</span><span class="w"> </span><span class="kn">import</span> <span class="n">ArchitectureDiagram</span><span class="p">,</span> <span class="n">Node</span><span class="p">,</span> <span class="n">NodeGroup</span><span class="p">,</span> <span class="n">PhosphorIcon</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">drawlib.styles</span><span class="w"> </span><span class="kn">import</span> <span class="n">Colors</span><span class="p">,</span> <span class="n">Styles</span>
+
+<span class="n">setup</span><span class="p">(</span><span class="n">width</span><span class="o">=</span><span class="mi">144</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mi">60</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">150</span><span class="p">)</span>
+
+<span class="n">d</span> <span class="o">=</span> <span class="n">ArchitectureDiagram</span><span class="p">(</span>
+    <span class="n">node_style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">Dark</span><span class="p">,</span>
+    <span class="n">node_text_style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">DarkBold</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="n">text_size</span><span class="o">=</span><span class="mf">9.6</span><span class="p">),</span>
+    <span class="n">edge_style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">Dark</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="n">line_width</span><span class="o">=</span><span class="mf">1.5</span><span class="p">),</span>
+    <span class="n">edge_text_style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">DarkBold</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="n">text_size</span><span class="o">=</span><span class="mf">9.2</span><span class="p">),</span>
+    <span class="n">node_card_style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">Neutral</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="n">shape_fill_color</span><span class="o">=</span><span class="n">Colors</span><span class="o">.</span><span class="n">White</span><span class="p">),</span>
+<span class="p">)</span>
+
+<span class="n">jdbc_grp</span> <span class="o">=</span> <span class="n">d</span><span class="o">.</span><span class="n">add</span><span class="p">(</span>
+    <span class="n">NodeGroup</span><span class="p">(</span>
+        <span class="s2">"1. JDBC Metadata Wrapper"</span><span class="p">,</span>
+        <span class="n">width</span><span class="o">=</span><span class="mi">40</span><span class="p">,</span>
+        <span class="n">height</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span>
+        <span class="n">style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">SecondaryNeutral</span><span class="p">,</span>
+        <span class="n">text_style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">DarkBold</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="n">text_size</span><span class="o">=</span><span class="mf">10.2</span><span class="p">,</span> <span class="n">halign</span><span class="o">=</span><span class="s2">"left"</span><span class="p">,</span> <span class="n">valign</span><span class="o">=</span><span class="s2">"top"</span><span class="p">),</span>
+    <span class="p">),</span>
+    <span class="n">xy</span><span class="o">=</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">),</span>
+<span class="p">)</span>
+<span class="n">n_rsw</span> <span class="o">=</span> <span class="n">jdbc_grp</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">Node</span><span class="p">(</span><span class="s2">"ResultSetWrapper</span><span class="se">\n</span><span class="s2">(Column &amp; Type Map)"</span><span class="p">,</span> <span class="n">icon</span><span class="o">=</span><span class="n">PhosphorIcon</span><span class="o">.</span><span class="n">TABLE</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">32</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mi">15</span><span class="p">),</span> <span class="n">xy</span><span class="o">=</span><span class="p">(</span><span class="mi">20</span><span class="p">,</span> <span class="mi">33</span><span class="p">))</span>
+<span class="n">n_disc</span> <span class="o">=</span> <span class="n">jdbc_grp</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">Node</span><span class="p">(</span><span class="s2">"Discriminator</span><span class="se">\n</span><span class="s2">Resolution"</span><span class="p">,</span> <span class="n">icon</span><span class="o">=</span><span class="n">PhosphorIcon</span><span class="o">.</span><span class="n">GIT_BRANCH</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">32</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mi">15</span><span class="p">),</span> <span class="n">xy</span><span class="o">=</span><span class="p">(</span><span class="mi">20</span><span class="p">,</span> <span class="mi">13</span><span class="p">))</span>
+
+<span class="n">core_grp</span> <span class="o">=</span> <span class="n">d</span><span class="o">.</span><span class="n">add</span><span class="p">(</span>
+    <span class="n">NodeGroup</span><span class="p">(</span>
+        <span class="s2">"2. DefaultResultSetHandler"</span><span class="p">,</span>
+        <span class="n">width</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span>
+        <span class="n">height</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span>
+        <span class="n">style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">PrimaryNeutral</span><span class="p">,</span>
+        <span class="n">text_style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">DarkBold</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="n">text_size</span><span class="o">=</span><span class="mf">10.2</span><span class="p">,</span> <span class="n">halign</span><span class="o">=</span><span class="s2">"left"</span><span class="p">,</span> <span class="n">valign</span><span class="o">=</span><span class="s2">"top"</span><span class="p">),</span>
+    <span class="p">),</span>
+    <span class="n">xy</span><span class="o">=</span><span class="p">(</span><span class="mi">48</span><span class="p">,</span> <span class="mi">5</span><span class="p">),</span>
+<span class="p">)</span>
+<span class="n">n_inst</span> <span class="o">=</span> <span class="n">core_grp</span><span class="o">.</span><span class="n">add</span><span class="p">(</span>
+    <span class="n">Node</span><span class="p">(</span>
+        <span class="s2">"createResultObject</span><span class="se">\n</span><span class="s2">(ObjectFactory / Record)"</span><span class="p">,</span>
+        <span class="n">icon</span><span class="o">=</span><span class="n">PhosphorIcon</span><span class="o">.</span><span class="n">CUBE</span><span class="p">,</span>
+        <span class="n">width</span><span class="o">=</span><span class="mi">40</span><span class="p">,</span>
+        <span class="n">height</span><span class="o">=</span><span class="mi">15</span><span class="p">,</span>
+        <span class="n">style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">White</span><span class="p">,</span>
+        <span class="n">text_style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">WhiteBold</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="n">text_size</span><span class="o">=</span><span class="mf">9.6</span><span class="p">),</span>
+        <span class="n">card_style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">PrimaryFlat</span><span class="p">,</span>
+    <span class="p">),</span>
+    <span class="n">xy</span><span class="o">=</span><span class="p">(</span><span class="mi">25</span><span class="p">,</span> <span class="mi">33</span><span class="p">),</span>
+<span class="p">)</span>
+<span class="n">n_nest</span> <span class="o">=</span> <span class="n">core_grp</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">Node</span><span class="p">(</span><span class="s2">"applyAutoMappings &amp;</span><span class="se">\n</span><span class="s2">Nested RowKey Cache"</span><span class="p">,</span> <span class="n">icon</span><span class="o">=</span><span class="n">PhosphorIcon</span><span class="o">.</span><span class="n">STACK</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">40</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mi">15</span><span class="p">),</span> <span class="n">xy</span><span class="o">=</span><span class="p">(</span><span class="mi">25</span><span class="p">,</span> <span class="mi">13</span><span class="p">))</span>
+
+<span class="n">refl_grp</span> <span class="o">=</span> <span class="n">d</span><span class="o">.</span><span class="n">add</span><span class="p">(</span>
+    <span class="n">NodeGroup</span><span class="p">(</span>
+        <span class="s2">"3. MetaObject &amp; Lazy Proxy"</span><span class="p">,</span>
+        <span class="n">width</span><span class="o">=</span><span class="mi">38</span><span class="p">,</span>
+        <span class="n">height</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span>
+        <span class="n">style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">Neutral</span><span class="p">,</span>
+        <span class="n">text_style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">DarkBold</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="n">text_size</span><span class="o">=</span><span class="mf">10.2</span><span class="p">,</span> <span class="n">halign</span><span class="o">=</span><span class="s2">"left"</span><span class="p">,</span> <span class="n">valign</span><span class="o">=</span><span class="s2">"top"</span><span class="p">),</span>
+    <span class="p">),</span>
+    <span class="n">xy</span><span class="o">=</span><span class="p">(</span><span class="mi">102</span><span class="p">,</span> <span class="mi">5</span><span class="p">),</span>
+<span class="p">)</span>
+<span class="n">n_meta</span> <span class="o">=</span> <span class="n">refl_grp</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">Node</span><span class="p">(</span><span class="s2">"MetaObject &amp;</span><span class="se">\n</span><span class="s2">Reflector Invokers"</span><span class="p">,</span> <span class="n">icon</span><span class="o">=</span><span class="n">PhosphorIcon</span><span class="o">.</span><span class="n">LIGHTNING</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mi">15</span><span class="p">),</span> <span class="n">xy</span><span class="o">=</span><span class="p">(</span><span class="mi">19</span><span class="p">,</span> <span class="mi">33</span><span class="p">))</span>
+<span class="n">n_lazy</span> <span class="o">=</span> <span class="n">refl_grp</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">Node</span><span class="p">(</span><span class="s2">"JavassistProxyFactory</span><span class="se">\n</span><span class="s2">&amp; ResultLoaderMap"</span><span class="p">,</span> <span class="n">icon</span><span class="o">=</span><span class="n">PhosphorIcon</span><span class="o">.</span><span class="n">MAGIC_WAND</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mi">15</span><span class="p">),</span> <span class="n">xy</span><span class="o">=</span><span class="p">(</span><span class="mi">19</span><span class="p">,</span> <span class="mi">13</span><span class="p">))</span>
+
+<span class="n">n_rsw</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">n_disc</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">"resolve"</span><span class="p">)</span>
+<span class="n">n_disc</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">n_inst</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">"ResultMap"</span><span class="p">)</span>
+<span class="n">n_inst</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">n_nest</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">"hydrate"</span><span class="p">)</span>
+<span class="n">n_inst</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">n_meta</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">"setValue()"</span><span class="p">)</span>
+<span class="n">n_nest</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">n_lazy</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">"lazy load"</span><span class="p">)</span>
+
+<span class="n">d</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="n">xy</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+<span class="n">save</span><span class="p">()</span>
+</code></pre>
+</details>
+<hr />
+<h2><code>org.apache.ibatis.reflection</code> サブシステム（全36ファイル）の内部構造</h2>
+<p>行ごとに低速な <code>Class.getMethod()</code> を繰り返すのを避けるため、MyBatis 3 はクラス単位のリフレクション情報を <strong><code>DefaultReflectorFactory</code></strong> (<code>ConcurrentHashMap&lt;Class&lt;?&gt;, Reflector&gt;</code>) にキャッシュします。</p>
+<figure class="drawlib-image" style="text-align: center;">
+  <img src="../images/06_resultset_and_reflection/arch_reflection_metaobject.png" alt="06_resultset_and_reflection_2" />
+  <figcaption class="drawlib-caption">MyBatis 3 v3.6.0 — MetaObject・ObjectWrapper・MetaClass・Reflector のクラス関係図</figcaption>
+</figure>
+<details class="drawlib-code-details">
+<summary>Source Code</summary>
+<pre><code class="language-python"><span class="kn">from</span><span class="w"> </span><span class="nn">drawlib.canvas</span><span class="w"> </span><span class="kn">import</span> <span class="n">save</span><span class="p">,</span> <span class="n">setup</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">drawlib.diagrams.class_diagram</span><span class="w"> </span><span class="kn">import</span> <span class="n">ClassDiagram</span><span class="p">,</span> <span class="n">ClassNode</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">drawlib.fonts</span><span class="w"> </span><span class="kn">import</span> <span class="n">FontMonoSpace</span><span class="p">,</span> <span class="n">FontRoboto</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">drawlib.styles</span><span class="w"> </span><span class="kn">import</span> <span class="n">Colors</span><span class="p">,</span> <span class="n">Styles</span>
+
+<span class="n">setup</span><span class="p">(</span><span class="n">width</span><span class="o">=</span><span class="mi">144</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mi">74</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">150</span><span class="p">)</span>
+
+<span class="n">cd</span> <span class="o">=</span> <span class="n">ClassDiagram</span><span class="p">(</span>
+    <span class="n">width</span><span class="o">=</span><span class="mf">144.0</span><span class="p">,</span>
+    <span class="n">height</span><span class="o">=</span><span class="mf">74.0</span><span class="p">,</span>
+    <span class="n">node_style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">Neutral</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span>
+        <span class="n">shape_fill_color</span><span class="o">=</span><span class="n">Colors</span><span class="o">.</span><span class="n">White</span><span class="p">,</span>
+        <span class="n">shape_line_color</span><span class="o">=</span><span class="n">Colors</span><span class="o">.</span><span class="n">Gray6</span><span class="p">,</span>
+        <span class="n">text_color</span><span class="o">=</span><span class="n">Colors</span><span class="o">.</span><span class="n">Dark</span><span class="p">,</span>
+        <span class="n">text_font</span><span class="o">=</span><span class="n">FontMonoSpace</span><span class="o">.</span><span class="n">ROBOTO_MONO_REGULAR</span><span class="p">,</span>
+        <span class="n">text_size</span><span class="o">=</span><span class="mf">9.2</span><span class="p">,</span>
+    <span class="p">),</span>
+    <span class="n">header_style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">PrimaryNeutral</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span>
+        <span class="n">shape_line_color</span><span class="o">=</span><span class="n">Colors</span><span class="o">.</span><span class="n">Gray6</span><span class="p">,</span>
+        <span class="n">text_color</span><span class="o">=</span><span class="n">Colors</span><span class="o">.</span><span class="n">Dark</span><span class="p">,</span>
+        <span class="n">text_font</span><span class="o">=</span><span class="n">FontRoboto</span><span class="o">.</span><span class="n">ROBOTO_BOLD</span><span class="p">,</span>
+        <span class="n">text_size</span><span class="o">=</span><span class="mf">9.8</span><span class="p">,</span>
+    <span class="p">),</span>
+    <span class="n">edge_style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">Dark</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="n">line_width</span><span class="o">=</span><span class="mf">1.4</span><span class="p">),</span>
+    <span class="n">edge_text_style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">DarkBold</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="n">text_font</span><span class="o">=</span><span class="n">FontRoboto</span><span class="o">.</span><span class="n">ROBOTO_BOLD</span><span class="p">,</span> <span class="n">text_size</span><span class="o">=</span><span class="mf">9.2</span><span class="p">),</span>
+<span class="p">)</span>
+
+<span class="n">hero_hdr</span> <span class="o">=</span> <span class="n">Styles</span><span class="o">.</span><span class="n">PrimaryFlat</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="n">text_color</span><span class="o">=</span><span class="n">Colors</span><span class="o">.</span><span class="n">White</span><span class="p">,</span> <span class="n">text_font</span><span class="o">=</span><span class="n">FontRoboto</span><span class="o">.</span><span class="n">ROBOTO_BOLD</span><span class="p">,</span> <span class="n">text_size</span><span class="o">=</span><span class="mf">9.8</span><span class="p">)</span>
+<span class="n">sec_hdr</span> <span class="o">=</span> <span class="n">Styles</span><span class="o">.</span><span class="n">SecondaryNeutral</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="n">shape_line_color</span><span class="o">=</span><span class="n">Colors</span><span class="o">.</span><span class="n">Gray6</span><span class="p">,</span> <span class="n">text_color</span><span class="o">=</span><span class="n">Colors</span><span class="o">.</span><span class="n">Dark</span><span class="p">,</span> <span class="n">text_font</span><span class="o">=</span><span class="n">FontRoboto</span><span class="o">.</span><span class="n">ROBOTO_BOLD</span><span class="p">,</span> <span class="n">text_size</span><span class="o">=</span><span class="mf">9.8</span><span class="p">)</span>
+
+<span class="n">n_meta</span> <span class="o">=</span> <span class="n">cd</span><span class="o">.</span><span class="n">add</span><span class="p">(</span>
+    <span class="n">ClassNode</span><span class="p">(</span><span class="s2">"MetaObject"</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mf">44.0</span><span class="p">,</span> <span class="n">header_style</span><span class="o">=</span><span class="n">hero_hdr</span><span class="p">)</span>
+    <span class="o">.</span><span class="n">add_attribute</span><span class="p">(</span><span class="s2">"originalObject"</span><span class="p">,</span> <span class="s2">"Object"</span><span class="p">)</span>
+    <span class="o">.</span><span class="n">add_attribute</span><span class="p">(</span><span class="s2">"objectWrapper"</span><span class="p">,</span> <span class="s2">"ObjectWrapper"</span><span class="p">)</span>
+    <span class="o">.</span><span class="n">add_method</span><span class="p">(</span><span class="s2">"getValue / setValue"</span><span class="p">,</span> <span class="s2">"propPath"</span><span class="p">,</span> <span class="s2">"Object"</span><span class="p">),</span>
+    <span class="n">xy</span><span class="o">=</span><span class="p">(</span><span class="mf">28.0</span><span class="p">,</span> <span class="mf">56.0</span><span class="p">),</span>
+<span class="p">)</span>
+
+<span class="n">n_wrap</span> <span class="o">=</span> <span class="n">cd</span><span class="o">.</span><span class="n">add</span><span class="p">(</span>
+    <span class="n">ClassNode</span><span class="p">(</span><span class="s2">"ObjectWrapper"</span><span class="p">,</span> <span class="n">stereotype</span><span class="o">=</span><span class="s2">"interface"</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mf">44.0</span><span class="p">,</span> <span class="n">header_style</span><span class="o">=</span><span class="n">sec_hdr</span><span class="p">)</span>
+    <span class="o">.</span><span class="n">add_method</span><span class="p">(</span><span class="s2">"get / set (Bean, Map, Collection)"</span><span class="p">,</span> <span class="s2">"prop"</span><span class="p">,</span> <span class="s2">"Object"</span><span class="p">)</span>
+    <span class="o">.</span><span class="n">add_method</span><span class="p">(</span><span class="s2">"instantiatePropertyValue"</span><span class="p">,</span> <span class="s2">"name"</span><span class="p">,</span> <span class="s2">"MetaObject"</span><span class="p">),</span>
+    <span class="n">xy</span><span class="o">=</span><span class="p">(</span><span class="mf">98.0</span><span class="p">,</span> <span class="mf">56.0</span><span class="p">),</span>
+<span class="p">)</span>
+
+<span class="n">n_mclass</span> <span class="o">=</span> <span class="n">cd</span><span class="o">.</span><span class="n">add</span><span class="p">(</span>
+    <span class="n">ClassNode</span><span class="p">(</span><span class="s2">"MetaClass &amp; PropertyTokenizer"</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mf">44.0</span><span class="p">)</span>
+    <span class="o">.</span><span class="n">add_attribute</span><span class="p">(</span><span class="s2">"reflector"</span><span class="p">,</span> <span class="s2">"Reflector"</span><span class="p">)</span>
+    <span class="o">.</span><span class="n">add_method</span><span class="p">(</span><span class="s2">"findProperty (camelCase)"</span><span class="p">,</span> <span class="s2">"name"</span><span class="p">,</span> <span class="s2">"String"</span><span class="p">),</span>
+    <span class="n">xy</span><span class="o">=</span><span class="p">(</span><span class="mf">28.0</span><span class="p">,</span> <span class="mf">20.0</span><span class="p">),</span>
+<span class="p">)</span>
+
+<span class="n">n_refl</span> <span class="o">=</span> <span class="n">cd</span><span class="o">.</span><span class="n">add</span><span class="p">(</span>
+    <span class="n">ClassNode</span><span class="p">(</span><span class="s2">"Reflector  [Cached per Class]"</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mf">48.0</span><span class="p">,</span> <span class="n">header_style</span><span class="o">=</span><span class="n">sec_hdr</span><span class="p">)</span>
+    <span class="o">.</span><span class="n">add_attribute</span><span class="p">(</span><span class="s2">"getMethods / setMethods"</span><span class="p">,</span> <span class="s2">"Map&lt;String, Invoker&gt;"</span><span class="p">)</span>
+    <span class="o">.</span><span class="n">add_attribute</span><span class="p">(</span><span class="s2">"caseInsensitivePropertyMap"</span><span class="p">,</span> <span class="s2">"Map&lt;String, String&gt;"</span><span class="p">)</span>
+    <span class="o">.</span><span class="n">add_method</span><span class="p">(</span><span class="s2">"getGetInvoker / getSetInvoker"</span><span class="p">,</span> <span class="s2">"prop"</span><span class="p">,</span> <span class="s2">"Invoker"</span><span class="p">),</span>
+    <span class="n">xy</span><span class="o">=</span><span class="p">(</span><span class="mf">100.0</span><span class="p">,</span> <span class="mf">20.0</span><span class="p">),</span>
+<span class="p">)</span>
+
+<span class="n">cd</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">n_meta</span><span class="p">,</span> <span class="n">n_wrap</span><span class="p">,</span> <span class="s2">"composition"</span><span class="p">,</span> <span class="n">directed</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">start_side</span><span class="o">=</span><span class="s2">"right"</span><span class="p">,</span> <span class="n">end_side</span><span class="o">=</span><span class="s2">"left"</span><span class="p">)</span>
+<span class="n">cd</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">n_wrap</span><span class="p">,</span> <span class="n">n_mclass</span><span class="p">,</span> <span class="s2">"dependency"</span><span class="p">,</span> <span class="n">start_side</span><span class="o">=</span><span class="s2">"bottom"</span><span class="p">,</span> <span class="n">end_side</span><span class="o">=</span><span class="s2">"top"</span><span class="p">)</span>
+<span class="n">cd</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">n_mclass</span><span class="p">,</span> <span class="n">n_refl</span><span class="p">,</span> <span class="s2">"association"</span><span class="p">,</span> <span class="n">directed</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">start_side</span><span class="o">=</span><span class="s2">"right"</span><span class="p">,</span> <span class="n">end_side</span><span class="o">=</span><span class="s2">"left"</span><span class="p">)</span>
+
+<span class="n">cd</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="n">xy</span><span class="o">=</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">))</span>
+<span class="n">save</span><span class="p">()</span>
+</code></pre>
+</details>
+<h3>主要コンポーネントと実装メカニズム</h3>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">コンポーネント</th>
+<th style="text-align:left">実装ファイル</th>
+<th style="text-align:left">アーキテクチャ上の役割</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"><strong><code>ResultSetWrapper</code></strong></td>
+<td style="text-align:left"><code>executor/resultset/ResultSetWrapper.java</code></td>
+<td style="text-align:left">クエリごとに1度だけ <code>ResultSetMetaData</code> を抽出し、<code>ResultMap</code> ごとのマッピング済みカラムと自動マッピング対象カラムをキャッシュ。</td>
+</tr>
+<tr>
+<td style="text-align:left"><strong><code>ResultMappingConstructorResolver</code></strong></td>
+<td style="text-align:left"><code>executor/resultset/ResultMappingConstructorResolver.java</code></td>
+<td style="text-align:left"><code>&lt;constructor&gt;</code> / <code>@Arg</code> 定義や <strong>Java <code>record</code> クラス・不変オブジェクト</strong>のコンストラクタ引数を名前または型で自動照合してインスタンス化。</td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>ネスト結合の重複排除 (<code>createRowKey</code>)</strong></td>
+<td style="text-align:left"><code>DefaultResultSetHandler.java:1012-1120</code></td>
+<td style="text-align:left"><code>&lt;collection&gt;</code> / <code>&lt;association&gt;</code> の JOIN マッピング時、親行の主キーから <code>CacheKey</code> を計算し、<code>nestedResultObjects</code> マップ上で子要素リストへ集約。</td>
+</tr>
+<tr>
+<td style="text-align:left"><strong><code>PropertyTokenizer</code></strong></td>
+<td style="text-align:left"><code>reflection/property/PropertyTokenizer.java</code></td>
+<td style="text-align:left"><code>orders[0].billingAddress.postalCode</code> のようなネスト式をトークン分割し、中間オブジェクトが <code>null</code> の場合は自動生成して値をセット。</td>
+</tr>
+<tr>
+<td style="text-align:left"><strong><code>JavassistProxyFactory</code> と <code>ResultLoaderMap</code></strong></td>
+<td style="text-align:left"><code>executor/loader/javassist/JavassistProxyFactory.java</code></td>
+<td style="text-align:left"><code>fetchType=&quot;lazy&quot;</code> の際、同梱された Javassist で対象 Bean のサブクラスプロキシを生成し、対象プロパティの getter 呼び出し時に <code>ResultLoader.loadResult()</code> を遅延実行。</td>
+</tr>
+</tbody>
+</table>
+
+            </main>
+        </div>
+    </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const themeBtn = document.getElementById('theme-toggle');
+            if (themeBtn) {
+                themeBtn.addEventListener('click', function() {
+                    const current = document.documentElement.getAttribute('data-theme');
+                    const next = current === 'dark' ? 'light' : 'dark';
+                    document.documentElement.setAttribute('data-theme', next);
+                    localStorage.setItem('drawlib-theme', next);
+                });
+            }
+            const langDropdowns = document.querySelectorAll('.lang-dropdown');
+            if (langDropdowns.length > 0) {
+                document.addEventListener('click', function(e) {
+                    langDropdowns.forEach(function(dd) {
+                        if (dd.hasAttribute('open') && !dd.contains(e.target)) {
+                            dd.removeAttribute('open');
+                        }
+                    });
+                });
+                document.addEventListener('keydown', function(e) {
+                    if (e.key === 'Escape') {
+                        langDropdowns.forEach(function(dd) {
+                            dd.removeAttribute('open');
+                        });
+                    }
+                });
+            }
+            const menuBtn = document.getElementById('menu-toggle');
+            const sidebar = document.querySelector('.sidebar');
+            if (menuBtn && sidebar) {
+                function setMenuOpen(open) {
+                    sidebar.classList.toggle('is-open', open);
+                    menuBtn.setAttribute('aria-expanded', open ? 'true' : 'false');
+                    document.body.classList.toggle('menu-open', open);
+                }
+                menuBtn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    setMenuOpen(!sidebar.classList.contains('is-open'));
+                });
+                document.addEventListener('click', function(e) {
+                    if (sidebar.classList.contains('is-open') && !sidebar.contains(e.target)) {
+                        setMenuOpen(false);
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>

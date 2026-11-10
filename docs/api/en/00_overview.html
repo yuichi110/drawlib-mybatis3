@@ -1,0 +1,1141 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API &amp; XML Catalog Overview — MyBatis 3 API &amp; XML Reference Catalog (Unofficial · PNI501 + Drawlib Demo)</title>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-S9N5BZ1VRC"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-S9N5BZ1VRC');
+    </script>
+    <script>
+        (function() {
+            try {
+                var savedTheme = localStorage.getItem('drawlib-theme');
+                if (savedTheme === 'dark' || savedTheme === 'light') {
+                    document.documentElement.setAttribute('data-theme', savedTheme);
+                } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                    document.documentElement.setAttribute('data-theme', 'dark');
+                }
+            } catch (e) {}
+        })();
+    </script>
+    
+    <link rel="icon" href="../_assets/favicon.png">
+    
+    
+    
+    <link rel="alternate" hreflang="en" href="https://mybatis3.drawlib.com/api/en/00_overview.html">
+    
+    <link rel="alternate" hreflang="ja" href="https://mybatis3.drawlib.com/api/ja/00_overview.html">
+    
+    <link rel="alternate" hreflang="x-default" href="https://mybatis3.drawlib.com/api/en/00_overview.html">
+    
+    
+    
+    <meta name="description" content="Welcome to the MyBatis 3 (v3.6.0) API &amp; XML Reference Catalog. Every public Java interface, class, annotation, SPI contract, and XML DTD/XSD element across…">
+    <link rel="canonical" href="https://mybatis3.drawlib.com/api/en/00_overview.html">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="MyBatis 3 API &amp; XML Reference Catalog (Unofficial · PNI501 + Drawlib Demo)">
+    <meta property="og:title" content="API &amp; XML Catalog Overview — MyBatis 3 API &amp; XML Reference Catalog (Unofficial · PNI501 + Drawlib Demo)">
+    <meta property="og:description" content="Welcome to the MyBatis 3 (v3.6.0) API &amp; XML Reference Catalog. Every public Java interface, class, annotation, SPI contract, and XML DTD/XSD element across…">
+    <meta property="og:url" content="https://mybatis3.drawlib.com/api/en/00_overview.html">
+    <meta property="og:image" content="https://mybatis3.drawlib.com/api/_assets/ogp.png">
+    <meta property="og:locale" content="en_US">
+    <meta property="og:locale:alternate" content="ja_JP">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="API &amp; XML Catalog Overview — MyBatis 3 API &amp; XML Reference Catalog (Unofficial · PNI501 + Drawlib Demo)">
+    <meta name="twitter:description" content="Welcome to the MyBatis 3 (v3.6.0) API &amp; XML Reference Catalog. Every public Java interface, class, annotation, SPI contract, and XML DTD/XSD element across…">
+    <meta name="twitter:image" content="https://mybatis3.drawlib.com/api/_assets/ogp.png">
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    
+    
+    
+    
+    <link rel="stylesheet" href="style.css">
+    
+</head>
+<body>
+    <div class="demo-banner" role="region" aria-label="Unofficial Showcase Notice">
+        <div class="demo-banner-inner">
+            <span class="demo-banner-badge">UNOFFICIAL DEMO</span>
+            <span class="demo-banner-text">
+                
+                Unofficial API &amp; XML reference catalog of <a href="https://mybatis.org/mybatis-3/" target="_blank" rel="noopener noreferrer">MyBatis 3</a> (v3.6.0, Apache-2.0) built with <a href="https://pypi.org/project/pni501/" target="_blank" rel="noopener noreferrer">PNI501</a> &amp; <a href="https://www.drawlib.com/" target="_blank" rel="noopener noreferrer">Drawlib</a>.
+                
+            </span>
+            <span class="demo-banner-links">
+                <a href="https://mybatis3.drawlib.com/">User Guide</a>
+                <span class="demo-banner-sep">·</span>
+                <strong style="color:#ffffff;">API Reference</strong>
+                <span class="demo-banner-sep">·</span>
+                <a href="https://mybatis3.drawlib.com/architecture/">Architecture</a>
+                <span class="demo-banner-sep">·</span>
+                <a href="https://mybatis3.drawlib.com/reports/pni501/">PNI501 Audit</a>
+                <span class="demo-banner-sep">·</span>
+                <a href="https://mybatis.org/mybatis-3/" target="_blank" rel="noopener noreferrer">Official Docs ↗</a>
+                <span class="demo-banner-sep">·</span>
+                <a href="https://github.com/yuichi110/drawlib-mybatis3" target="_blank" rel="noopener noreferrer">GitHub ↗</a>
+            </span>
+        </div>
+    </div>
+    
+    <div class="doc-layout">
+        <aside class="sidebar" id="catalog-sidebar">
+            <div class="sidebar-header has-subbar">
+                <a href="index.html" class="site-title">
+                    
+                    MyBatis 3 API &amp; XML Reference Catalog (Unofficial · PNI501 + Drawlib Demo)
+                    
+                </a>
+                <div class="sidebar-header-actions">
+                    <button id="theme-toggle" class="theme-toggle-btn" aria-label="Toggle color theme" title="Toggle light/dark mode">
+                        <svg class="icon-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+                        <svg class="icon-moon" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+                    </button>
+                    <button id="menu-toggle" class="menu-toggle-btn" aria-label="Toggle navigation menu">
+                        <svg class="icon-hamburger" viewBox="0 0 24 24"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+                        <svg class="icon-close" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="sidebar-subbar">
+                
+                
+                <a href="index.html" class="sidebar-version-badge">
+                    <span class="sidebar-version-dot"></span>
+                    <span>MyBatis 3 · v3.6.0</span>
+                </a>
+                
+                
+                
+                <a href="https://github.com/yuichi110/drawlib-mybatis3" target="_blank" rel="noopener noreferrer" class="sidebar-github-link" aria-label="Repository" title="View Source Repository">
+                    <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg>
+                </a>
+                
+            </div>
+            
+
+            <div class="sidebar-menu">
+                <div class="catalog-sidebar-toolbar">
+                    <div class="catalog-filter-box">
+                        <svg class="catalog-filter-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                        <input id="catalog-filter-input" type="search" class="catalog-filter-input" placeholder="Filter items..." autocomplete="off" spellcheck="false" aria-label="Filter items...">
+                        <kbd class="catalog-filter-kbd">/</kbd>
+                    </div>
+                    <div class="catalog-toolbar-meta">
+                        <span class="catalog-toolbar-label">Categories &amp; Items</span>
+                        <button type="button" id="catalog-expand-toggle" class="catalog-expand-btn" data-expand-label="Expand All" data-collapse-label="Collapse All">Collapse All</button>
+                    </div>
+                </div>
+
+                <nav class="catalog-sidebar-nav" id="catalog-sidebar-nav" aria-label="Catalog Navigation">
+                    
+                    
+                    
+                    <details class="catalog-nav-group is-current-page" data-cat="API &amp; XML Catalog Overview" open>
+                        <summary class="catalog-nav-summary">
+                            <svg class="catalog-nav-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                            <a href="00_overview.html" class="catalog-nav-cat-link is-prose-cat">API &amp; XML Catalog Overview</a>
+                            
+                            <span class="catalog-nav-count">2</span>
+                            
+                        </summary>
+                        
+                        <ul class="catalog-nav-sublist">
+                            
+                            <li class="catalog-nav-subitem" data-sym="Maven / Gradle Artifact Coordinates">
+                                <a href="#maven-gradle-artifact-coordinates" class="catalog-nav-sublink is-prose-sublink" data-target="maven-gradle-artifact-coordinates">
+                                    
+                                    <span class="catalog-nav-sym-text">Maven / Gradle Artifact Coordinates</span>
+                                </a>
+                            </li>
+                            
+                            <li class="catalog-nav-subitem" data-sym="Catalog Modules &amp; Quick Navigation">
+                                <a href="#catalog-modules-quick-navigation" class="catalog-nav-sublink is-prose-sublink" data-target="catalog-modules-quick-navigation">
+                                    
+                                    <span class="catalog-nav-sym-text">Catalog Modules &amp; Quick Navigation</span>
+                                </a>
+                            </li>
+                            
+                        </ul>
+                        
+                    </details>
+                    
+                    <details class="catalog-nav-group" data-cat="Session &amp; Binding API" open>
+                        <summary class="catalog-nav-summary">
+                            <svg class="catalog-nav-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                            <a href="01_session_and_binding.html" class="catalog-nav-cat-link is-prose-cat">Session &amp; Binding API</a>
+                            
+                            <span class="catalog-nav-count">9</span>
+                            
+                        </summary>
+                        
+                        <ul class="catalog-nav-sublist">
+                            
+                            <li class="catalog-nav-subitem" data-sym="class SqlSessionFactoryBuilder">
+                                <a href="01_session_and_binding.html#sqlsessionfactorybuilder" class="catalog-nav-sublink is-prose-sublink">
+                                    
+                                    <span class="catalog-badge catalog-badge-class">class</span>
+                                    
+                                    <span class="catalog-nav-sym-text">SqlSessionFactoryBuilder</span>
+                                </a>
+                            </li>
+                            
+                            <li class="catalog-nav-subitem" data-sym="interface SqlSessionFactory">
+                                <a href="01_session_and_binding.html#sqlsessionfactory" class="catalog-nav-sublink is-prose-sublink">
+                                    
+                                    <span class="catalog-badge catalog-badge-class">interface</span>
+                                    
+                                    <span class="catalog-nav-sym-text">SqlSessionFactory</span>
+                                </a>
+                            </li>
+                            
+                            <li class="catalog-nav-subitem" data-sym="interface SqlSession">
+                                <a href="01_session_and_binding.html#sqlsession" class="catalog-nav-sublink is-prose-sublink">
+                                    
+                                    <span class="catalog-badge catalog-badge-class">interface</span>
+                                    
+                                    <span class="catalog-nav-sym-text">SqlSession</span>
+                                </a>
+                            </li>
+                            
+                            <li class="catalog-nav-subitem" data-sym="class Configuration">
+                                <a href="01_session_and_binding.html#configuration" class="catalog-nav-sublink is-prose-sublink">
+                                    
+                                    <span class="catalog-badge catalog-badge-class">class</span>
+                                    
+                                    <span class="catalog-nav-sym-text">Configuration</span>
+                                </a>
+                            </li>
+                            
+                            <li class="catalog-nav-subitem" data-sym="enum ExecutorType">
+                                <a href="01_session_and_binding.html#executortype" class="catalog-nav-sublink is-prose-sublink">
+                                    
+                                    <span class="catalog-badge catalog-badge-type">enum</span>
+                                    
+                                    <span class="catalog-nav-sym-text">ExecutorType</span>
+                                </a>
+                            </li>
+                            
+                            <li class="catalog-nav-subitem" data-sym="class RowBounds">
+                                <a href="01_session_and_binding.html#rowbounds" class="catalog-nav-sublink is-prose-sublink">
+                                    
+                                    <span class="catalog-badge catalog-badge-class">class</span>
+                                    
+                                    <span class="catalog-nav-sym-text">RowBounds</span>
+                                </a>
+                            </li>
+                            
+                            <li class="catalog-nav-subitem" data-sym="interface ResultHandler&lt;T&gt;">
+                                <a href="01_session_and_binding.html#resulthandler-t" class="catalog-nav-sublink is-prose-sublink">
+                                    
+                                    <span class="catalog-badge catalog-badge-class">interface</span>
+                                    
+                                    <span class="catalog-nav-sym-text">ResultHandler&lt;T&gt;</span>
+                                </a>
+                            </li>
+                            
+                            <li class="catalog-nav-subitem" data-sym="interface Cursor&lt;T&gt;">
+                                <a href="01_session_and_binding.html#cursor-t" class="catalog-nav-sublink is-prose-sublink">
+                                    
+                                    <span class="catalog-badge catalog-badge-class">interface</span>
+                                    
+                                    <span class="catalog-nav-sym-text">Cursor&lt;T&gt;</span>
+                                </a>
+                            </li>
+                            
+                            <li class="catalog-nav-subitem" data-sym="class MapperRegistry">
+                                <a href="01_session_and_binding.html#mapperregistry" class="catalog-nav-sublink is-prose-sublink">
+                                    
+                                    <span class="catalog-badge catalog-badge-class">class</span>
+                                    
+                                    <span class="catalog-nav-sym-text">MapperRegistry</span>
+                                </a>
+                            </li>
+                            
+                        </ul>
+                        
+                    </details>
+                    
+                    <details class="catalog-nav-group" data-cat="Annotations &amp; SQL Builder" open>
+                        <summary class="catalog-nav-summary">
+                            <svg class="catalog-nav-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                            <a href="02_annotations_and_sql.html" class="catalog-nav-cat-link is-prose-cat">Annotations &amp; SQL Builder</a>
+                            
+                            <span class="catalog-nav-count">11</span>
+                            
+                        </summary>
+                        
+                        <ul class="catalog-nav-sublist">
+                            
+                            <li class="catalog-nav-subitem" data-sym="annotation @Select / @Insert / @Update / @Delete">
+                                <a href="02_annotations_and_sql.html#annotation-select-insert-update-delete" class="catalog-nav-sublink is-prose-sublink">
+                                    
+                                    <span class="catalog-nav-sym-text">annotation @Select / @Insert / @Update / @Delete</span>
+                                </a>
+                            </li>
+                            
+                            <li class="catalog-nav-subitem" data-sym="annotation @Param">
+                                <a href="02_annotations_and_sql.html#annotation-param" class="catalog-nav-sublink is-prose-sublink">
+                                    
+                                    <span class="catalog-nav-sym-text">annotation @Param</span>
+                                </a>
+                            </li>
+                            
+                            <li class="catalog-nav-subitem" data-sym="annotation @Options">
+                                <a href="02_annotations_and_sql.html#annotation-options" class="catalog-nav-sublink is-prose-sublink">
+                                    
+                                    <span class="catalog-nav-sym-text">annotation @Options</span>
+                                </a>
+                            </li>
+                            
+                            <li class="catalog-nav-subitem" data-sym="annotation @Results &amp; @Result &amp; @ResultMap">
+                                <a href="02_annotations_and_sql.html#annotation-results-result-resultmap" class="catalog-nav-sublink is-prose-sublink">
+                                    
+                                    <span class="catalog-nav-sym-text">annotation @Results &amp; @Result &amp; @ResultMap</span>
+                                </a>
+                            </li>
+                            
+                            <li class="catalog-nav-subitem" data-sym="annotation @ConstructorArgs &amp; @Arg">
+                                <a href="02_annotations_and_sql.html#annotation-constructorargs-arg" class="catalog-nav-sublink is-prose-sublink">
+                                    
+                                    <span class="catalog-nav-sym-text">annotation @ConstructorArgs &amp; @Arg</span>
+                                </a>
+                            </li>
+                            
+                            <li class="catalog-nav-subitem" data-sym="annotation @One &amp; @Many">
+                                <a href="02_annotations_and_sql.html#annotation-one-many" class="catalog-nav-sublink is-prose-sublink">
+                                    
+                                    <span class="catalog-nav-sym-text">annotation @One &amp; @Many</span>
+                                </a>
+                            </li>
+                            
+                            <li class="catalog-nav-subitem" data-sym="annotation @SelectKey">
+                                <a href="02_annotations_and_sql.html#annotation-selectkey" class="catalog-nav-sublink is-prose-sublink">
+                                    
+                                    <span class="catalog-nav-sym-text">annotation @SelectKey</span>
+                                </a>
+                            </li>
+                            
+                            <li class="catalog-nav-subitem" data-sym="annotation @SelectProvider / @InsertProvider / @UpdateProvider / @DeleteProvider">
+                                <a href="02_annotations_and_sql.html#annotation-selectprovider-insertprovider-updateprovider-deleteprovider" class="catalog-nav-sublink is-prose-sublink">
+                                    
+                                    <span class="catalog-nav-sym-text">annotation @SelectProvider / @InsertProvider / @UpdateProvider / @DeleteProvider</span>
+                                </a>
+                            </li>
+                            
+                            <li class="catalog-nav-subitem" data-sym="annotation @CacheNamespace &amp; @CacheNamespaceRef">
+                                <a href="02_annotations_and_sql.html#annotation-cachenamespace-cachenamespaceref" class="catalog-nav-sublink is-prose-sublink">
+                                    
+                                    <span class="catalog-nav-sym-text">annotation @CacheNamespace &amp; @CacheNamespaceRef</span>
+                                </a>
+                            </li>
+                            
+                            <li class="catalog-nav-subitem" data-sym="class SQL">
+                                <a href="02_annotations_and_sql.html#sql" class="catalog-nav-sublink is-prose-sublink">
+                                    
+                                    <span class="catalog-badge catalog-badge-class">class</span>
+                                    
+                                    <span class="catalog-nav-sym-text">SQL</span>
+                                </a>
+                            </li>
+                            
+                            <li class="catalog-nav-subitem" data-sym="class ScriptRunner &amp; SqlRunner">
+                                <a href="02_annotations_and_sql.html#scriptrunner-sqlrunner" class="catalog-nav-sublink is-prose-sublink">
+                                    
+                                    <span class="catalog-badge catalog-badge-class">class</span>
+                                    
+                                    <span class="catalog-nav-sym-text">ScriptRunner &amp; SqlRunner</span>
+                                </a>
+                            </li>
+                            
+                        </ul>
+                        
+                    </details>
+                    
+                    <details class="catalog-nav-group" data-cat="XML Configuration &amp; Mapper Elements" open>
+                        <summary class="catalog-nav-summary">
+                            <svg class="catalog-nav-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                            <a href="03_xml_config_and_mapper.html" class="catalog-nav-cat-link is-prose-cat">XML Configuration &amp; Mapper Elements</a>
+                            
+                            <span class="catalog-nav-count">8</span>
+                            
+                        </summary>
+                        
+                        <ul class="catalog-nav-sublist">
+                            
+                            <li class="catalog-nav-subitem" data-sym="xml &lt;configuration&gt; (mybatis-3-config.dtd)">
+                                <a href="03_xml_config_and_mapper.html#xml-configuration-mybatis-3-config-dtd" class="catalog-nav-sublink is-prose-sublink">
+                                    
+                                    <span class="catalog-nav-sym-text">xml &lt;configuration&gt; (mybatis-3-config.dtd)</span>
+                                </a>
+                            </li>
+                            
+                            <li class="catalog-nav-subitem" data-sym="xml &lt;settings&gt; &amp; &lt;setting&gt;">
+                                <a href="03_xml_config_and_mapper.html#xml-settings-setting" class="catalog-nav-sublink is-prose-sublink">
+                                    
+                                    <span class="catalog-nav-sym-text">xml &lt;settings&gt; &amp; &lt;setting&gt;</span>
+                                </a>
+                            </li>
+                            
+                            <li class="catalog-nav-subitem" data-sym="xml &lt;environments&gt;, &lt;transactionManager&gt; &amp; &lt;dataSource&gt;">
+                                <a href="03_xml_config_and_mapper.html#xml-environments-transactionmanager-datasource" class="catalog-nav-sublink is-prose-sublink">
+                                    
+                                    <span class="catalog-nav-sym-text">xml &lt;environments&gt;, &lt;transactionManager&gt; &amp; &lt;dataSource&gt;</span>
+                                </a>
+                            </li>
+                            
+                            <li class="catalog-nav-subitem" data-sym="xml &lt;mappers&gt;">
+                                <a href="03_xml_config_and_mapper.html#xml-mappers" class="catalog-nav-sublink is-prose-sublink">
+                                    
+                                    <span class="catalog-nav-sym-text">xml &lt;mappers&gt;</span>
+                                </a>
+                            </li>
+                            
+                            <li class="catalog-nav-subitem" data-sym="xml &lt;select&gt;, &lt;insert&gt;, &lt;update&gt; &amp; &lt;delete&gt;">
+                                <a href="03_xml_config_and_mapper.html#xml-select-insert-update-delete" class="catalog-nav-sublink is-prose-sublink">
+                                    
+                                    <span class="catalog-nav-sym-text">xml &lt;select&gt;, &lt;insert&gt;, &lt;update&gt; &amp; &lt;delete&gt;</span>
+                                </a>
+                            </li>
+                            
+                            <li class="catalog-nav-subitem" data-sym="xml &lt;resultMap&gt;, &lt;id&gt;, &lt;result&gt;, &lt;constructor&gt;, &lt;association&gt; &amp; &lt;collection&gt;">
+                                <a href="03_xml_config_and_mapper.html#xml-resultmap-id-result-constructor-association-collection" class="catalog-nav-sublink is-prose-sublink">
+                                    
+                                    <span class="catalog-nav-sym-text">xml &lt;resultMap&gt;, &lt;id&gt;, &lt;result&gt;, &lt;constructor&gt;, &lt;association&gt; &amp; &lt;collection&gt;</span>
+                                </a>
+                            </li>
+                            
+                            <li class="catalog-nav-subitem" data-sym="xml &lt;if&gt;, &lt;choose&gt;, &lt;when&gt;, &lt;otherwise&gt;, &lt;where&gt;, &lt;set&gt;, &lt;trim&gt;, &lt;foreach&gt; &amp; &lt;bind&gt;">
+                                <a href="03_xml_config_and_mapper.html#xml-if-choose-when-otherwise-where-set-trim-foreach-bind" class="catalog-nav-sublink is-prose-sublink">
+                                    
+                                    <span class="catalog-nav-sym-text">xml &lt;if&gt;, &lt;choose&gt;, &lt;when&gt;, &lt;otherwise&gt;, &lt;where&gt;, &lt;set&gt;, &lt;trim&gt;, &lt;foreach&gt; &amp; &lt;bind&gt;</span>
+                                </a>
+                            </li>
+                            
+                            <li class="catalog-nav-subitem" data-sym="xml &lt;cache&gt; &amp; &lt;cache-ref&gt;">
+                                <a href="03_xml_config_and_mapper.html#xml-cache-cache-ref" class="catalog-nav-sublink is-prose-sublink">
+                                    
+                                    <span class="catalog-nav-sym-text">xml &lt;cache&gt; &amp; &lt;cache-ref&gt;</span>
+                                </a>
+                            </li>
+                            
+                        </ul>
+                        
+                    </details>
+                    
+                    <details class="catalog-nav-group" data-cat="TypeHandlers, Cache, Transaction &amp; DataSource" open>
+                        <summary class="catalog-nav-summary">
+                            <svg class="catalog-nav-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                            <a href="04_type_cache_tx_datasource.html" class="catalog-nav-cat-link is-prose-cat">TypeHandlers, Cache, Transaction &amp; DataSource</a>
+                            
+                            <span class="catalog-nav-count">15</span>
+                            
+                        </summary>
+                        
+                        <ul class="catalog-nav-sublist">
+                            
+                            <li class="catalog-nav-subitem" data-sym="interface TypeHandler&amp;lt;T&amp;gt;">
+                                <a href="04_type_cache_tx_datasource.html#typehandler-lt-t-gt" class="catalog-nav-sublink is-prose-sublink">
+                                    
+                                    <span class="catalog-badge catalog-badge-class">interface</span>
+                                    
+                                    <span class="catalog-nav-sym-text">TypeHandler&amp;lt;T&amp;gt;</span>
+                                </a>
+                            </li>
+                            
+                            <li class="catalog-nav-subitem" data-sym="class BaseTypeHandler&amp;lt;T&amp;gt;">
+                                <a href="04_type_cache_tx_datasource.html#basetypehandler-lt-t-gt" class="catalog-nav-sublink is-prose-sublink">
+                                    
+                                    <span class="catalog-badge catalog-badge-class">class</span>
+                                    
+                                    <span class="catalog-nav-sym-text">BaseTypeHandler&amp;lt;T&amp;gt;</span>
+                                </a>
+                            </li>
+                            
+                            <li class="catalog-nav-subitem" data-sym="class TypeHandlerRegistry">
+                                <a href="04_type_cache_tx_datasource.html#typehandlerregistry" class="catalog-nav-sublink is-prose-sublink">
+                                    
+                                    <span class="catalog-badge catalog-badge-class">class</span>
+                                    
+                                    <span class="catalog-nav-sym-text">TypeHandlerRegistry</span>
+                                </a>
+                            </li>
+                            
+                            <li class="catalog-nav-subitem" data-sym="class TypeAliasRegistry">
+                                <a href="04_type_cache_tx_datasource.html#typealiasregistry" class="catalog-nav-sublink is-prose-sublink">
+                                    
+                                    <span class="catalog-badge catalog-badge-class">class</span>
+                                    
+                                    <span class="catalog-nav-sym-text">TypeAliasRegistry</span>
+                                </a>
+                            </li>
+                            
+                            <li class="catalog-nav-subitem" data-sym="enum JdbcType">
+                                <a href="04_type_cache_tx_datasource.html#jdbctype" class="catalog-nav-sublink is-prose-sublink">
+                                    
+                                    <span class="catalog-badge catalog-badge-type">enum</span>
+                                    
+                                    <span class="catalog-nav-sym-text">JdbcType</span>
+                                </a>
+                            </li>
+                            
+                            <li class="catalog-nav-subitem" data-sym="annotation @MappedTypes">
+                                <a href="04_type_cache_tx_datasource.html#annotation-mappedtypes" class="catalog-nav-sublink is-prose-sublink">
+                                    
+                                    <span class="catalog-nav-sym-text">annotation @MappedTypes</span>
+                                </a>
+                            </li>
+                            
+                            <li class="catalog-nav-subitem" data-sym="annotation @MappedJdbcTypes">
+                                <a href="04_type_cache_tx_datasource.html#annotation-mappedjdbctypes" class="catalog-nav-sublink is-prose-sublink">
+                                    
+                                    <span class="catalog-nav-sym-text">annotation @MappedJdbcTypes</span>
+                                </a>
+                            </li>
+                            
+                            <li class="catalog-nav-subitem" data-sym="interface Cache">
+                                <a href="04_type_cache_tx_datasource.html#cache" class="catalog-nav-sublink is-prose-sublink">
+                                    
+                                    <span class="catalog-badge catalog-badge-class">interface</span>
+                                    
+                                    <span class="catalog-nav-sym-text">Cache</span>
+                                </a>
+                            </li>
+                            
+                            <li class="catalog-nav-subitem" data-sym="class PerpetualCache">
+                                <a href="04_type_cache_tx_datasource.html#perpetualcache" class="catalog-nav-sublink is-prose-sublink">
+                                    
+                                    <span class="catalog-badge catalog-badge-class">class</span>
+                                    
+                                    <span class="catalog-nav-sym-text">PerpetualCache</span>
+                                </a>
+                            </li>
+                            
+                            <li class="catalog-nav-subitem" data-sym="class LruCache">
+                                <a href="04_type_cache_tx_datasource.html#lrucache" class="catalog-nav-sublink is-prose-sublink">
+                                    
+                                    <span class="catalog-badge catalog-badge-class">class</span>
+                                    
+                                    <span class="catalog-nav-sym-text">LruCache</span>
+                                </a>
+                            </li>
+                            
+                            <li class="catalog-nav-subitem" data-sym="class SerializedCache">
+                                <a href="04_type_cache_tx_datasource.html#serializedcache" class="catalog-nav-sublink is-prose-sublink">
+                                    
+                                    <span class="catalog-badge catalog-badge-class">class</span>
+                                    
+                                    <span class="catalog-nav-sym-text">SerializedCache</span>
+                                </a>
+                            </li>
+                            
+                            <li class="catalog-nav-subitem" data-sym="interface Transaction">
+                                <a href="04_type_cache_tx_datasource.html#transaction" class="catalog-nav-sublink is-prose-sublink">
+                                    
+                                    <span class="catalog-badge catalog-badge-class">interface</span>
+                                    
+                                    <span class="catalog-nav-sym-text">Transaction</span>
+                                </a>
+                            </li>
+                            
+                            <li class="catalog-nav-subitem" data-sym="interface TransactionFactory">
+                                <a href="04_type_cache_tx_datasource.html#transactionfactory" class="catalog-nav-sublink is-prose-sublink">
+                                    
+                                    <span class="catalog-badge catalog-badge-class">interface</span>
+                                    
+                                    <span class="catalog-nav-sym-text">TransactionFactory</span>
+                                </a>
+                            </li>
+                            
+                            <li class="catalog-nav-subitem" data-sym="class PooledDataSource">
+                                <a href="04_type_cache_tx_datasource.html#pooleddatasource" class="catalog-nav-sublink is-prose-sublink">
+                                    
+                                    <span class="catalog-badge catalog-badge-class">class</span>
+                                    
+                                    <span class="catalog-nav-sym-text">PooledDataSource</span>
+                                </a>
+                            </li>
+                            
+                            <li class="catalog-nav-subitem" data-sym="class UnpooledDataSource">
+                                <a href="04_type_cache_tx_datasource.html#unpooleddatasource" class="catalog-nav-sublink is-prose-sublink">
+                                    
+                                    <span class="catalog-badge catalog-badge-class">class</span>
+                                    
+                                    <span class="catalog-nav-sym-text">UnpooledDataSource</span>
+                                </a>
+                            </li>
+                            
+                        </ul>
+                        
+                    </details>
+                    
+                    <details class="catalog-nav-group" data-cat="Plugins, Reflection &amp; Exceptions" open>
+                        <summary class="catalog-nav-summary">
+                            <svg class="catalog-nav-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                            <a href="05_plugin_reflection_exceptions.html" class="catalog-nav-cat-link is-prose-cat">Plugins, Reflection &amp; Exceptions</a>
+                            
+                            <span class="catalog-nav-count">11</span>
+                            
+                        </summary>
+                        
+                        <ul class="catalog-nav-sublist">
+                            
+                            <li class="catalog-nav-subitem" data-sym="interface Interceptor">
+                                <a href="05_plugin_reflection_exceptions.html#interceptor" class="catalog-nav-sublink is-prose-sublink">
+                                    
+                                    <span class="catalog-badge catalog-badge-class">interface</span>
+                                    
+                                    <span class="catalog-nav-sym-text">Interceptor</span>
+                                </a>
+                            </li>
+                            
+                            <li class="catalog-nav-subitem" data-sym="annotation @Intercepts">
+                                <a href="05_plugin_reflection_exceptions.html#annotation-intercepts" class="catalog-nav-sublink is-prose-sublink">
+                                    
+                                    <span class="catalog-nav-sym-text">annotation @Intercepts</span>
+                                </a>
+                            </li>
+                            
+                            <li class="catalog-nav-subitem" data-sym="annotation @Signature">
+                                <a href="05_plugin_reflection_exceptions.html#annotation-signature" class="catalog-nav-sublink is-prose-sublink">
+                                    
+                                    <span class="catalog-nav-sym-text">annotation @Signature</span>
+                                </a>
+                            </li>
+                            
+                            <li class="catalog-nav-subitem" data-sym="class Invocation">
+                                <a href="05_plugin_reflection_exceptions.html#invocation" class="catalog-nav-sublink is-prose-sublink">
+                                    
+                                    <span class="catalog-badge catalog-badge-class">class</span>
+                                    
+                                    <span class="catalog-nav-sym-text">Invocation</span>
+                                </a>
+                            </li>
+                            
+                            <li class="catalog-nav-subitem" data-sym="class Plugin">
+                                <a href="05_plugin_reflection_exceptions.html#plugin" class="catalog-nav-sublink is-prose-sublink">
+                                    
+                                    <span class="catalog-badge catalog-badge-class">class</span>
+                                    
+                                    <span class="catalog-nav-sym-text">Plugin</span>
+                                </a>
+                            </li>
+                            
+                            <li class="catalog-nav-subitem" data-sym="class MetaObject">
+                                <a href="05_plugin_reflection_exceptions.html#metaobject" class="catalog-nav-sublink is-prose-sublink">
+                                    
+                                    <span class="catalog-badge catalog-badge-class">class</span>
+                                    
+                                    <span class="catalog-nav-sym-text">MetaObject</span>
+                                </a>
+                            </li>
+                            
+                            <li class="catalog-nav-subitem" data-sym="class SystemMetaObject">
+                                <a href="05_plugin_reflection_exceptions.html#systemmetaobject" class="catalog-nav-sublink is-prose-sublink">
+                                    
+                                    <span class="catalog-badge catalog-badge-class">class</span>
+                                    
+                                    <span class="catalog-nav-sym-text">SystemMetaObject</span>
+                                </a>
+                            </li>
+                            
+                            <li class="catalog-nav-subitem" data-sym="class Reflector">
+                                <a href="05_plugin_reflection_exceptions.html#reflector" class="catalog-nav-sublink is-prose-sublink">
+                                    
+                                    <span class="catalog-badge catalog-badge-class">class</span>
+                                    
+                                    <span class="catalog-nav-sym-text">Reflector</span>
+                                </a>
+                            </li>
+                            
+                            <li class="catalog-nav-subitem" data-sym="interface ObjectFactory">
+                                <a href="05_plugin_reflection_exceptions.html#objectfactory" class="catalog-nav-sublink is-prose-sublink">
+                                    
+                                    <span class="catalog-badge catalog-badge-class">interface</span>
+                                    
+                                    <span class="catalog-nav-sym-text">ObjectFactory</span>
+                                </a>
+                            </li>
+                            
+                            <li class="catalog-nav-subitem" data-sym="class PersistenceException">
+                                <a href="05_plugin_reflection_exceptions.html#persistenceexception" class="catalog-nav-sublink is-prose-sublink">
+                                    
+                                    <span class="catalog-badge catalog-badge-class">class</span>
+                                    
+                                    <span class="catalog-nav-sym-text">PersistenceException</span>
+                                </a>
+                            </li>
+                            
+                            <li class="catalog-nav-subitem" data-sym="class TooManyResultsException">
+                                <a href="05_plugin_reflection_exceptions.html#toomanyresultsexception" class="catalog-nav-sublink is-prose-sublink">
+                                    
+                                    <span class="catalog-badge catalog-badge-class">class</span>
+                                    
+                                    <span class="catalog-nav-sym-text">TooManyResultsException</span>
+                                </a>
+                            </li>
+                            
+                        </ul>
+                        
+                    </details>
+                    
+                    
+                    <div id="catalog-nav-empty" class="catalog-nav-empty" hidden>No matching items found.</div>
+                </nav>
+            </div>
+        </aside>
+        <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
+
+        <div class="content-wrapper">
+            <div class="top-bar">
+                <div class="breadcrumbs">
+                    <a href="index.html" class="crumb">MyBatis 3 API</a>
+                    <span class="crumb-separator">/</span>
+                    <span class="crumb active">API &amp; XML Catalog Overview</span>
+                </div>
+                
+                <div class="top-bar-right">
+                    
+                    <div class="top-bar-links">
+                        
+                        <a href="https://mybatis3.drawlib.com/" target="_blank" rel="noopener noreferrer" class="top-bar-ext-link">
+                            <span>User Guide</span>
+                            
+                            <svg viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+                            
+                        </a>
+                        
+                        <a href="https://mybatis3.drawlib.com/architecture/" target="_blank" rel="noopener noreferrer" class="top-bar-ext-link">
+                            <span>Architecture</span>
+                            
+                            <svg viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+                            
+                        </a>
+                        
+                        <a href="https://mybatis3.drawlib.com/reports/pni501/" target="_blank" rel="noopener noreferrer" class="top-bar-ext-link">
+                            <span>PNI501 Audit</span>
+                            
+                            <svg viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+                            
+                        </a>
+                        
+                    </div>
+                    
+                    
+                    <div class="lang-switcher" aria-label="Language switcher">
+                        <details class="lang-dropdown">
+                            <summary class="lang-dropdown-btn" aria-haspopup="listbox">
+                                <svg class="lang-globe-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
+                                <span class="lang-current-label">English</span>
+                                <svg class="lang-caret-icon" viewBox="0 0 24 24" aria-hidden="true"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                            </summary>
+                            <div class="lang-dropdown-menu" role="listbox">
+                                
+                                
+                                <span class="lang-option active" role="option" aria-selected="true">
+                                    <span>English</span>
+                                    <svg class="lang-check-icon" viewBox="0 0 24 24" aria-hidden="true"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                                </span>
+                                
+                                
+                                
+                                <a href="../ja/00_overview.html" class="lang-option" role="option" hreflang="">
+                                    <span>日本語</span>
+                                </a>
+                                
+                                
+                            </div>
+                        </details>
+                    </div>
+                    
+                </div>
+                
+            </div>
+
+            <main class="main-content catalog-main-content">
+                <h1 class="catalog-page-title">API &amp; XML Catalog Overview</h1>
+<p>Welcome to the <strong>MyBatis 3 (<code>v3.6.0</code>) API &amp; XML Reference Catalog</strong>. Every public Java interface, class, annotation, SPI contract, and XML DTD/XSD element across <code>org.apache.ibatis.*</code> is indexed in the left sidebar with instant <code>/</code> keyboard filtering and Drawlib architecture diagrams.</p>
+<figure class="drawlib-image" style="text-align: center;">
+  <img src="../images/00_overview/api_catalog_overview.png" alt="00_overview_1" />
+  <figcaption class="drawlib-caption">MyBatis 3 v3.6.0 — Public API Surface & Extension SPI Map (org.apache.ibatis.*)</figcaption>
+</figure>
+<details class="drawlib-code-details">
+<summary>Source Code</summary>
+<pre><code class="language-python"><span class="kn">from</span><span class="w"> </span><span class="nn">drawlib.canvas</span><span class="w"> </span><span class="kn">import</span> <span class="n">save</span><span class="p">,</span> <span class="n">setup</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">drawlib.diagrams.architecture</span><span class="w"> </span><span class="kn">import</span> <span class="n">ArchitectureDiagram</span><span class="p">,</span> <span class="n">Node</span><span class="p">,</span> <span class="n">NodeGroup</span><span class="p">,</span> <span class="n">PhosphorIcon</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">drawlib.styles</span><span class="w"> </span><span class="kn">import</span> <span class="n">Colors</span><span class="p">,</span> <span class="n">Styles</span>
+
+<span class="n">setup</span><span class="p">(</span><span class="n">width</span><span class="o">=</span><span class="mi">144</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mi">58</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">150</span><span class="p">)</span>
+
+<span class="n">d</span> <span class="o">=</span> <span class="n">ArchitectureDiagram</span><span class="p">(</span>
+    <span class="n">node_style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">Dark</span><span class="p">,</span>
+    <span class="n">node_text_style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">DarkBold</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="n">text_size</span><span class="o">=</span><span class="mf">9.8</span><span class="p">),</span>
+    <span class="n">edge_style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">Dark</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="n">line_width</span><span class="o">=</span><span class="mf">1.5</span><span class="p">),</span>
+    <span class="n">edge_text_style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">DarkBold</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="n">text_size</span><span class="o">=</span><span class="mf">9.2</span><span class="p">),</span>
+    <span class="n">node_card_style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">Neutral</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="n">shape_fill_color</span><span class="o">=</span><span class="n">Colors</span><span class="o">.</span><span class="n">White</span><span class="p">),</span>
+<span class="p">)</span>
+
+<span class="n">core</span> <span class="o">=</span> <span class="n">d</span><span class="o">.</span><span class="n">add</span><span class="p">(</span>
+    <span class="n">NodeGroup</span><span class="p">(</span>
+        <span class="s2">"1. Core Session &amp; Proxy API"</span><span class="p">,</span>
+        <span class="n">width</span><span class="o">=</span><span class="mi">42</span><span class="p">,</span>
+        <span class="n">height</span><span class="o">=</span><span class="mi">48</span><span class="p">,</span>
+        <span class="n">style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">PrimaryNeutral</span><span class="p">,</span>
+        <span class="n">text_style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">DarkBold</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="n">text_size</span><span class="o">=</span><span class="mf">10.2</span><span class="p">,</span> <span class="n">halign</span><span class="o">=</span><span class="s2">"left"</span><span class="p">,</span> <span class="n">valign</span><span class="o">=</span><span class="s2">"top"</span><span class="p">),</span>
+    <span class="p">),</span>
+    <span class="n">xy</span><span class="o">=</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">),</span>
+<span class="p">)</span>
+<span class="n">n_fac</span> <span class="o">=</span> <span class="n">core</span><span class="o">.</span><span class="n">add</span><span class="p">(</span>
+    <span class="n">Node</span><span class="p">(</span>
+        <span class="s2">"SqlSessionFactory</span><span class="se">\n</span><span class="s2">&amp; Configuration"</span><span class="p">,</span>
+        <span class="n">icon</span><span class="o">=</span><span class="n">PhosphorIcon</span><span class="o">.</span><span class="n">DATABASE</span><span class="p">,</span>
+        <span class="n">width</span><span class="o">=</span><span class="mi">34</span><span class="p">,</span>
+        <span class="n">height</span><span class="o">=</span><span class="mi">14</span><span class="p">,</span>
+        <span class="n">style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">White</span><span class="p">,</span>
+        <span class="n">text_style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">WhiteBold</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="n">text_size</span><span class="o">=</span><span class="mf">9.6</span><span class="p">),</span>
+        <span class="n">card_style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">PrimaryFlat</span><span class="p">,</span>
+    <span class="p">),</span>
+    <span class="n">xy</span><span class="o">=</span><span class="p">(</span><span class="mi">21</span><span class="p">,</span> <span class="mi">33</span><span class="p">),</span>
+<span class="p">)</span>
+<span class="n">n_ses</span> <span class="o">=</span> <span class="n">core</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">Node</span><span class="p">(</span><span class="s2">"SqlSession, Cursor&lt;T&gt;</span><span class="se">\n</span><span class="s2">&amp;RowBounds"</span><span class="p">,</span> <span class="n">icon</span><span class="o">=</span><span class="n">PhosphorIcon</span><span class="o">.</span><span class="n">STACK</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">34</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mi">14</span><span class="p">),</span> <span class="n">xy</span><span class="o">=</span><span class="p">(</span><span class="mi">21</span><span class="p">,</span> <span class="mi">14</span><span class="p">))</span>
+
+<span class="n">decl</span> <span class="o">=</span> <span class="n">d</span><span class="o">.</span><span class="n">add</span><span class="p">(</span>
+    <span class="n">NodeGroup</span><span class="p">(</span>
+        <span class="s2">"2. Declarative SQL &amp; Mapping"</span><span class="p">,</span>
+        <span class="n">width</span><span class="o">=</span><span class="mi">48</span><span class="p">,</span>
+        <span class="n">height</span><span class="o">=</span><span class="mi">48</span><span class="p">,</span>
+        <span class="n">style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">SecondaryNeutral</span><span class="p">,</span>
+        <span class="n">text_style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">DarkBold</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="n">text_size</span><span class="o">=</span><span class="mf">10.2</span><span class="p">,</span> <span class="n">halign</span><span class="o">=</span><span class="s2">"left"</span><span class="p">,</span> <span class="n">valign</span><span class="o">=</span><span class="s2">"top"</span><span class="p">),</span>
+    <span class="p">),</span>
+    <span class="n">xy</span><span class="o">=</span><span class="p">(</span><span class="mi">50</span><span class="p">,</span> <span class="mi">5</span><span class="p">),</span>
+<span class="p">)</span>
+<span class="n">n_ann</span> <span class="o">=</span> <span class="n">decl</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">Node</span><span class="p">(</span><span class="s2">"@Select / @Results /</span><span class="se">\n</span><span class="s2">@Param / SQL Builder"</span><span class="p">,</span> <span class="n">icon</span><span class="o">=</span><span class="n">PhosphorIcon</span><span class="o">.</span><span class="n">CODE</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">38</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mi">14</span><span class="p">),</span> <span class="n">xy</span><span class="o">=</span><span class="p">(</span><span class="mi">24</span><span class="p">,</span> <span class="mi">33</span><span class="p">))</span>
+<span class="n">n_xml</span> <span class="o">=</span> <span class="n">decl</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">Node</span><span class="p">(</span><span class="s2">"Mapper XML &amp; Config</span><span class="se">\n</span><span class="s2">(&lt;select&gt;, &lt;resultMap&gt;)"</span><span class="p">,</span> <span class="n">icon</span><span class="o">=</span><span class="n">PhosphorIcon</span><span class="o">.</span><span class="n">FILE_CODE</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">38</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mi">14</span><span class="p">),</span> <span class="n">xy</span><span class="o">=</span><span class="p">(</span><span class="mi">24</span><span class="p">,</span> <span class="mi">14</span><span class="p">))</span>
+
+<span class="n">spi</span> <span class="o">=</span> <span class="n">d</span><span class="o">.</span><span class="n">add</span><span class="p">(</span>
+    <span class="n">NodeGroup</span><span class="p">(</span>
+        <span class="s2">"3. Pluggable Extension SPIs"</span><span class="p">,</span>
+        <span class="n">width</span><span class="o">=</span><span class="mi">38</span><span class="p">,</span>
+        <span class="n">height</span><span class="o">=</span><span class="mi">48</span><span class="p">,</span>
+        <span class="n">style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">Neutral</span><span class="p">,</span>
+        <span class="n">text_style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">DarkBold</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="n">text_size</span><span class="o">=</span><span class="mf">10.2</span><span class="p">,</span> <span class="n">halign</span><span class="o">=</span><span class="s2">"left"</span><span class="p">,</span> <span class="n">valign</span><span class="o">=</span><span class="s2">"top"</span><span class="p">),</span>
+    <span class="p">),</span>
+    <span class="n">xy</span><span class="o">=</span><span class="p">(</span><span class="mi">102</span><span class="p">,</span> <span class="mi">5</span><span class="p">),</span>
+<span class="p">)</span>
+<span class="n">n_typ</span> <span class="o">=</span> <span class="n">spi</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">Node</span><span class="p">(</span><span class="s2">"TypeHandler&lt;T&gt;, Cache</span><span class="se">\n</span><span class="s2">&amp; TransactionFactory"</span><span class="p">,</span> <span class="n">icon</span><span class="o">=</span><span class="n">PhosphorIcon</span><span class="o">.</span><span class="n">SLIDERS</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mi">14</span><span class="p">),</span> <span class="n">xy</span><span class="o">=</span><span class="p">(</span><span class="mi">19</span><span class="p">,</span> <span class="mi">33</span><span class="p">))</span>
+<span class="n">n_plg</span> <span class="o">=</span> <span class="n">spi</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">Node</span><span class="p">(</span><span class="s2">"Interceptor (@Intercepts)</span><span class="se">\n</span><span class="s2">&amp; MetaObject"</span><span class="p">,</span> <span class="n">icon</span><span class="o">=</span><span class="n">PhosphorIcon</span><span class="o">.</span><span class="n">PLUGS</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mi">14</span><span class="p">),</span> <span class="n">xy</span><span class="o">=</span><span class="p">(</span><span class="mi">19</span><span class="p">,</span> <span class="mi">14</span><span class="p">))</span>
+
+<span class="n">n_ann</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">n_fac</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">"registers"</span><span class="p">)</span>
+<span class="n">n_xml</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">n_fac</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">"compiles"</span><span class="p">)</span>
+<span class="n">n_fac</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">n_ses</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">"openSession()"</span><span class="p">)</span>
+<span class="n">n_fac</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">n_typ</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">"SPI"</span><span class="p">)</span>
+<span class="n">n_ses</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">n_plg</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">"intercepts"</span><span class="p">)</span>
+
+<span class="n">d</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="n">xy</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+<span class="n">save</span><span class="p">()</span>
+</code></pre>
+</details>
+<h2 id="maven-gradle-artifact-coordinates" class="catalog-section-heading"><span>Maven / Gradle Artifact Coordinates</span><a class="header-anchor" href="#maven-gradle-artifact-coordinates" aria-label="Permalink to Maven / Gradle Artifact Coordinates">#</a></h2>
+<pre><code class="language-xml"><span class="nt">&lt;dependency&gt;</span>
+<span class="w">    </span><span class="nt">&lt;groupId&gt;</span>org.mybatis<span class="nt">&lt;/groupId&gt;</span>
+<span class="w">    </span><span class="nt">&lt;artifactId&gt;</span>mybatis<span class="nt">&lt;/artifactId&gt;</span>
+<span class="w">    </span><span class="nt">&lt;version&gt;</span>3.6.0<span class="nt">&lt;/version&gt;</span>
+<span class="nt">&lt;/dependency&gt;</span>
+</code></pre>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">Property</th>
+<th style="text-align:left">Value</th>
+<th style="text-align:left">Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"><strong>Maven Coordinate</strong></td>
+<td style="text-align:left"><code>org.mybatis:mybatis:3.6.0</code></td>
+<td style="text-align:left">Zero mandatory runtime dependencies (<code>ognl</code> and <code>javassist</code> shaded into <code>org.apache.ibatis.*</code>).</td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>JPMS Module Name</strong></td>
+<td style="text-align:left"><code>Automatic-Module-Name: org.mybatis</code></td>
+<td style="text-align:left">Exports <code>org.apache.ibatis.*</code> packages.</td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>Minimum JDK Baseline</strong></td>
+<td style="text-align:left">Java 11+ (<code>&lt;java.release.version&gt;11&lt;/java.release.version&gt;</code>)</td>
+<td style="text-align:left">Tested against JDK 11, 17, 21, and 25 in CI.</td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>Config DTD / System ID</strong></td>
+<td style="text-align:left"><code>-//mybatis.org//DTD Config 3.0//EN</code></td>
+<td style="text-align:left">Resolved offline via <code>XMLMapperEntityResolver</code> (<code>mybatis-3-config.dtd</code>).</td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>Mapper DTD / System ID</strong></td>
+<td style="text-align:left"><code>-//mybatis.org//DTD Mapper 3.0//EN</code></td>
+<td style="text-align:left">Resolved offline via <code>XMLMapperEntityResolver</code> (<code>mybatis-3-mapper.dtd</code>).</td>
+</tr>
+</tbody>
+</table>
+<h2 id="catalog-modules-quick-navigation" class="catalog-section-heading"><span>Catalog Modules &amp; Quick Navigation</span><a class="header-anchor" href="#catalog-modules-quick-navigation" aria-label="Permalink to Catalog Modules &amp; Quick Navigation">#</a></h2>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">Catalog Module</th>
+<th style="text-align:left">Package Scope</th>
+<th style="text-align:left">Key Symbols Covered</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"><strong><a href="01_session_and_binding.html">1. Session &amp; Binding API</a></strong></td>
+<td style="text-align:left"><code>org.apache.ibatis.session</code>, <code>binding</code>, <code>cursor</code></td>
+<td style="text-align:left"><code>SqlSessionFactoryBuilder</code>, <code>SqlSessionFactory</code>, <code>SqlSession</code>, <code>Configuration</code>, <code>RowBounds</code>, <code>ResultHandler</code>, <code>Cursor&lt;T&gt;</code>, <code>MapperRegistry</code></td>
+</tr>
+<tr>
+<td style="text-align:left"><strong><a href="02_annotations_and_sql.html">2. Annotations &amp; SQL Builder</a></strong></td>
+<td style="text-align:left"><code>org.apache.ibatis.annotations</code>, <code>jdbc</code></td>
+<td style="text-align:left"><code>@Select</code>, <code>@Insert</code>, <code>@Update</code>, <code>@Delete</code>, <code>@Results</code>, <code>@Result</code>, <code>@Arg</code>, <code>@One</code>, <code>@Many</code>, <code>@Param</code>, <code>@Options</code>, <code>@SelectProvider</code>, <code>SQL</code>, <code>ScriptRunner</code>, <code>SqlRunner</code></td>
+</tr>
+<tr>
+<td style="text-align:left"><strong><a href="03_xml_config_and_mapper.html">3. XML Config &amp; Mapper Elements</a></strong></td>
+<td style="text-align:left"><code>mybatis-3-config.dtd</code>, <code>mybatis-3-mapper.dtd</code></td>
+<td style="text-align:left"><code>&lt;configuration&gt;</code>, <code>&lt;settings&gt;</code>, <code>&lt;environments&gt;</code>, <code>&lt;mappers&gt;</code>, <code>&lt;select&gt;</code>, <code>&lt;insert&gt;</code>, <code>&lt;resultMap&gt;</code>, <code>&lt;if&gt;</code>, <code>&lt;choose&gt;</code>, <code>&lt;where&gt;</code>, <code>&lt;set&gt;</code>, <code>&lt;trim&gt;</code>, <code>&lt;foreach&gt;</code>, <code>&lt;bind&gt;</code>, <code>&lt;cache&gt;</code></td>
+</tr>
+<tr>
+<td style="text-align:left"><strong><a href="04_type_cache_tx_datasource.html">4. TypeHandler, Cache, Tx &amp; DataSource</a></strong></td>
+<td style="text-align:left"><code>org.apache.ibatis.type</code>, <code>cache</code>, <code>transaction</code>, <code>datasource</code></td>
+<td style="text-align:left"><code>TypeHandler&lt;T&gt;</code>, <code>BaseTypeHandler&lt;T&gt;</code>, <code>TypeHandlerRegistry</code>, <code>JdbcType</code>, <code>Cache</code>, <code>PerpetualCache</code>, <code>LruCache</code>, <code>SerializedCache</code>, <code>Transaction</code>, <code>PooledDataSource</code></td>
+</tr>
+<tr>
+<td style="text-align:left"><strong><a href="05_plugin_reflection_exceptions.html">5. Plugin SPI, Reflection &amp; Exceptions</a></strong></td>
+<td style="text-align:left"><code>org.apache.ibatis.plugin</code>, <code>reflection</code>, <code>exceptions</code></td>
+<td style="text-align:left"><code>Interceptor</code>, <code>@Intercepts</code>, <code>@Signature</code>, <code>Invocation</code>, <code>Plugin</code>, <code>MetaObject</code>, <code>SystemMetaObject</code>, <code>Reflector</code>, <code>ObjectFactory</code>, <code>PersistenceException</code></td>
+</tr>
+</tbody>
+</table>
+
+
+                
+                <nav class="catalog-pager" aria-label="Catalog Page Navigation">
+                    
+                    <div></div>
+                    
+                    
+                    <a href="01_session_and_binding.html" class="catalog-pager-card is-next">
+                        <span class="catalog-pager-dir">Next &rarr;</span>
+                        <span class="catalog-pager-title">Session &amp; Binding API</span>
+                    </a>
+                    
+                </nav>
+                
+            </main>
+
+            <footer class="footer">
+                Generated by <a href="https://github.com/yuichi110/drawlib" target="_blank" rel="noopener noreferrer">Drawlib</a>.
+            </footer>
+        </div>
+    </div>
+
+    <script>
+        (function() {
+            var toggleBtn = document.getElementById('theme-toggle');
+            if (toggleBtn) {
+                toggleBtn.addEventListener('click', function() {
+                    var current = document.documentElement.getAttribute('data-theme');
+                    if (!current) {
+                        current = (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
+                    }
+                    var next = current === 'dark' ? 'light' : 'dark';
+                    document.documentElement.setAttribute('data-theme', next);
+                    try { localStorage.setItem('drawlib-theme', next); } catch (e) {}
+                });
+            }
+
+            var menuBtn = document.getElementById('menu-toggle');
+            var sidebar = document.getElementById('catalog-sidebar');
+            var backdrop = document.getElementById('sidebar-backdrop');
+            function closeMenu() {
+                if (sidebar) sidebar.classList.remove('is-open');
+                if (backdrop) backdrop.classList.remove('is-open');
+            }
+            if (menuBtn && sidebar && backdrop) {
+                menuBtn.addEventListener('click', function() {
+                    sidebar.classList.toggle('is-open');
+                    backdrop.classList.toggle('is-open');
+                });
+                backdrop.addEventListener('click', closeMenu);
+            }
+
+            document.querySelectorAll('.catalog-nav-cat-link').forEach(function(link) {
+                link.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                });
+            });
+
+            if (sidebar) {
+                try {
+                    var savedScroll = sessionStorage.getItem('drawlib-catalog-sidebar-scroll');
+                    if (savedScroll !== null) {
+                        sidebar.scrollTop = parseInt(savedScroll, 10) || 0;
+                    }
+                    sidebar.addEventListener('scroll', function() {
+                        try { sessionStorage.setItem('drawlib-catalog-sidebar-scroll', String(sidebar.scrollTop)); } catch (e) {}
+                    }, { passive: true });
+                } catch (e) {}
+            }
+
+            var groups = Array.prototype.slice.call(document.querySelectorAll('.catalog-nav-group'));
+            var expandBtn = document.getElementById('catalog-expand-toggle');
+            function updateExpandBtnLabel() {
+                if (!expandBtn || groups.length === 0) return;
+                var visibleGroups = groups.filter(function(g) { return !g.hidden; });
+                var allOpen = visibleGroups.length > 0 && visibleGroups.every(function(g) { return g.open; });
+                var expandText = expandBtn.getAttribute('data-expand-label') || 'Expand All';
+                var collapseText = expandBtn.getAttribute('data-collapse-label') || 'Collapse All';
+                expandBtn.textContent = allOpen ? collapseText : expandText;
+            }
+            if (expandBtn) {
+                updateExpandBtnLabel();
+                expandBtn.addEventListener('click', function() {
+                    var visibleGroups = groups.filter(function(g) { return !g.hidden; });
+                    var allOpen = visibleGroups.length > 0 && visibleGroups.every(function(g) { return g.open; });
+                    visibleGroups.forEach(function(g) { g.open = !allOpen; });
+                    updateExpandBtnLabel();
+                });
+                groups.forEach(function(g) {
+                    g.addEventListener('toggle', updateExpandBtnLabel);
+                });
+            }
+
+            var filterInput = document.getElementById('catalog-filter-input');
+            var emptyNotice = document.getElementById('catalog-nav-empty');
+            var savedOpenState = null;
+
+            if (filterInput) {
+                filterInput.addEventListener('input', function() {
+                    var q = filterInput.value.trim().toLowerCase();
+                    if (q && !savedOpenState) {
+                        savedOpenState = groups.map(function(g) { return g.open; });
+                    }
+                    var anyMatch = false;
+                    groups.forEach(function(g, idx) {
+                        var catText = (g.getAttribute('data-cat') || '').toLowerCase();
+                        var catMatches = q !== '' && catText.indexOf(q) !== -1;
+                        var items = Array.prototype.slice.call(g.querySelectorAll('.catalog-nav-subitem'));
+                        var visibleCount = 0;
+
+                        items.forEach(function(li) {
+                            var symText = (li.getAttribute('data-sym') || '').toLowerCase();
+                            var show = (q === '') || catMatches || symText.indexOf(q) !== -1;
+                            li.hidden = !show;
+                            if (show) visibleCount += 1;
+                        });
+
+                        if (q === '') {
+                            g.hidden = false;
+                            if (savedOpenState && typeof savedOpenState[idx] === 'boolean') {
+                                g.open = savedOpenState[idx];
+                            }
+                            anyMatch = true;
+                        } else if (catMatches || visibleCount > 0) {
+                            g.hidden = false;
+                            g.open = true;
+                            anyMatch = true;
+                        } else {
+                            g.hidden = true;
+                        }
+                    });
+
+                    if (q === '') {
+                        savedOpenState = null;
+                    }
+                    if (emptyNotice) {
+                        emptyNotice.hidden = anyMatch;
+                    }
+                    updateExpandBtnLabel();
+                });
+
+                document.addEventListener('keydown', function(e) {
+                    if (e.key === '/' && document.activeElement !== filterInput) {
+                        var tag = document.activeElement ? document.activeElement.tagName : '';
+                        if (tag !== 'INPUT' && tag !== 'TEXTAREA' && tag !== 'SELECT') {
+                            e.preventDefault();
+                            filterInput.focus();
+                        }
+                    } else if (e.key === 'Escape' && document.activeElement === filterInput) {
+                        filterInput.value = '';
+                        filterInput.dispatchEvent(new Event('input'));
+                        filterInput.blur();
+                    }
+                });
+            }
+
+            document.addEventListener('click', function(e) {
+                document.querySelectorAll('.lang-dropdown[open]').forEach(function(dd) {
+                    if (!dd.contains(e.target)) {
+                        dd.removeAttribute('open');
+                    }
+                });
+            });
+
+            var activeLinks = Array.prototype.slice.call(document.querySelectorAll('.catalog-nav-sublink[data-target]'));
+            if (activeLinks.length > 0 && 'IntersectionObserver' in window) {
+                var linkBySlug = {};
+                var headings = [];
+                activeLinks.forEach(function(a) {
+                    var slug = a.getAttribute('data-target');
+                    var el = slug ? document.getElementById(slug) : null;
+                    if (slug && el) {
+                        linkBySlug[slug] = a;
+                        headings.push(el);
+                    }
+                    a.addEventListener('click', closeMenu);
+                });
+
+                function setActiveSlug(slug) {
+                    activeLinks.forEach(function(a) {
+                        if (a.getAttribute('data-target') === slug) {
+                            a.classList.add('is-active');
+                        } else {
+                            a.classList.remove('is-active');
+                        }
+                    });
+                }
+
+                if (window.location.hash) {
+                    var initSlug = decodeURIComponent(window.location.hash.slice(1));
+                    if (linkBySlug[initSlug]) setActiveSlug(initSlug);
+                } else if (headings.length > 0) {
+                    setActiveSlug(headings[0].id);
+                }
+
+                var visibleIds = {};
+                var observer = new IntersectionObserver(function(entries) {
+                    entries.forEach(function(entry) {
+                        visibleIds[entry.target.id] = entry.isIntersecting;
+                    });
+                    for (var i = 0; i < headings.length; i++) {
+                        if (visibleIds[headings[i].id]) {
+                            setActiveSlug(headings[i].id);
+                            break;
+                        }
+                    }
+                }, { rootMargin: '-70px 0px -68% 0px', threshold: [0, 1] });
+
+                headings.forEach(function(h) { observer.observe(h); });
+            }
+        })();
+    </script>
+</body>
+</html>

@@ -1,0 +1,442 @@
+<!--
+ Copyright (c) 2026 Yuichi Ito (yuichi@yuichi.com)
+
+ This software is licensed under the Apache License, Version 2.0.
+ For more information, please visit: https://github.com/yuichi110/drawlib
+-->
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3. JDK Dynamic Proxy &amp; Mapper Dispatch — MyBatis 3 Architecture (Unofficial · PNI501 + Drawlib Demo)</title>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-S9N5BZ1VRC"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-S9N5BZ1VRC');
+    </script>
+    <script>
+        (function() {
+            const saved = localStorage.getItem('drawlib-theme');
+            if (saved === 'dark' || (!saved && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                document.documentElement.setAttribute('data-theme', 'dark');
+            } else {
+                document.documentElement.setAttribute('data-theme', 'light');
+            }
+        })();
+    </script>
+    
+    
+    
+    <link rel="alternate" hreflang="en" href="https://mybatis3.drawlib.com/architecture/en/03_mapper_proxy_engine.html">
+    
+    <link rel="alternate" hreflang="ja" href="https://mybatis3.drawlib.com/architecture/ja/03_mapper_proxy_engine.html">
+    
+    <link rel="alternate" hreflang="x-default" href="https://mybatis3.drawlib.com/architecture/en/03_mapper_proxy_engine.html">
+    
+    
+    
+    <meta name="description" content="One of MyBatis 3&#x27;s signature ergonomic features is that application developers write only a Java interface (e.g., UserMapper) without any concrete…">
+    <link rel="canonical" href="https://mybatis3.drawlib.com/architecture/en/03_mapper_proxy_engine.html">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="MyBatis 3 Architecture">
+    <meta property="og:title" content="3. JDK Dynamic Proxy &amp; Mapper Dispatch — MyBatis 3 Architecture">
+    <meta property="og:description" content="One of MyBatis 3&#x27;s signature ergonomic features is that application developers write only a Java interface (e.g., UserMapper) without any concrete…">
+    <meta property="og:url" content="https://mybatis3.drawlib.com/architecture/en/03_mapper_proxy_engine.html">
+    <meta property="og:image" content="https://mybatis3.drawlib.com/architecture/_assets/ogp.png">
+    <meta property="og:locale" content="en_US">
+    <meta property="og:locale:alternate" content="ja_JP">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="3. JDK Dynamic Proxy &amp; Mapper Dispatch — MyBatis 3 Architecture">
+    <meta name="twitter:description" content="One of MyBatis 3&#x27;s signature ergonomic features is that application developers write only a Java interface (e.g., UserMapper) without any concrete…">
+    <meta name="twitter:image" content="https://mybatis3.drawlib.com/architecture/_assets/ogp.png">
+    
+    
+    <link rel="icon" type="image/png" href="../_assets/favicon.png">
+    
+    
+    <link rel="stylesheet" href="style.css">
+    
+    
+</head>
+<body>
+    <div class="demo-banner" role="region" aria-label="Unofficial Showcase Notice">
+        <div class="demo-banner-inner">
+            <span class="demo-banner-badge">UNOFFICIAL DEMO</span>
+            <span class="demo-banner-text">
+                
+                Unofficial internal architecture deep dive of <a href="https://mybatis.org/mybatis-3/" target="_blank" rel="noopener noreferrer">MyBatis 3</a> (v3.6.0, Apache-2.0) built with <a href="https://pypi.org/project/pni501/" target="_blank" rel="noopener noreferrer">PNI501</a> &amp; <a href="https://www.drawlib.com/" target="_blank" rel="noopener noreferrer">Drawlib</a>.
+                
+            </span>
+            <span class="demo-banner-links">
+                <a href="https://mybatis3.drawlib.com/">User Guide</a>
+                <span class="demo-banner-sep">·</span>
+                <a href="https://mybatis3.drawlib.com/api/">API Reference</a>
+                <span class="demo-banner-sep">·</span>
+                <strong style="color:#ffffff;">Architecture</strong>
+                <span class="demo-banner-sep">·</span>
+                <a href="https://mybatis3.drawlib.com/reports/pni501/">PNI501 Audit</a>
+                <span class="demo-banner-sep">·</span>
+                <a href="https://mybatis.org/mybatis-3/" target="_blank" rel="noopener noreferrer">Official Docs ↗</a>
+                <span class="demo-banner-sep">·</span>
+                <a href="https://github.com/yuichi110/drawlib-mybatis3" target="_blank" rel="noopener noreferrer">GitHub ↗</a>
+            </span>
+        </div>
+    </div>
+    
+    <div class="doc-layout">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <a href="index.html" class="sidebar-brand" aria-label="MyBatis 3 Architecture">
+                    
+                    MyBatis 3 Architecture
+                    
+                </a>
+                <div class="sidebar-header-actions">
+                    <button type="button" id="theme-toggle" class="theme-toggle-btn" aria-label="Toggle theme">
+                        <svg class="icon-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+                        <svg class="icon-moon" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+                    </button>
+                    <button type="button" id="menu-toggle" class="menu-toggle-btn" aria-label="Toggle navigation" aria-expanded="false">
+                        <svg class="icon-hamburger" viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+                        <svg class="icon-close" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                    </button>
+                </div>
+            </div>
+            <div class="sidebar-menu">
+                
+                    
+                        
+                        <ul class="nav-list">
+                            
+                            <li class="nav-item ">
+                                <a href="index.html" >Architecture Overview</a>
+                            </li>
+                            
+                        </ul>
+                    
+                        
+                        <div class="sidebar-heading">Core Internals</div>
+                        
+                        <ul class="nav-list">
+                            
+                            <li class="nav-item ">
+                                <a href="01_package_and_layers.html" >1. 3-Tier Package Topology</a>
+                            </li>
+                            
+                            <li class="nav-item ">
+                                <a href="02_bootstrap_and_builders.html" >2. Bootstrap &amp; Builders</a>
+                            </li>
+                            
+                            <li class="nav-item active">
+                                <a href="03_mapper_proxy_engine.html" >3. MapperProxy Dispatch</a>
+                            </li>
+                            
+                            <li class="nav-item ">
+                                <a href="04_executor_and_caching.html" >4. Executor, Cache &amp; Plugins</a>
+                            </li>
+                            
+                            <li class="nav-item ">
+                                <a href="05_dynamic_sql_and_ognl.html" >5. Dynamic SQL &amp; OGNL AST</a>
+                            </li>
+                            
+                            <li class="nav-item ">
+                                <a href="06_resultset_and_reflection.html" >6. ResultSet &amp; Reflection</a>
+                            </li>
+                            
+                        </ul>
+                    
+                        
+                        <div class="sidebar-heading">Portals &amp; Reports</div>
+                        
+                        <ul class="nav-list">
+                            
+                            <li class="nav-item ">
+                                <a href="https://mybatis3.drawlib.com/" target="_blank" rel="noopener noreferrer">User Guide ↗<svg class="nav-external-icon" viewBox="0 0 24 24" aria-hidden="true"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg></a>
+                            </li>
+                            
+                            <li class="nav-item ">
+                                <a href="https://mybatis3.drawlib.com/api/" target="_blank" rel="noopener noreferrer">API &amp; XML Catalog ↗<svg class="nav-external-icon" viewBox="0 0 24 24" aria-hidden="true"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg></a>
+                            </li>
+                            
+                            <li class="nav-item ">
+                                <a href="https://mybatis3.drawlib.com/reports/pni501/" target="_blank" rel="noopener noreferrer">PNI501 Audit Report ↗<svg class="nav-external-icon" viewBox="0 0 24 24" aria-hidden="true"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg></a>
+                            </li>
+                            
+                        </ul>
+                    
+                
+            </div>
+        </aside>
+        <div class="content-wrapper">
+            <header class="top-bar">
+                <div class="breadcrumbs">
+                    <span class="crumb">Architecture</span>
+                    <span class="crumb-separator">&raquo;</span>
+                    <span class="crumb active">3. JDK Dynamic Proxy &amp; Mapper Dispatch</span>
+                </div>
+                
+                <div class="lang-switcher">
+                    <details class="lang-dropdown">
+                        <summary class="lang-dropdown-btn" aria-label="Select language">
+                            <svg class="lang-globe-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
+                            <span class="lang-current-label">English</span>
+                            <svg class="lang-caret-icon" viewBox="0 0 24 24" aria-hidden="true"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                        </summary>
+                        <div class="lang-dropdown-menu" role="menu">
+                            
+                            <a href="03_mapper_proxy_engine.html" class="lang-option active" lang="en" hreflang="en" aria-current="page">
+                                <span>English</span>
+                                
+                                <svg class="lang-check-icon" viewBox="0 0 24 24" aria-hidden="true"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                                
+                            </a>
+                            
+                            <a href="../ja/03_mapper_proxy_engine.html" class="lang-option" lang="ja" hreflang="ja" >
+                                <span>日本語</span>
+                                
+                            </a>
+                            
+                        </div>
+                    </details>
+                </div>
+                
+            </header>
+            <main class="main-content">
+                <h1>3. JDK Dynamic Proxy &amp; Mapper Dispatch</h1>
+<p>One of MyBatis 3's signature ergonomic features is that application developers write <strong>only a Java interface</strong> (e.g., <code>UserMapper</code>) without any concrete implementation class. The <code>org.apache.ibatis.binding</code> package (<code>6</code> source files) bridges interface method invocations to <code>SqlSession</code> commands using <code>java.lang.reflect.Proxy</code> and a cached <code>MapperMethodInvoker</code> dispatch table.</p>
+<figure class="drawlib-image" style="text-align: center;">
+  <img src="../images/03_mapper_proxy_engine/arch_mapper_proxy_class.png" alt="03_mapper_proxy_engine_1" />
+  <figcaption class="drawlib-caption">MyBatis 3 v3.6.0 — MapperRegistry, MapperProxyFactory, MapperProxy & MapperMethod Class Architecture</figcaption>
+</figure>
+<details class="drawlib-code-details">
+<summary>Source Code</summary>
+<pre><code class="language-python"><span class="kn">from</span><span class="w"> </span><span class="nn">drawlib.canvas</span><span class="w"> </span><span class="kn">import</span> <span class="n">save</span><span class="p">,</span> <span class="n">setup</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">drawlib.diagrams.class_diagram</span><span class="w"> </span><span class="kn">import</span> <span class="n">ClassDiagram</span><span class="p">,</span> <span class="n">ClassNode</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">drawlib.fonts</span><span class="w"> </span><span class="kn">import</span> <span class="n">FontMonoSpace</span><span class="p">,</span> <span class="n">FontRoboto</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">drawlib.styles</span><span class="w"> </span><span class="kn">import</span> <span class="n">Colors</span><span class="p">,</span> <span class="n">Styles</span>
+
+<span class="n">setup</span><span class="p">(</span><span class="n">width</span><span class="o">=</span><span class="mi">144</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mi">74</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">150</span><span class="p">)</span>
+
+<span class="n">cd</span> <span class="o">=</span> <span class="n">ClassDiagram</span><span class="p">(</span>
+    <span class="n">width</span><span class="o">=</span><span class="mf">144.0</span><span class="p">,</span>
+    <span class="n">height</span><span class="o">=</span><span class="mf">74.0</span><span class="p">,</span>
+    <span class="n">node_style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">Neutral</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span>
+        <span class="n">shape_fill_color</span><span class="o">=</span><span class="n">Colors</span><span class="o">.</span><span class="n">White</span><span class="p">,</span>
+        <span class="n">shape_line_color</span><span class="o">=</span><span class="n">Colors</span><span class="o">.</span><span class="n">Gray6</span><span class="p">,</span>
+        <span class="n">text_color</span><span class="o">=</span><span class="n">Colors</span><span class="o">.</span><span class="n">Dark</span><span class="p">,</span>
+        <span class="n">text_font</span><span class="o">=</span><span class="n">FontMonoSpace</span><span class="o">.</span><span class="n">ROBOTO_MONO_REGULAR</span><span class="p">,</span>
+        <span class="n">text_size</span><span class="o">=</span><span class="mf">9.2</span><span class="p">,</span>
+    <span class="p">),</span>
+    <span class="n">header_style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">PrimaryNeutral</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span>
+        <span class="n">shape_line_color</span><span class="o">=</span><span class="n">Colors</span><span class="o">.</span><span class="n">Gray6</span><span class="p">,</span>
+        <span class="n">text_color</span><span class="o">=</span><span class="n">Colors</span><span class="o">.</span><span class="n">Dark</span><span class="p">,</span>
+        <span class="n">text_font</span><span class="o">=</span><span class="n">FontRoboto</span><span class="o">.</span><span class="n">ROBOTO_BOLD</span><span class="p">,</span>
+        <span class="n">text_size</span><span class="o">=</span><span class="mf">9.8</span><span class="p">,</span>
+    <span class="p">),</span>
+    <span class="n">edge_style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">Dark</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="n">line_width</span><span class="o">=</span><span class="mf">1.4</span><span class="p">),</span>
+    <span class="n">edge_text_style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">DarkBold</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="n">text_font</span><span class="o">=</span><span class="n">FontRoboto</span><span class="o">.</span><span class="n">ROBOTO_BOLD</span><span class="p">,</span> <span class="n">text_size</span><span class="o">=</span><span class="mf">9.2</span><span class="p">),</span>
+<span class="p">)</span>
+
+<span class="n">hero_hdr</span> <span class="o">=</span> <span class="n">Styles</span><span class="o">.</span><span class="n">PrimaryFlat</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="n">text_color</span><span class="o">=</span><span class="n">Colors</span><span class="o">.</span><span class="n">White</span><span class="p">,</span> <span class="n">text_font</span><span class="o">=</span><span class="n">FontRoboto</span><span class="o">.</span><span class="n">ROBOTO_BOLD</span><span class="p">,</span> <span class="n">text_size</span><span class="o">=</span><span class="mf">9.8</span><span class="p">)</span>
+<span class="n">sec_hdr</span> <span class="o">=</span> <span class="n">Styles</span><span class="o">.</span><span class="n">SecondaryNeutral</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="n">shape_line_color</span><span class="o">=</span><span class="n">Colors</span><span class="o">.</span><span class="n">Gray6</span><span class="p">,</span> <span class="n">text_color</span><span class="o">=</span><span class="n">Colors</span><span class="o">.</span><span class="n">Dark</span><span class="p">,</span> <span class="n">text_font</span><span class="o">=</span><span class="n">FontRoboto</span><span class="o">.</span><span class="n">ROBOTO_BOLD</span><span class="p">,</span> <span class="n">text_size</span><span class="o">=</span><span class="mf">9.8</span><span class="p">)</span>
+
+<span class="n">n_reg</span> <span class="o">=</span> <span class="n">cd</span><span class="o">.</span><span class="n">add</span><span class="p">(</span>
+    <span class="n">ClassNode</span><span class="p">(</span><span class="s2">"MapperRegistry"</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mf">42.0</span><span class="p">,</span> <span class="n">header_style</span><span class="o">=</span><span class="n">sec_hdr</span><span class="p">)</span>
+    <span class="o">.</span><span class="n">add_attribute</span><span class="p">(</span><span class="s2">"knownMappers"</span><span class="p">,</span> <span class="s2">"Map&lt;Class&lt;?&gt;, Factory&gt;"</span><span class="p">)</span>
+    <span class="o">.</span><span class="n">add_method</span><span class="p">(</span><span class="s2">"getMapper"</span><span class="p">,</span> <span class="s2">"type, session"</span><span class="p">,</span> <span class="s2">"T"</span><span class="p">)</span>
+    <span class="o">.</span><span class="n">add_method</span><span class="p">(</span><span class="s2">"addMapper"</span><span class="p">,</span> <span class="s2">"type"</span><span class="p">,</span> <span class="s2">"void"</span><span class="p">),</span>
+    <span class="n">xy</span><span class="o">=</span><span class="p">(</span><span class="mf">28.0</span><span class="p">,</span> <span class="mf">56.0</span><span class="p">),</span>
+<span class="p">)</span>
+
+<span class="n">n_fac</span> <span class="o">=</span> <span class="n">cd</span><span class="o">.</span><span class="n">add</span><span class="p">(</span>
+    <span class="n">ClassNode</span><span class="p">(</span><span class="s2">"MapperProxyFactory&lt;T&gt;"</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mf">44.0</span><span class="p">,</span> <span class="n">header_style</span><span class="o">=</span><span class="n">sec_hdr</span><span class="p">)</span>
+    <span class="o">.</span><span class="n">add_attribute</span><span class="p">(</span><span class="s2">"mapperInterface"</span><span class="p">,</span> <span class="s2">"Class&lt;T&gt;"</span><span class="p">)</span>
+    <span class="o">.</span><span class="n">add_attribute</span><span class="p">(</span><span class="s2">"methodCache"</span><span class="p">,</span> <span class="s2">"ConcurrentHashMap"</span><span class="p">)</span>
+    <span class="o">.</span><span class="n">add_method</span><span class="p">(</span><span class="s2">"newInstance"</span><span class="p">,</span> <span class="s2">"sqlSession"</span><span class="p">,</span> <span class="s2">"T"</span><span class="p">),</span>
+    <span class="n">xy</span><span class="o">=</span><span class="p">(</span><span class="mf">98.0</span><span class="p">,</span> <span class="mf">56.0</span><span class="p">),</span>
+<span class="p">)</span>
+
+<span class="n">n_proxy</span> <span class="o">=</span> <span class="n">cd</span><span class="o">.</span><span class="n">add</span><span class="p">(</span>
+    <span class="n">ClassNode</span><span class="p">(</span><span class="s2">"MapperProxy&lt;T&gt;"</span><span class="p">,</span> <span class="n">stereotype</span><span class="o">=</span><span class="s2">"InvocationHandler"</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mf">44.0</span><span class="p">,</span> <span class="n">header_style</span><span class="o">=</span><span class="n">hero_hdr</span><span class="p">)</span>
+    <span class="o">.</span><span class="n">add_attribute</span><span class="p">(</span><span class="s2">"sqlSession"</span><span class="p">,</span> <span class="s2">"SqlSession"</span><span class="p">)</span>
+    <span class="o">.</span><span class="n">add_attribute</span><span class="p">(</span><span class="s2">"methodCache"</span><span class="p">,</span> <span class="s2">"Map&lt;Method, Invoker&gt;"</span><span class="p">)</span>
+    <span class="o">.</span><span class="n">add_method</span><span class="p">(</span><span class="s2">"invoke"</span><span class="p">,</span> <span class="s2">"proxy, method, args"</span><span class="p">,</span> <span class="s2">"Object"</span><span class="p">),</span>
+    <span class="n">xy</span><span class="o">=</span><span class="p">(</span><span class="mf">32.0</span><span class="p">,</span> <span class="mf">20.0</span><span class="p">),</span>
+<span class="p">)</span>
+
+<span class="n">n_method</span> <span class="o">=</span> <span class="n">cd</span><span class="o">.</span><span class="n">add</span><span class="p">(</span>
+    <span class="n">ClassNode</span><span class="p">(</span><span class="s2">"MapperMethod"</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mf">48.0</span><span class="p">)</span>
+    <span class="o">.</span><span class="n">add_attribute</span><span class="p">(</span><span class="s2">"command"</span><span class="p">,</span> <span class="s2">"SqlCommand (name, type)"</span><span class="p">)</span>
+    <span class="o">.</span><span class="n">add_attribute</span><span class="p">(</span><span class="s2">"method"</span><span class="p">,</span> <span class="s2">"MethodSignature (ParamNameResolver)"</span><span class="p">)</span>
+    <span class="o">.</span><span class="n">add_method</span><span class="p">(</span><span class="s2">"execute"</span><span class="p">,</span> <span class="s2">"sqlSession, args"</span><span class="p">,</span> <span class="s2">"Object"</span><span class="p">),</span>
+    <span class="n">xy</span><span class="o">=</span><span class="p">(</span><span class="mf">102.0</span><span class="p">,</span> <span class="mf">20.0</span><span class="p">),</span>
+<span class="p">)</span>
+
+<span class="n">cd</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">n_reg</span><span class="p">,</span> <span class="n">n_fac</span><span class="p">,</span> <span class="s2">"composition"</span><span class="p">,</span> <span class="n">directed</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">start_side</span><span class="o">=</span><span class="s2">"right"</span><span class="p">,</span> <span class="n">end_side</span><span class="o">=</span><span class="s2">"left"</span><span class="p">)</span>
+<span class="n">cd</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">n_fac</span><span class="p">,</span> <span class="n">n_proxy</span><span class="p">,</span> <span class="s2">"dependency"</span><span class="p">,</span> <span class="n">start_side</span><span class="o">=</span><span class="s2">"bottom"</span><span class="p">,</span> <span class="n">end_side</span><span class="o">=</span><span class="s2">"top"</span><span class="p">)</span>
+<span class="n">cd</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">n_proxy</span><span class="p">,</span> <span class="n">n_method</span><span class="p">,</span> <span class="s2">"composition"</span><span class="p">,</span> <span class="n">directed</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">start_side</span><span class="o">=</span><span class="s2">"right"</span><span class="p">,</span> <span class="n">end_side</span><span class="o">=</span><span class="s2">"left"</span><span class="p">)</span>
+
+<span class="n">cd</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="n">xy</span><span class="o">=</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">))</span>
+<span class="n">save</span><span class="p">()</span>
+</code></pre>
+</details>
+<hr />
+<h2>Inside <code>MapperProxy.invoke()</code>: 3-Way Method Dispatch</h2>
+<p>When a caller invokes a method on <code>UserMapper</code>, <code>MapperProxy.invoke(Object proxy, Method method, Object[] args)</code> (<code>src/main/java/org/apache/ibatis/binding/MapperProxy.java:78-115</code>) resolves the call in three branches:</p>
+<ol>
+<li><strong><code>Object</code> Base Methods (<code>toString</code>, <code>hashCode</code>, <code>equals</code>)</strong>:
+<ul>
+<li>Checked via <code>Object.class.equals(method.getDeclaringClass())</code> and invoked directly on <code>this</code> without touching <code>SqlSession</code>.</li>
+</ul>
+</li>
+<li><strong>Java 8+ <code>default</code> Interface Methods (<code>DefaultMethodInvoker</code>)</strong>:
+<ul>
+<li>Checked via <code>method.isDefault()</code>. Wrapped inside a <code>DefaultMethodInvoker</code> that uses <code>MethodHandles.Lookup</code> (<code>privateLookupIn</code> on Java 9+) to invoke the interface default method directly on the proxy instance.</li>
+</ul>
+</li>
+<li><strong>Mapped SQL Interface Methods (<code>PlainMethodInvoker</code> -&gt; <code>MapperMethod</code>)</strong>:
+<ul>
+<li>Computed once per <code>Method</code> via <code>MapUtil.computeIfAbsent(methodCache, method, ...)</code> and cached inside <code>MapperProxyFactory.methodCache</code> (<code>ConcurrentHashMap&lt;Method, MapperMethodInvoker&gt;</code>).</li>
+<li>Delegates to <code>MapperMethod.execute(sqlSession, args)</code>.</li>
+</ul>
+</li>
+</ol>
+<hr />
+<h2>How <code>MapperMethod.execute()</code> Routes by <code>SqlCommandType</code> &amp; Return Type</h2>
+<p><code>MapperMethod</code> (<code>src/main/java/org/apache/ibatis/binding/MapperMethod.java:60-128</code>) pairs two pre-computed descriptors:</p>
+<ul>
+<li><strong><code>SqlCommand</code></strong>: Resolves the statement ID (<code>InterfaceName.methodName</code>) and <code>SqlCommandType</code> (<code>INSERT</code>, <code>UPDATE</code>, <code>DELETE</code>, <code>SELECT</code>, <code>FLUSH</code>).</li>
+<li><strong><code>MethodSignature</code></strong>: Inspects generic return types via <code>TypeParameterResolver.resolveReturnType()</code>, locates special parameters (<code>RowBounds</code>, <code>ResultHandler</code>), and creates a <code>ParamNameResolver</code> (<code>@Param</code> annotations + <code>-parameters</code> reflection).</li>
+</ul>
+<figure class="drawlib-image" style="text-align: center;">
+  <img src="../images/03_mapper_proxy_engine/arch_mapper_method_routing.png" alt="03_mapper_proxy_engine_2" />
+  <figcaption class="drawlib-caption">MyBatis 3 v3.6.0 — MapperMethod.execute() Routing Matrix by SqlCommandType & Return Signature</figcaption>
+</figure>
+<details class="drawlib-code-details">
+<summary>Source Code</summary>
+<pre><code class="language-python"><span class="kn">from</span><span class="w"> </span><span class="nn">drawlib.canvas</span><span class="w"> </span><span class="kn">import</span> <span class="n">save</span><span class="p">,</span> <span class="n">setup</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">drawlib.icons</span><span class="w"> </span><span class="kn">import</span> <span class="n">phosphor</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">drawlib.smartarts</span><span class="w"> </span><span class="kn">import</span> <span class="n">Panel</span><span class="p">,</span> <span class="n">Table</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">drawlib.styles</span><span class="w"> </span><span class="kn">import</span> <span class="n">Colors</span><span class="p">,</span> <span class="n">Styles</span>
+
+<span class="n">setup</span><span class="p">(</span><span class="n">width</span><span class="o">=</span><span class="mi">144</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mi">66</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">150</span><span class="p">)</span>
+
+<span class="n">panel</span> <span class="o">=</span> <span class="n">Panel</span><span class="p">(</span>
+    <span class="s2">"MapperMethod.execute(sqlSession, args) Dispatch Matrix"</span><span class="p">,</span>
+    <span class="s2">"Pre-compiled SqlCommand + MethodSignature -&gt; SqlSession Method"</span><span class="p">,</span>
+    <span class="n">style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">Neutral</span><span class="p">,</span>
+    <span class="n">header_style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">PrimaryNeutral</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="n">shape_line_width</span><span class="o">=</span><span class="mf">1.2</span><span class="p">),</span>
+    <span class="n">text_style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">DarkBold</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="n">text_size</span><span class="o">=</span><span class="mf">10.8</span><span class="p">),</span>
+    <span class="n">description_style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">Muted</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="n">text_size</span><span class="o">=</span><span class="mf">9.5</span><span class="p">),</span>
+    <span class="n">icon</span><span class="o">=</span><span class="n">phosphor</span><span class="o">.</span><span class="n">git_branch</span><span class="p">,</span>
+    <span class="n">icon_style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">PrimaryBold</span><span class="p">,</span>
+    <span class="n">header_variant</span><span class="o">=</span><span class="s2">"filled"</span><span class="p">,</span>
+    <span class="n">header_height</span><span class="o">=</span><span class="mf">8.0</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">panel</span><span class="o">.</span><span class="n">draw</span><span class="p">((</span><span class="mf">4.0</span><span class="p">,</span> <span class="mf">4.5</span><span class="p">),</span> <span class="n">width</span><span class="o">=</span><span class="mf">136.0</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mf">57.0</span><span class="p">,</span> <span class="n">align</span><span class="o">=</span><span class="s2">"bottom_left"</span><span class="p">)</span>
+
+<span class="n">tbl</span> <span class="o">=</span> <span class="n">Table</span><span class="p">(</span>
+    <span class="n">cell_style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">White</span><span class="p">,</span>
+    <span class="n">text_style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">Dark</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="n">text_size</span><span class="o">=</span><span class="mf">9.5</span><span class="p">),</span>
+    <span class="n">header_cell_style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">PrimaryFlat</span><span class="p">,</span>
+    <span class="n">header_text_style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">WhiteBold</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="n">text_size</span><span class="o">=</span><span class="mf">9.8</span><span class="p">),</span>
+    <span class="n">border_style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">MutedThin</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">tbl</span><span class="o">.</span><span class="n">set_style_cell_evenodd</span><span class="p">(</span>
+    <span class="n">even_color</span><span class="o">=</span><span class="n">Colors</span><span class="o">.</span><span class="n">Gray1</span><span class="p">,</span>
+    <span class="n">even_text_style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">Dark</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="n">text_size</span><span class="o">=</span><span class="mf">9.5</span><span class="p">),</span>
+    <span class="n">odd_color</span><span class="o">=</span><span class="n">Colors</span><span class="o">.</span><span class="n">White</span><span class="p">,</span>
+    <span class="n">odd_text_style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">Dark</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="n">text_size</span><span class="o">=</span><span class="mf">9.5</span><span class="p">),</span>
+<span class="p">)</span>
+<span class="n">tbl</span><span class="o">.</span><span class="n">set_style_cell_header</span><span class="p">(</span>
+    <span class="n">background_color</span><span class="o">=</span><span class="n">Colors</span><span class="o">.</span><span class="n">Dark</span><span class="p">,</span>
+    <span class="n">text_style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">WhiteBold</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="n">text_size</span><span class="o">=</span><span class="mf">9.8</span><span class="p">),</span>
+<span class="p">)</span>
+
+<span class="n">rows</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="p">[</span><span class="s2">"SqlCommandType"</span><span class="p">,</span> <span class="s2">"Method Return Signature"</span><span class="p">,</span> <span class="s2">"SqlSession Target Call"</span><span class="p">,</span> <span class="s2">"Post-Processing / Return"</span><span class="p">],</span>
+    <span class="p">[</span><span class="s2">"INSERT / UPDATE</span><span class="se">\n</span><span class="s2">/ DELETE"</span><span class="p">,</span> <span class="s2">"int / long / boolean / void"</span><span class="p">,</span> <span class="s2">"insert() / update() / delete()"</span><span class="p">,</span> <span class="s2">"rowCountResult(rowCount)</span><span class="se">\n</span><span class="s2">(bool: &gt;0, void: null)"</span><span class="p">],</span>
+    <span class="p">[</span><span class="s2">"SELECT"</span><span class="p">,</span> <span class="s2">"void + ResultHandler param"</span><span class="p">,</span> <span class="s2">"select(id, param, handler)"</span><span class="p">,</span> <span class="s2">"Streams rows to callback;</span><span class="se">\n</span><span class="s2">returns null"</span><span class="p">],</span>
+    <span class="p">[</span><span class="s2">"SELECT"</span><span class="p">,</span> <span class="s2">"Collection&lt;E&gt; or E[] array"</span><span class="p">,</span> <span class="s2">"selectList(id, param, rb)"</span><span class="p">,</span> <span class="s2">"executeForMany() converts</span><span class="se">\n</span><span class="s2">List to Set or Array"</span><span class="p">],</span>
+    <span class="p">[</span><span class="s2">"SELECT"</span><span class="p">,</span> <span class="s2">"Map&lt;K, V&gt; + @MapKey(</span><span class="se">\"</span><span class="s2">id</span><span class="se">\"</span><span class="s2">)"</span><span class="p">,</span> <span class="s2">"selectMap(id, param, key, rb)"</span><span class="p">,</span> <span class="s2">"executeForMap() indexes</span><span class="se">\n</span><span class="s2">rows by @MapKey property"</span><span class="p">],</span>
+    <span class="p">[</span><span class="s2">"SELECT"</span><span class="p">,</span> <span class="s2">"Cursor&lt;T&gt;"</span><span class="p">,</span> <span class="s2">"selectCursor(id, param, rb)"</span><span class="p">,</span> <span class="s2">"executeForCursor() returns</span><span class="se">\n</span><span class="s2">lazy JDBC stream iterator"</span><span class="p">],</span>
+    <span class="p">[</span><span class="s2">"SELECT"</span><span class="p">,</span> <span class="s2">"Single Domain Bean T</span><span class="se">\n</span><span class="s2">or Optional&lt;T&gt;"</span><span class="p">,</span> <span class="s2">"selectOne(id, param)"</span><span class="p">,</span> <span class="s2">"Wraps in Optional.ofNullable</span><span class="se">\n</span><span class="s2">if return type is Optional"</span><span class="p">],</span>
+<span class="p">]</span>
+
+<span class="n">tbl</span><span class="o">.</span><span class="n">draw_flexible</span><span class="p">(</span>
+    <span class="n">xy</span><span class="o">=</span><span class="p">(</span><span class="mf">7.0</span><span class="p">,</span> <span class="mf">51.5</span><span class="p">),</span>
+    <span class="n">column_widths</span><span class="o">=</span><span class="p">[</span><span class="mf">25.0</span><span class="p">,</span> <span class="mf">35.0</span><span class="p">,</span> <span class="mf">35.0</span><span class="p">,</span> <span class="mf">35.0</span><span class="p">],</span>
+    <span class="n">row_heights</span><span class="o">=</span><span class="p">[</span><span class="mf">6.0</span><span class="p">]</span> <span class="o">+</span> <span class="p">[</span><span class="mf">7.2</span><span class="p">]</span> <span class="o">*</span> <span class="mi">6</span><span class="p">,</span>
+    <span class="n">data</span><span class="o">=</span><span class="n">rows</span><span class="p">,</span>
+    <span class="n">align</span><span class="o">=</span><span class="s2">"top_left"</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">save</span><span class="p">()</span>
+</code></pre>
+</details>
+<h3>Multi-Parameter Packaging in <code>ParamNameResolver.getNamedParams(Object[] args)</code></h3>
+<p>When a mapper method takes arguments (<code>src/main/java/org/apache/ibatis/reflection/ParamNameResolver.java:108-145</code>):</p>
+<ul>
+<li><strong>0 parameters</strong>: Returns <code>null</code>.</li>
+<li><strong>1 parameter (without <code>@Param</code>)</strong>: Returns <code>args[0]</code> directly (unless it is a <code>Collection</code>/<code>Array</code>, which <code>DefaultSqlSession.wrapCollection()</code> wraps into a <code>ParamMap</code> with keys <code>&quot;collection&quot;</code>, <code>&quot;list&quot;</code>, or <code>&quot;array&quot;</code>).</li>
+<li><strong>Multiple parameters or any <code>@Param</code></strong>: Returns a <code>MapperMethod.ParamMap&lt;Object&gt;</code> containing <strong>both</strong> the explicit name (<code>@Param(&quot;email&quot;)</code> or compiled parameter name) <strong>and</strong> generic fallback keys <code>&quot;param1&quot;</code>, <code>&quot;param2&quot;</code>, ..., <code>&quot;paramN&quot;</code>. Accessing an unknown key in <code>ParamMap</code> throws a descriptive <code>BindingException: Parameter 'foo' not found. Available parameters are [email, status, param1, param2]</code>.</li>
+</ul>
+
+            </main>
+        </div>
+    </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const themeBtn = document.getElementById('theme-toggle');
+            if (themeBtn) {
+                themeBtn.addEventListener('click', function() {
+                    const current = document.documentElement.getAttribute('data-theme');
+                    const next = current === 'dark' ? 'light' : 'dark';
+                    document.documentElement.setAttribute('data-theme', next);
+                    localStorage.setItem('drawlib-theme', next);
+                });
+            }
+            const langDropdowns = document.querySelectorAll('.lang-dropdown');
+            if (langDropdowns.length > 0) {
+                document.addEventListener('click', function(e) {
+                    langDropdowns.forEach(function(dd) {
+                        if (dd.hasAttribute('open') && !dd.contains(e.target)) {
+                            dd.removeAttribute('open');
+                        }
+                    });
+                });
+                document.addEventListener('keydown', function(e) {
+                    if (e.key === 'Escape') {
+                        langDropdowns.forEach(function(dd) {
+                            dd.removeAttribute('open');
+                        });
+                    }
+                });
+            }
+            const menuBtn = document.getElementById('menu-toggle');
+            const sidebar = document.querySelector('.sidebar');
+            if (menuBtn && sidebar) {
+                function setMenuOpen(open) {
+                    sidebar.classList.toggle('is-open', open);
+                    menuBtn.setAttribute('aria-expanded', open ? 'true' : 'false');
+                    document.body.classList.toggle('menu-open', open);
+                }
+                menuBtn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    setMenuOpen(!sidebar.classList.contains('is-open'));
+                });
+                document.addEventListener('click', function(e) {
+                    if (sidebar.classList.contains('is-open') && !sidebar.contains(e.target)) {
+                        setMenuOpen(false);
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>

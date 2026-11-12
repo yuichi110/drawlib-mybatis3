@@ -13,8 +13,10 @@ docs = ["README.md"]
 exclude = [
     "reports/**",
     "reports_src/**",
+    "pni501_src/**",
     "docs/**",
     "docs_src/**",
+    "user_guide_src/**",
     "api_src/**",
     "architecture_src/**",
 ]
@@ -23,12 +25,12 @@ exclude = [
 respect_gitignore = true
 include_gitignored = ["dependencies-lock.json"]
 skip_files = [".env", ".env.*", "**/.env"]
-skip_dirs = ["reports", "reports_src", "docs", "docs_src", "api_src", "architecture_src"]
+skip_dirs = ["reports", "reports_src", "pni501_src", "docs", "docs_src", "user_guide_src", "api_src", "architecture_src"]
 
 [report]
-src_dir = "reports_src"
-output_dir = "docs/reports/pni501"
-html_output_dir = "docs/reports/pni501"
+src_dir = "."
+output_dir = "docs/pni501"
+html_output_dir = "docs/pni501"
 formats = ["pdf", "html"]
 lang = "en"
 style = "google"

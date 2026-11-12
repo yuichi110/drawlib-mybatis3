@@ -1,4 +1,4 @@
-# MyBatis 3 Internal Architecture Guide (Unofficial · PNI501 + Drawlib Demo)
+# MyBatis 3 Internal Architecture
 
 > Unofficial bilingual (English/Japanese) source-code architecture guide for MyBatis 3 v3.6.0 — 3-tier package topology, XML/annotation bootstrap builders, JDK dynamic MapperProxy dispatch, L1/L2 Executor & Interceptor pipeline, OGNL…
 

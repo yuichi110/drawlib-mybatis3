@@ -9,7 +9,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% if title and "Drawlib" not in title %}{{ title }} — MyBatis 3 Architecture (Unofficial · PNI501 + Drawlib Demo){% else %}{{ title | default("MyBatis 3 Internal Architecture — Unofficial PNI501 & Drawlib Demo") }}{% endif %}</title>
+    <title>{% if title and "Drawlib" not in title %}{{ title }} — MyBatis 3 Internal Architecture (Unofficial){% else %}{{ title | default("MyBatis 3 Internal Architecture — Unofficial Drawlib Showcase") }}{% endif %}</title>
     <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-S9N5BZ1VRC"></script>
     <script>
@@ -50,29 +50,59 @@
     {% endif %}
 </head>
 <body>
-    <div class="demo-banner" role="region" aria-label="Unofficial Showcase Notice">
+    {% if css_href and css_href.startswith('../') %}
+    {% set docs_root = '../../../' %}
+    {% elif css_href and (css_href.startswith('en/') or css_href.startswith('ja/')) %}
+    {% set docs_root = '../' %}
+    {% else %}
+    {% set docs_root = '../../' %}
+    {% endif %}
+    <div class="demo-banner" role="region" aria-label="Portal Navigation">
         <div class="demo-banner-inner">
-            <span class="demo-banner-badge">UNOFFICIAL DEMO</span>
+            <span class="demo-banner-badge">DRAWLIB SHOWCASE</span>
+            {% if html_lang == 'ja' %}
             <span class="demo-banner-text">
-                {% if html_lang == 'ja' %}
-                <a href="https://pypi.org/project/pni501/" target="_blank" rel="noopener noreferrer">PNI501</a> と <a href="https://www.drawlib.com/" target="_blank" rel="noopener noreferrer">Drawlib</a> で構築した <a href="https://mybatis.org/mybatis-3/" target="_blank" rel="noopener noreferrer">MyBatis 3</a> (v3.6.0, Apache-2.0) の非公式内部アーキテクチャ解説です。
-                {% else %}
-                Unofficial internal architecture deep dive of <a href="https://mybatis.org/mybatis-3/" target="_blank" rel="noopener noreferrer">MyBatis 3</a> (v3.6.0, Apache-2.0) built with <a href="https://pypi.org/project/pni501/" target="_blank" rel="noopener noreferrer">PNI501</a> &amp; <a href="https://www.drawlib.com/" target="_blank" rel="noopener noreferrer">Drawlib</a>.
-                {% endif %}
+                <a href="https://www.drawlib.com/" target="_blank" rel="noopener noreferrer">Drawlib</a> で構築された <a href="https://mybatis.org/mybatis-3/" target="_blank" rel="noopener noreferrer">MyBatis 3</a>（v3.6.0）非公式ドキュメント
             </span>
             <span class="demo-banner-links">
-                <a href="https://mybatis3.drawlib.com/{% if html_lang == 'ja' %}ja/{% endif %}">{% if html_lang == 'ja' %}ユーザーガイド{% else %}User Guide{% endif %}</a>
+                <a href="{{ docs_root }}index.html">All Portals</a>
                 <span class="demo-banner-sep">·</span>
-                <a href="https://mybatis3.drawlib.com/api/{% if html_lang == 'ja' %}ja/{% endif %}">{% if html_lang == 'ja' %}API リファレンス{% else %}API Reference{% endif %}</a>
+                <a href="{{ docs_root }}user_guide/ja/index.html">User Guide</a>
                 <span class="demo-banner-sep">·</span>
-                <strong style="color:#ffffff;">{% if html_lang == 'ja' %}アーキテクチャ{% else %}Architecture{% endif %}</strong>
+                <a href="{{ docs_root }}api/ja/index.html">API Reference</a>
                 <span class="demo-banner-sep">·</span>
-                <a href="https://mybatis3.drawlib.com/reports/pni501/">PNI501 Audit</a>
+                <strong style="color:#ffffff;">Architecture</strong>
                 <span class="demo-banner-sep">·</span>
-                <a href="https://mybatis.org/mybatis-3/" target="_blank" rel="noopener noreferrer">{% if html_lang == 'ja' %}公式 Docs ↗{% else %}Official Docs ↗{% endif %}</a>
+                <a href="{{ docs_root }}pni501/index.html">PNI501 Audit</a>
+                <span class="demo-banner-sep">·</span>
+                <a href="https://mybatis.org/mybatis-3/" target="_blank" rel="noopener noreferrer">Official Docs ↗</a>
                 <span class="demo-banner-sep">·</span>
                 <a href="https://github.com/yuichi110/drawlib-mybatis3" target="_blank" rel="noopener noreferrer">GitHub ↗</a>
+                <span class="demo-banner-sep">·</span>
+                <a href="https://www.drawlib.com/" target="_blank" rel="noopener noreferrer">Drawlib ↗</a>
             </span>
+            {% else %}
+            <span class="demo-banner-text">
+                Unofficial <a href="https://mybatis.org/mybatis-3/" target="_blank" rel="noopener noreferrer">MyBatis 3</a> (v3.6.0) Documentation built with <a href="https://www.drawlib.com/" target="_blank" rel="noopener noreferrer">Drawlib</a>
+            </span>
+            <span class="demo-banner-links">
+                <a href="{{ docs_root }}index.html">All Portals</a>
+                <span class="demo-banner-sep">·</span>
+                <a href="{{ docs_root }}user_guide/index.html">User Guide</a>
+                <span class="demo-banner-sep">·</span>
+                <a href="{{ docs_root }}api/index.html">API Reference</a>
+                <span class="demo-banner-sep">·</span>
+                <strong style="color:#ffffff;">Architecture</strong>
+                <span class="demo-banner-sep">·</span>
+                <a href="{{ docs_root }}pni501/index.html">PNI501 Audit</a>
+                <span class="demo-banner-sep">·</span>
+                <a href="https://mybatis.org/mybatis-3/" target="_blank" rel="noopener noreferrer">Official Docs ↗</a>
+                <span class="demo-banner-sep">·</span>
+                <a href="https://github.com/yuichi110/drawlib-mybatis3" target="_blank" rel="noopener noreferrer">GitHub ↗</a>
+                <span class="demo-banner-sep">·</span>
+                <a href="https://www.drawlib.com/" target="_blank" rel="noopener noreferrer">Drawlib ↗</a>
+            </span>
+            {% endif %}
         </div>
     </div>
     {% if (nav_sections and nav_sections | length > 0) or (nav_items and nav_items | length > 0) %}

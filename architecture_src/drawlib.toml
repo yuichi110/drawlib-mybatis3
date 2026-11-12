@@ -1,9 +1,10 @@
 [project]
 name = "architecture"
 type = "site"
-title = "MyBatis 3 Internal Architecture Guide (Unofficial · PNI501 + Drawlib Demo)"
+title = "MyBatis 3 Internal Architecture"
 description = "Unofficial bilingual (English/Japanese) source-code architecture guide for MyBatis 3 v3.6.0 — 3-tier package topology, XML/annotation bootstrap builders, JDK dynamic MapperProxy dispatch, L1/L2 Executor & Interceptor pipeline, OGNL Dynamic SQL AST, and ResultSetHandler/MetaObject reflection internals."
 style = "google"
+output_dir = "../docs/architecture"
 
 [i18n]
 default_lang = "en"

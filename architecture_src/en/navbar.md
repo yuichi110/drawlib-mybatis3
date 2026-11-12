@@ -11,6 +11,7 @@
 - [6. ResultSet & Reflection](06_resultset_and_reflection.md)
 
 ## Portals & Reports
-- [User Guide ↗](https://mybatis3.drawlib.com/)
+- [All Portals (Showcase Hub) ↗](https://mybatis3.drawlib.com/)
+- [User Guide ↗](https://mybatis3.drawlib.com/user_guide/)
 - [API & XML Catalog ↗](https://mybatis3.drawlib.com/api/)
-- [PNI501 Audit Report ↗](https://mybatis3.drawlib.com/reports/pni501/)
+- [PNI501 Audit Report ↗](https://mybatis3.drawlib.com/pni501/)

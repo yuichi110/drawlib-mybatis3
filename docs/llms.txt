@@ -1,26 +1,11 @@
-# MyBatis 3 User Guide
+# MyBatis 3 v3.6.0 Multi-Portal Documentation & Diagnostic Suite (Unofficial Drawlib & PNI501 Showcase)
 
-> Comprehensive bilingual user guide for Java MyBatis 3 (v3.6.0) — XML & Annotation mappers, dynamic SQL, result mapping, caching, transactions, TypeHandlers, and plugins, visually explained with Drawlib.
+> Unofficial community documentation, API & XML catalog, internal architecture walkthrough, and PNI501 software audit of MyBatis 3 v3.6.0 (`https://mybatis3.drawlib.com/`).
+> Official MyBatis 3 documentation: https://mybatis.org/mybatis-3/
 
-## Getting Started
+## Portals
 
-- [Overview & Quickstart](https://mybatis3.drawlib.com/en/): Welcome to the unofficial visual documentation and engineering suite for MyBatis 3 (v3.6.0)—the premier SQL-first persistence framework for Java—built with…
-- [1. Installation & SqlSession Lifecycle](https://mybatis3.drawlib.com/en/01_getting_started.html): Mastering MyBatis begins with understanding the four core lifecycle objects (SqlSessionFactoryBuilder, SqlSessionFactory, SqlSession, and Mapper proxies) and…
-- [2. XML Configuration (mybatis-config.xml)](https://mybatis3.drawlib.com/en/02_xml_configuration.html): The root configuration file (mybatis-config.xml) defines global behavior for a SqlSessionFactory: runtime , , custom , , , , and .
-
-## SQL Mapping & Dynamic Queries
-
-- [3. Mapper XML & SQL Statements](https://mybatis3.drawlib.com/en/03_mapper_xml_and_sql.html): A Mapper XML file (mybatis-3-mapper.dtd) binds a Java Mapper interface (namespace="...") to SQL statements ( , , , ) and reusable fragments.
-- [4. ResultMaps, Records & Associations](https://mybatis3.drawlib.com/en/04_result_maps_and_associations.html): The element is the most powerful component in MyBatis. It transforms flat relational ResultSet rows into rich Java object graphs—including immutable Java…
-- [5. Dynamic SQL & OGNL Tags](https://mybatis3.drawlib.com/en/05_dynamic_sql.html): One of the primary reasons developers choose MyBatis over raw JDBC or JPA Criteria APIs is its declarative Dynamic SQL engine. Using 8 XML tags backed by…
-- [6. Java Annotations & SQL Builder](https://mybatis3.drawlib.com/en/06_java_annotations_and_sql_builder.html): With Java 17+ multi-line text blocks (""" ... """), MyBatis's 39 annotations in org.apache.ibatis.annotations and fluent org.apache.ibatis.jdbc.SQL builder…
-
-## Runtime, SPIs & Operations
-
-- [7. L1/L2 Caching, Transactions & Batching](https://mybatis3.drawlib.com/en/07_caching_and_transactions.html): MyBatis features a two-tier cache architecture (L1 Local Session Cache and L2 Namespace Transactional Cache) alongside three specialized JDBC execution…
-- [8. TypeHandlers, Plugins & Testing](https://mybatis3.drawlib.com/en/08_typehandlers_plugins_and_testing.html): MyBatis provides clean extension SPIs for custom Java value objects (BaseTypeHandler ), cross-cutting statement interception (Interceptor / @Intercepts), and…
-
-## Locales
-
-- [English (en)](https://mybatis3.drawlib.com/en/): Comprehensive bilingual user guide for Java MyBatis 3 (v3.6.0) — XML & Annotation mappers, dynamic SQL, result mapping, caching, transactions, TypeHandlers…
-- [日本語 (ja)](https://mybatis3.drawlib.com/ja/): PNI501 と Drawlib で構築した、Java 向け SQL ファースト永続化フレームワーク MyBatis 3 (v3.6.0) の非公式ビジュアルドキュメント & エンジニアリング診断スイートへようこそ。
+- [MyBatis 3 User Guide (EN/JA)](https://mybatis3.drawlib.com/user_guide/): Practical developer guide covering `SqlSession` lifecycle, XML & annotation mappers, `<resultMap>` nested associations/collections, Dynamic SQL OGNL tags, L1/L2 caching, TypeHandlers, and plugins (`https://mybatis3.drawlib.com/user_guide/llms.txt`).
+- [MyBatis 3 API & XML Reference Catalog (EN/JA)](https://mybatis3.drawlib.com/api/): Searchable symbol & XML DTD/XSD reference catalog (`https://mybatis3.drawlib.com/api/llms.txt`).
+- [MyBatis 3 Internal Architecture Guide (EN/JA)](https://mybatis3.drawlib.com/architecture/): Source-level guide to MyBatis 3 v3.6.0 (`org.apache.ibatis`) internals (`https://mybatis3.drawlib.com/architecture/llms.txt`).
+- [PNI501 Diagnostic Report (HTML & PDF)](https://mybatis3.drawlib.com/pni501/): Deterministic 15-stage static Java AST, package dependency DAG, hermetic Maven/JUnit 5 runtime, and security audit (`https://mybatis3.drawlib.com/pni501/pni501.pdf`, `https://mybatis3.drawlib.com/pni501/llms.txt`).

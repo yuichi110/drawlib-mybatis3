@@ -1,0 +1,585 @@
+<!--
+ Copyright (c) 2026 Yuichi Ito (yuichi@yuichi.com)
+
+ This software is licensed under the Apache License, Version 2.0.
+ For more information, please visit: https://github.com/yuichi110/drawlib
+
+ This software is provided "as is", without warranty of any kind,
+ express or implied, including but not limited to the warranties of
+ merchantability, fitness for a particular purpose and noninfringement.
+-->
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2. XML Configuration (`mybatis-config.xml`) — MyBatis 3 User Guide (Unofficial)</title>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-S9N5BZ1VRC"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-S9N5BZ1VRC');
+    </script>
+    <script>
+        (function() {
+            const saved = localStorage.getItem('drawlib-theme');
+            if (saved === 'dark' || (!saved && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                document.documentElement.setAttribute('data-theme', 'dark');
+            } else {
+                document.documentElement.setAttribute('data-theme', 'light');
+            }
+        })();
+    </script>
+    
+    
+    
+    <link rel="alternate" hreflang="en" href="https://mybatis3.drawlib.com/user_guide/en/02_xml_configuration.html">
+    
+    <link rel="alternate" hreflang="ja" href="https://mybatis3.drawlib.com/user_guide/ja/02_xml_configuration.html">
+    
+    <link rel="alternate" hreflang="x-default" href="https://mybatis3.drawlib.com/user_guide/en/02_xml_configuration.html">
+    
+    
+    
+    <meta name="description" content="The root configuration file (mybatis-config.xml) defines global behavior for a SqlSessionFactory: runtime , , custom , , , , and .">
+    <link rel="canonical" href="https://mybatis3.drawlib.com/user_guide/en/02_xml_configuration.html">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="MyBatis 3 User Guide">
+    <meta property="og:title" content="2. XML Configuration (mybatis-config.xml) — MyBatis 3 User Guide">
+    <meta property="og:description" content="The root configuration file (mybatis-config.xml) defines global behavior for a SqlSessionFactory: runtime , , custom , , , , and .">
+    <meta property="og:url" content="https://mybatis3.drawlib.com/user_guide/en/02_xml_configuration.html">
+    <meta property="og:image" content="https://mybatis3.drawlib.com/user_guide/_assets/ogp.png">
+    <meta property="og:locale" content="en_US">
+    <meta property="og:locale:alternate" content="ja_JP">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="2. XML Configuration (mybatis-config.xml) — MyBatis 3 User Guide">
+    <meta name="twitter:description" content="The root configuration file (mybatis-config.xml) defines global behavior for a SqlSessionFactory: runtime , , custom , , , , and .">
+    <meta name="twitter:image" content="https://mybatis3.drawlib.com/user_guide/_assets/ogp.png">
+    
+    
+    <link rel="icon" type="image/png" href="../_assets/favicon.png">
+    
+    
+    <link rel="stylesheet" href="style.css">
+    
+    
+</head>
+<body>
+    
+    
+    
+    <div class="demo-banner" role="region" aria-label="Portal Navigation">
+        <div class="demo-banner-inner">
+            <span class="demo-banner-badge">DRAWLIB SHOWCASE</span>
+            
+            <span class="demo-banner-text">
+                Unofficial <a href="https://mybatis.org/mybatis-3/" target="_blank" rel="noopener noreferrer">MyBatis 3</a> (v3.6.0) Documentation built with <a href="https://www.drawlib.com/" target="_blank" rel="noopener noreferrer">Drawlib</a>
+            </span>
+            <span class="demo-banner-links">
+                <a href="../../index.html">All Portals</a>
+                <span class="demo-banner-sep">·</span>
+                <strong style="color:#ffffff;">User Guide</strong>
+                <span class="demo-banner-sep">·</span>
+                <a href="../../api/index.html">API Reference</a>
+                <span class="demo-banner-sep">·</span>
+                <a href="../../architecture/index.html">Architecture</a>
+                <span class="demo-banner-sep">·</span>
+                <a href="../../pni501/index.html">PNI501 Audit</a>
+                <span class="demo-banner-sep">·</span>
+                <a href="https://mybatis.org/mybatis-3/" target="_blank" rel="noopener noreferrer">Official Docs ↗</a>
+                <span class="demo-banner-sep">·</span>
+                <a href="https://github.com/yuichi110/drawlib-mybatis3" target="_blank" rel="noopener noreferrer">GitHub ↗</a>
+                <span class="demo-banner-sep">·</span>
+                <a href="https://www.drawlib.com/" target="_blank" rel="noopener noreferrer">Drawlib ↗</a>
+            </span>
+            
+        </div>
+    </div>
+    
+    <div class="doc-layout">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <a href="index.html" class="sidebar-brand" aria-label="drawlib">
+                    
+                    drawlib
+                    
+                </a>
+                <div class="sidebar-header-actions">
+                    <button type="button" id="theme-toggle" class="theme-toggle-btn" aria-label="Toggle theme">
+                        <svg class="icon-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+                        <svg class="icon-moon" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+                    </button>
+                    <button type="button" id="menu-toggle" class="menu-toggle-btn" aria-label="Toggle navigation" aria-expanded="false">
+                        <svg class="icon-hamburger" viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+                        <svg class="icon-close" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                    </button>
+                </div>
+            </div>
+            <div class="sidebar-menu">
+                
+                    
+                        
+                        <div class="sidebar-heading">Getting Started</div>
+                        
+                        <ul class="nav-list">
+                            
+                            <li class="nav-item ">
+                                <a href="index.html" >Overview &amp; Quickstart</a>
+                            </li>
+                            
+                            <li class="nav-item ">
+                                <a href="01_getting_started.html" >1. Installation &amp; SqlSession Lifecycle</a>
+                            </li>
+                            
+                            <li class="nav-item active">
+                                <a href="02_xml_configuration.html" >2. XML Configuration (mybatis-config.xml)</a>
+                            </li>
+                            
+                        </ul>
+                    
+                        
+                        <div class="sidebar-heading">SQL Mapping &amp; Dynamic Queries</div>
+                        
+                        <ul class="nav-list">
+                            
+                            <li class="nav-item ">
+                                <a href="03_mapper_xml_and_sql.html" >3. Mapper XML &amp; SQL Statements</a>
+                            </li>
+                            
+                            <li class="nav-item ">
+                                <a href="04_result_maps_and_associations.html" >4. ResultMaps, Records &amp; Associations</a>
+                            </li>
+                            
+                            <li class="nav-item ">
+                                <a href="05_dynamic_sql.html" >5. Dynamic SQL &amp; OGNL Tags</a>
+                            </li>
+                            
+                            <li class="nav-item ">
+                                <a href="06_java_annotations_and_sql_builder.html" >6. Java Annotations &amp; SQL Builder</a>
+                            </li>
+                            
+                        </ul>
+                    
+                        
+                        <div class="sidebar-heading">Runtime, SPIs &amp; Operations</div>
+                        
+                        <ul class="nav-list">
+                            
+                            <li class="nav-item ">
+                                <a href="07_caching_and_transactions.html" >7. L1/L2 Caching, Transactions &amp; Batching</a>
+                            </li>
+                            
+                            <li class="nav-item ">
+                                <a href="08_typehandlers_plugins_and_testing.html" >8. TypeHandlers, Plugins &amp; Testing</a>
+                            </li>
+                            
+                        </ul>
+                    
+                        
+                        <div class="sidebar-heading">Companion Portals</div>
+                        
+                        <ul class="nav-list">
+                            
+                            <li class="nav-item ">
+                                <a href="https://mybatis3.drawlib.com/" target="_blank" rel="noopener noreferrer">All Portals (Showcase Hub)<svg class="nav-external-icon" viewBox="0 0 24 24" aria-hidden="true"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg></a>
+                            </li>
+                            
+                            <li class="nav-item ">
+                                <a href="https://mybatis3.drawlib.com/api/" target="_blank" rel="noopener noreferrer">API &amp; XML Reference Catalog<svg class="nav-external-icon" viewBox="0 0 24 24" aria-hidden="true"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg></a>
+                            </li>
+                            
+                            <li class="nav-item ">
+                                <a href="https://mybatis3.drawlib.com/architecture/" target="_blank" rel="noopener noreferrer">Internal Architecture Guide<svg class="nav-external-icon" viewBox="0 0 24 24" aria-hidden="true"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg></a>
+                            </li>
+                            
+                            <li class="nav-item ">
+                                <a href="https://mybatis3.drawlib.com/pni501/" target="_blank" rel="noopener noreferrer">PNI501 Diagnostic Report<svg class="nav-external-icon" viewBox="0 0 24 24" aria-hidden="true"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg></a>
+                            </li>
+                            
+                        </ul>
+                    
+                
+            </div>
+        </aside>
+        <div class="content-wrapper">
+            <header class="top-bar">
+                <div class="breadcrumbs">
+                    <span class="crumb">Docs</span>
+                    <span class="crumb-separator">&raquo;</span>
+                    <span class="crumb active">2. XML Configuration (`mybatis-config.xml`)</span>
+                </div>
+                
+                <div class="lang-switcher">
+                    <details class="lang-dropdown">
+                        <summary class="lang-dropdown-btn" aria-label="Select language">
+                            <svg class="lang-globe-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
+                            <span class="lang-current-label">English</span>
+                            <svg class="lang-caret-icon" viewBox="0 0 24 24" aria-hidden="true"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                        </summary>
+                        <div class="lang-dropdown-menu" role="menu">
+                            
+                            <a href="02_xml_configuration.html" class="lang-option active" lang="en" hreflang="en" aria-current="page">
+                                <span>English</span>
+                                
+                                <svg class="lang-check-icon" viewBox="0 0 24 24" aria-hidden="true"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                                
+                            </a>
+                            
+                            <a href="../ja/02_xml_configuration.html" class="lang-option" lang="ja" hreflang="ja" >
+                                <span>日本語</span>
+                                
+                            </a>
+                            
+                        </div>
+                    </details>
+                </div>
+                
+            </header>
+            <main class="main-content">
+                <h1>2. XML Configuration (<code>mybatis-config.xml</code>)</h1>
+<p>The root configuration file (<code>mybatis-config.xml</code>) defines global behavior for a <code>SqlSessionFactory</code>: runtime <code>&lt;settings&gt;</code>, <code>&lt;typeAliases&gt;</code>, custom <code>&lt;typeHandlers&gt;</code>, <code>&lt;plugins&gt;</code>, <code>&lt;environments&gt;</code>, <code>&lt;databaseIdProvider&gt;</code>, and <code>&lt;mappers&gt;</code>.</p>
+<hr />
+<h2>Strict <code>&lt;configuration&gt;</code> Element Ordering</h2>
+<p>Because <code>mybatis-3-config.dtd</code> validates the XML structure using a sequential DTD content model, child elements inside <code>&lt;configuration&gt;</code> <strong>must appear in the exact order shown below</strong>:</p>
+<figure class="drawlib-image" style="text-align: center;">
+  <img src="../images/02_xml_configuration/ug_02_config_order.png" alt="02_xml_configuration_1" />
+  <figcaption class="drawlib-caption">Mandatory Sequential Element Order in mybatis-3-config.dtd</figcaption>
+</figure>
+<details class="drawlib-code-details">
+<summary>Source Code</summary>
+<pre><code class="language-python"><span class="kn">from</span><span class="w"> </span><span class="nn">drawlib.canvas</span><span class="w"> </span><span class="kn">import</span> <span class="n">save</span><span class="p">,</span> <span class="n">setup</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">drawlib.smartarts</span><span class="w"> </span><span class="kn">import</span> <span class="n">CardList</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">drawlib.styles</span><span class="w"> </span><span class="kn">import</span> <span class="n">Colors</span><span class="p">,</span> <span class="n">Styles</span>
+
+<span class="n">setup</span><span class="p">(</span><span class="n">width</span><span class="o">=</span><span class="mi">144</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mi">46</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">150</span><span class="p">)</span>
+
+<span class="n">row1</span> <span class="o">=</span> <span class="n">CardList</span><span class="p">(</span>
+    <span class="n">style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">Neutral</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="n">shape_fill_color</span><span class="o">=</span><span class="n">Colors</span><span class="o">.</span><span class="n">White</span><span class="p">),</span>
+    <span class="n">text_style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">DarkBold</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="n">text_size</span><span class="o">=</span><span class="mf">9.5</span><span class="p">),</span>
+    <span class="n">description_style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">Dark</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="n">text_size</span><span class="o">=</span><span class="mf">8.3</span><span class="p">),</span>
+    <span class="n">badge_shape</span><span class="o">=</span><span class="s2">"rounded_rect"</span><span class="p">,</span>
+    <span class="n">badge_style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">PrimaryFlat</span><span class="p">,</span>
+    <span class="n">badge_text_style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">WhiteBold</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="n">text_size</span><span class="o">=</span><span class="mf">8.8</span><span class="p">),</span>
+    <span class="n">direction</span><span class="o">=</span><span class="s2">"horizontal"</span><span class="p">,</span>
+    <span class="n">spacing</span><span class="o">=</span><span class="mf">2.0</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">row1</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">"&lt;properties&gt;"</span><span class="p">,</span> <span class="s2">"External .properties &amp;</span><span class="se">\n</span><span class="s2">${key:default} vars"</span><span class="p">,</span> <span class="n">badge_text</span><span class="o">=</span><span class="s2">"1"</span><span class="p">)</span>
+<span class="n">row1</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">"&lt;settings&gt;"</span><span class="p">,</span> <span class="s2">"CamelCase, Cache,</span><span class="se">\n</span><span class="s2">Executor, FetchSize"</span><span class="p">,</span> <span class="n">badge_text</span><span class="o">=</span><span class="s2">"2"</span><span class="p">)</span>
+<span class="n">row1</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">"&lt;typeAliases&gt;"</span><span class="p">,</span> <span class="s2">"Short class names</span><span class="se">\n</span><span class="s2">&amp; package scan"</span><span class="p">,</span> <span class="n">badge_text</span><span class="o">=</span><span class="s2">"3"</span><span class="p">)</span>
+<span class="n">row1</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">"&lt;typeHandlers&gt;"</span><span class="p">,</span> <span class="s2">"Custom Java &lt;-&gt; JDBC</span><span class="se">\n</span><span class="s2">type converters"</span><span class="p">,</span> <span class="n">badge_text</span><span class="o">=</span><span class="s2">"4"</span><span class="p">)</span>
+<span class="n">row1</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">"&lt;objectFactory&gt;"</span><span class="p">,</span> <span class="s2">"Custom POJO/Record</span><span class="se">\n</span><span class="s2">instantiation SPI"</span><span class="p">,</span> <span class="n">badge_text</span><span class="o">=</span><span class="s2">"5"</span><span class="p">)</span>
+<span class="n">row1</span><span class="o">.</span><span class="n">draw</span><span class="p">((</span><span class="mf">4.0</span><span class="p">,</span> <span class="mf">24.5</span><span class="p">),</span> <span class="n">width</span><span class="o">=</span><span class="mf">136.0</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mf">18.0</span><span class="p">,</span> <span class="n">align</span><span class="o">=</span><span class="s2">"bottom_left"</span><span class="p">)</span>
+
+<span class="n">row2</span> <span class="o">=</span> <span class="n">CardList</span><span class="p">(</span>
+    <span class="n">style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">Neutral</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="n">shape_fill_color</span><span class="o">=</span><span class="n">Colors</span><span class="o">.</span><span class="n">White</span><span class="p">),</span>
+    <span class="n">text_style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">DarkBold</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="n">text_size</span><span class="o">=</span><span class="mf">9.5</span><span class="p">),</span>
+    <span class="n">description_style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">Dark</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="n">text_size</span><span class="o">=</span><span class="mf">8.3</span><span class="p">),</span>
+    <span class="n">badge_shape</span><span class="o">=</span><span class="s2">"rounded_rect"</span><span class="p">,</span>
+    <span class="n">badge_style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">SecondaryFlat</span><span class="p">,</span>
+    <span class="n">badge_text_style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">WhiteBold</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="n">text_size</span><span class="o">=</span><span class="mf">8.8</span><span class="p">),</span>
+    <span class="n">direction</span><span class="o">=</span><span class="s2">"horizontal"</span><span class="p">,</span>
+    <span class="n">spacing</span><span class="o">=</span><span class="mf">2.0</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">row2</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">"&lt;objectWrapper&gt;"</span><span class="p">,</span> <span class="s2">"Custom MetaObject</span><span class="se">\n</span><span class="s2">wrapper factory"</span><span class="p">,</span> <span class="n">badge_text</span><span class="o">=</span><span class="s2">"6"</span><span class="p">)</span>
+<span class="n">row2</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">"&lt;reflectorFactory&gt;"</span><span class="p">,</span> <span class="s2">"Class metadata</span><span class="se">\n</span><span class="s2">introspection cache"</span><span class="p">,</span> <span class="n">badge_text</span><span class="o">=</span><span class="s2">"7"</span><span class="p">)</span>
+<span class="n">row2</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">"&lt;plugins&gt;"</span><span class="p">,</span> <span class="s2">"@Intercepts chain on</span><span class="se">\n</span><span class="s2">Executor / Handler"</span><span class="p">,</span> <span class="n">badge_text</span><span class="o">=</span><span class="s2">"8"</span><span class="p">)</span>
+<span class="n">row2</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">"&lt;environments&gt;"</span><span class="p">,</span> <span class="s2">"TransactionFactory &amp;</span><span class="se">\n</span><span class="s2">DataSource per env"</span><span class="p">,</span> <span class="n">badge_text</span><span class="o">=</span><span class="s2">"9"</span><span class="p">)</span>
+<span class="n">row2</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">"&lt;mappers&gt;"</span><span class="p">,</span> <span class="s2">"Mapper XML files &amp;</span><span class="se">\n</span><span class="s2">Java interfaces"</span><span class="p">,</span> <span class="n">badge_text</span><span class="o">=</span><span class="s2">"10"</span><span class="p">)</span>
+<span class="n">row2</span><span class="o">.</span><span class="n">draw</span><span class="p">((</span><span class="mf">4.0</span><span class="p">,</span> <span class="mf">3.5</span><span class="p">),</span> <span class="n">width</span><span class="o">=</span><span class="mf">136.0</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mf">18.0</span><span class="p">,</span> <span class="n">align</span><span class="o">=</span><span class="s2">"bottom_left"</span><span class="p">)</span>
+
+<span class="n">save</span><span class="p">()</span>
+</code></pre>
+</details>
+<blockquote>
+<p>[!IMPORTANT]
+Placing <code>&lt;typeAliases&gt;</code> <em>before</em> <code>&lt;settings&gt;</code>, or <code>&lt;plugins&gt;</code> <em>after</em> <code>&lt;environments&gt;</code>, will cause <code>XMLConfigBuilder</code> to fail immediately at startup with a SAX DTD validation error (<code>The content of element type &quot;configuration&quot; must match &quot;(properties?,settings?,typeAliases?,typeHandlers?,objectFactory?,objectWrapperFactory?,reflectorFactory?,plugins?,environments?,databaseIdProvider?,mappers?)&quot;</code>).</p>
+</blockquote>
+<hr />
+<h2>Production <code>mybatis-config.xml</code> Template</h2>
+<pre><code class="language-xml"><span class="cp">&lt;?xml version="1.0" encoding="UTF-8" ?&gt;</span>
+<span class="cp">&lt;!DOCTYPE configuration</span>
+<span class="cp">  PUBLIC "-//mybatis.org//DTD Config 3.0//EN"</span>
+<span class="cp">  "https://mybatis.org/dtd/mybatis-3-config.dtd"&gt;</span>
+<span class="nt">&lt;configuration&gt;</span>
+
+<span class="w">  </span><span class="cm">&lt;!-- 1. Externalized properties with default value syntax enabled --&gt;</span>
+<span class="w">  </span><span class="nt">&lt;properties</span><span class="w"> </span><span class="na">resource=</span><span class="s">"db.properties"</span><span class="nt">&gt;</span>
+<span class="w">    </span><span class="nt">&lt;property</span><span class="w"> </span><span class="na">name=</span><span class="s">"org.apache.ibatis.parsing.PropertyParser.enable-default-value"</span><span class="w"> </span><span class="na">value=</span><span class="s">"true"</span><span class="nt">/&gt;</span>
+<span class="w">  </span><span class="nt">&lt;/properties&gt;</span>
+
+<span class="w">  </span><span class="cm">&lt;!-- 2. Global runtime settings --&gt;</span>
+<span class="w">  </span><span class="nt">&lt;settings&gt;</span>
+<span class="w">    </span><span class="nt">&lt;setting</span><span class="w"> </span><span class="na">name=</span><span class="s">"mapUnderscoreToCamelCase"</span><span class="w"> </span><span class="na">value=</span><span class="s">"true"</span><span class="nt">/&gt;</span>
+<span class="w">    </span><span class="nt">&lt;setting</span><span class="w"> </span><span class="na">name=</span><span class="s">"localCacheScope"</span><span class="w"> </span><span class="na">value=</span><span class="s">"STATEMENT"</span><span class="nt">/&gt;</span>
+<span class="w">    </span><span class="nt">&lt;setting</span><span class="w"> </span><span class="na">name=</span><span class="s">"cacheEnabled"</span><span class="w"> </span><span class="na">value=</span><span class="s">"true"</span><span class="nt">/&gt;</span>
+<span class="w">    </span><span class="nt">&lt;setting</span><span class="w"> </span><span class="na">name=</span><span class="s">"defaultExecutorType"</span><span class="w"> </span><span class="na">value=</span><span class="s">"SIMPLE"</span><span class="nt">/&gt;</span>
+<span class="w">    </span><span class="nt">&lt;setting</span><span class="w"> </span><span class="na">name=</span><span class="s">"defaultFetchSize"</span><span class="w"> </span><span class="na">value=</span><span class="s">"200"</span><span class="nt">/&gt;</span>
+<span class="w">    </span><span class="nt">&lt;setting</span><span class="w"> </span><span class="na">name=</span><span class="s">"defaultStatementTimeout"</span><span class="w"> </span><span class="na">value=</span><span class="s">"30"</span><span class="nt">/&gt;</span>
+<span class="w">    </span><span class="nt">&lt;setting</span><span class="w"> </span><span class="na">name=</span><span class="s">"jdbcTypeForNull"</span><span class="w"> </span><span class="na">value=</span><span class="s">"NULL"</span><span class="nt">/&gt;</span>
+<span class="w">    </span><span class="nt">&lt;setting</span><span class="w"> </span><span class="na">name=</span><span class="s">"returnInstanceForEmptyRow"</span><span class="w"> </span><span class="na">value=</span><span class="s">"true"</span><span class="nt">/&gt;</span>
+<span class="w">    </span><span class="nt">&lt;setting</span><span class="w"> </span><span class="na">name=</span><span class="s">"argNameBasedConstructorAutoMapping"</span><span class="w"> </span><span class="na">value=</span><span class="s">"true"</span><span class="nt">/&gt;</span>
+<span class="w">  </span><span class="nt">&lt;/settings&gt;</span>
+
+<span class="w">  </span><span class="cm">&lt;!-- 3. Short type aliases for domain models --&gt;</span>
+<span class="w">  </span><span class="nt">&lt;typeAliases&gt;</span>
+<span class="w">    </span><span class="nt">&lt;package</span><span class="w"> </span><span class="na">name=</span><span class="s">"com.example.blog.domain"</span><span class="nt">/&gt;</span>
+<span class="w">  </span><span class="nt">&lt;/typeAliases&gt;</span>
+
+<span class="w">  </span><span class="cm">&lt;!-- 4. Custom Java &lt;-&gt; JDBC TypeHandlers --&gt;</span>
+<span class="w">  </span><span class="nt">&lt;typeHandlers&gt;</span>
+<span class="w">    </span><span class="nt">&lt;typeHandler</span><span class="w"> </span><span class="na">handler=</span><span class="s">"com.example.blog.type.MoneyTypeHandler"</span><span class="nt">/&gt;</span>
+<span class="w">  </span><span class="nt">&lt;/typeHandlers&gt;</span>
+
+<span class="w">  </span><span class="cm">&lt;!-- 8. Interceptor plugins --&gt;</span>
+<span class="w">  </span><span class="nt">&lt;plugins&gt;</span>
+<span class="w">    </span><span class="nt">&lt;plugin</span><span class="w"> </span><span class="na">interceptor=</span><span class="s">"com.example.blog.plugin.QueryMetricsPlugin"</span><span class="nt">&gt;</span>
+<span class="w">      </span><span class="nt">&lt;property</span><span class="w"> </span><span class="na">name=</span><span class="s">"slowThresholdMs"</span><span class="w"> </span><span class="na">value=</span><span class="s">"250"</span><span class="nt">/&gt;</span>
+<span class="w">    </span><span class="nt">&lt;/plugin&gt;</span>
+<span class="w">  </span><span class="nt">&lt;/plugins&gt;</span>
+
+<span class="w">  </span><span class="cm">&lt;!-- 9. Database environments --&gt;</span>
+<span class="w">  </span><span class="nt">&lt;environments</span><span class="w"> </span><span class="na">default=</span><span class="s">"production"</span><span class="nt">&gt;</span>
+<span class="w">    </span><span class="nt">&lt;environment</span><span class="w"> </span><span class="na">id=</span><span class="s">"production"</span><span class="nt">&gt;</span>
+<span class="w">      </span><span class="nt">&lt;transactionManager</span><span class="w"> </span><span class="na">type=</span><span class="s">"JDBC"</span><span class="nt">/&gt;</span>
+<span class="w">      </span><span class="nt">&lt;dataSource</span><span class="w"> </span><span class="na">type=</span><span class="s">"POOLED"</span><span class="nt">&gt;</span>
+<span class="w">        </span><span class="nt">&lt;property</span><span class="w"> </span><span class="na">name=</span><span class="s">"driver"</span><span class="w"> </span><span class="na">value=</span><span class="s">"${db.driver:org.postgresql.Driver}"</span><span class="nt">/&gt;</span>
+<span class="w">        </span><span class="nt">&lt;property</span><span class="w"> </span><span class="na">name=</span><span class="s">"url"</span><span class="w"> </span><span class="na">value=</span><span class="s">"${db.url:jdbc:postgresql://localhost:5432/blog}"</span><span class="nt">/&gt;</span>
+<span class="w">        </span><span class="nt">&lt;property</span><span class="w"> </span><span class="na">name=</span><span class="s">"username"</span><span class="w"> </span><span class="na">value=</span><span class="s">"${db.username:postgres}"</span><span class="nt">/&gt;</span>
+<span class="w">        </span><span class="nt">&lt;property</span><span class="w"> </span><span class="na">name=</span><span class="s">"password"</span><span class="w"> </span><span class="na">value=</span><span class="s">"${db.password:secret}"</span><span class="nt">/&gt;</span>
+<span class="w">        </span><span class="nt">&lt;property</span><span class="w"> </span><span class="na">name=</span><span class="s">"poolMaximumActiveConnections"</span><span class="w"> </span><span class="na">value=</span><span class="s">"20"</span><span class="nt">/&gt;</span>
+<span class="w">        </span><span class="nt">&lt;property</span><span class="w"> </span><span class="na">name=</span><span class="s">"poolMaximumIdleConnections"</span><span class="w"> </span><span class="na">value=</span><span class="s">"5"</span><span class="nt">/&gt;</span>
+<span class="w">        </span><span class="nt">&lt;property</span><span class="w"> </span><span class="na">name=</span><span class="s">"poolPingEnabled"</span><span class="w"> </span><span class="na">value=</span><span class="s">"true"</span><span class="nt">/&gt;</span>
+<span class="w">        </span><span class="nt">&lt;property</span><span class="w"> </span><span class="na">name=</span><span class="s">"poolPingQuery"</span><span class="w"> </span><span class="na">value=</span><span class="s">"SELECT 1"</span><span class="nt">/&gt;</span>
+<span class="w">      </span><span class="nt">&lt;/dataSource&gt;</span>
+<span class="w">    </span><span class="nt">&lt;/environment&gt;</span>
+<span class="w">  </span><span class="nt">&lt;/environments&gt;</span>
+
+<span class="w">  </span><span class="cm">&lt;!-- 10. Mapper registrations --&gt;</span>
+<span class="w">  </span><span class="nt">&lt;mappers&gt;</span>
+<span class="w">    </span><span class="nt">&lt;package</span><span class="w"> </span><span class="na">name=</span><span class="s">"com.example.blog.mapper"</span><span class="nt">/&gt;</span>
+<span class="w">  </span><span class="nt">&lt;/mappers&gt;</span>
+
+<span class="nt">&lt;/configuration&gt;</span>
+</code></pre>
+<hr />
+<h2>High-Impact <code>&lt;settings&gt;</code> Reference</h2>
+<p>Of the 30+ settings on <code>org.apache.ibatis.session.Configuration</code>, the following nine have the largest impact on production correctness and performance:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">Setting</th>
+<th style="text-align:left">Default</th>
+<th style="text-align:left">Recommended</th>
+<th style="text-align:left">Effect</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"><code>mapUnderscoreToCamelCase</code></td>
+<td style="text-align:left"><code>false</code></td>
+<td style="text-align:left"><strong><code>true</code></strong></td>
+<td style="text-align:left">Auto-maps snake_case SQL columns (<code>created_at</code>) to camelCase Java properties (<code>createdAt</code>).</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>argNameBasedConstructorAutoMapping</code></td>
+<td style="text-align:left"><code>false</code></td>
+<td style="text-align:left"><strong><code>true</code></strong></td>
+<td style="text-align:left">Auto-maps constructor parameters by Java <code>-parameters</code> name rather than positional column order (ideal for Java <code>record</code>s).</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>localCacheScope</code></td>
+<td style="text-align:left"><code>SESSION</code></td>
+<td style="text-align:left"><strong><code>STATEMENT</code></strong></td>
+<td style="text-align:left">Prevents stale L1 cache reads in multi-instance services or when Spring transactions span multiple calls.</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>cacheEnabled</code></td>
+<td style="text-align:left"><code>true</code></td>
+<td style="text-align:left"><code>true</code></td>
+<td style="text-align:left">Master switch for L2 <code>&lt;cache&gt;</code> namespaces (wraps <code>Executor</code> in <code>CachingExecutor</code>).</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>defaultExecutorType</code></td>
+<td style="text-align:left"><code>SIMPLE</code></td>
+<td style="text-align:left"><code>SIMPLE</code></td>
+<td style="text-align:left">Selects <code>SimpleExecutor</code> (<code>SIMPLE</code>), <code>ReuseExecutor</code> (<code>REUSE</code>), or <code>BatchExecutor</code> (<code>BATCH</code>).</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>defaultFetchSize</code></td>
+<td style="text-align:left"><code>null</code></td>
+<td style="text-align:left"><code>100</code>–<code>500</code></td>
+<td style="text-align:left">Sets <code>Statement.setFetchSize(n)</code> hint so JDBC drivers stream large result sets in chunks.</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>defaultStatementTimeout</code></td>
+<td style="text-align:left"><code>null</code></td>
+<td style="text-align:left"><code>10</code>–<code>30</code> (s)</td>
+<td style="text-align:left">Sets <code>Statement.setQueryTimeout(seconds)</code> to guard against runaway queries.</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>jdbcTypeForNull</code></td>
+<td style="text-align:left"><code>OTHER</code></td>
+<td style="text-align:left"><strong><code>NULL</code></strong> / <code>VARCHAR</code></td>
+<td style="text-align:left">Oracle and DB2 JDBC drivers reject <code>Types.OTHER</code> for untyped <code>null</code> parameters; <code>NULL</code> is portable.</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>callSettersOnNulls</code></td>
+<td style="text-align:left"><code>false</code></td>
+<td style="text-align:left"><code>true</code> <em>(for <code>Map</code>s)</em></td>
+<td style="text-align:left">Forces <code>Map</code> result rows to include keys whose SQL column value is <code>NULL</code>.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2>Property Precedence &amp; Default Values</h2>
+<p>When <code>&lt;properties&gt;</code> is used, <code>XMLConfigBuilder</code> resolves variables in three stages (highest priority last):</p>
+<ol>
+<li><code>&lt;property name=&quot;...&quot; value=&quot;...&quot;/&gt;</code> child elements inside <code>&lt;properties&gt;</code>.</li>
+<li>External file loaded via <code>resource=&quot;...&quot;</code> (classpath) or <code>url=&quot;...&quot;</code>.</li>
+<li>Programmatic <code>Properties</code> passed to <code>new SqlSessionFactoryBuilder().build(reader, props)</code> <strong>(Highest Priority)</strong>.</li>
+</ol>
+<figure class="drawlib-image" style="text-align: center;">
+  <img src="../images/02_xml_configuration/ug_02_mapper_discovery.png" alt="02_xml_configuration_2" />
+  <figcaption class="drawlib-caption">Four Ways to Register Mappers in <mappers> and Their Trade-offs</figcaption>
+</figure>
+<details class="drawlib-code-details">
+<summary>Source Code</summary>
+<pre><code class="language-python"><span class="kn">from</span><span class="w"> </span><span class="nn">drawlib.canvas</span><span class="w"> </span><span class="kn">import</span> <span class="n">save</span><span class="p">,</span> <span class="n">setup</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">drawlib.diagrams.architecture</span><span class="w"> </span><span class="kn">import</span> <span class="n">ArchitectureDiagram</span><span class="p">,</span> <span class="n">Node</span><span class="p">,</span> <span class="n">NodeGroup</span><span class="p">,</span> <span class="n">PhosphorIcon</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">drawlib.styles</span><span class="w"> </span><span class="kn">import</span> <span class="n">Colors</span><span class="p">,</span> <span class="n">Styles</span>
+
+<span class="n">setup</span><span class="p">(</span><span class="n">width</span><span class="o">=</span><span class="mi">144</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mi">48</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">150</span><span class="p">)</span>
+
+<span class="n">d</span> <span class="o">=</span> <span class="n">ArchitectureDiagram</span><span class="p">(</span>
+    <span class="n">node_style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">Dark</span><span class="p">,</span>
+    <span class="n">node_text_style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">DarkBold</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="n">text_size</span><span class="o">=</span><span class="mf">9.2</span><span class="p">),</span>
+    <span class="n">edge_style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">Dark</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="n">line_width</span><span class="o">=</span><span class="mf">1.5</span><span class="p">),</span>
+    <span class="n">edge_text_style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">DarkBold</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="n">text_size</span><span class="o">=</span><span class="mf">8.8</span><span class="p">),</span>
+    <span class="n">node_card_style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">Neutral</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="n">shape_fill_color</span><span class="o">=</span><span class="n">Colors</span><span class="o">.</span><span class="n">White</span><span class="p">),</span>
+<span class="p">)</span>
+
+<span class="n">grp</span> <span class="o">=</span> <span class="n">d</span><span class="o">.</span><span class="n">add</span><span class="p">(</span>
+    <span class="n">NodeGroup</span><span class="p">(</span>
+        <span class="s2">"&lt;mappers&gt; Registration Strategies"</span><span class="p">,</span>
+        <span class="n">width</span><span class="o">=</span><span class="mi">136</span><span class="p">,</span>
+        <span class="n">height</span><span class="o">=</span><span class="mi">22</span><span class="p">,</span>
+        <span class="n">style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">SecondaryNeutral</span><span class="p">,</span>
+        <span class="n">text_style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">DarkBold</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="n">text_size</span><span class="o">=</span><span class="mf">10.2</span><span class="p">,</span> <span class="n">halign</span><span class="o">=</span><span class="s2">"left"</span><span class="p">,</span> <span class="n">valign</span><span class="o">=</span><span class="s2">"top"</span><span class="p">),</span>
+    <span class="p">),</span>
+    <span class="n">xy</span><span class="o">=</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">22</span><span class="p">),</span>
+<span class="p">)</span>
+<span class="n">n_res</span> <span class="o">=</span> <span class="n">grp</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">Node</span><span class="p">(</span><span class="s1">'&lt;mapper resource="..."/&gt;</span><span class="se">\n</span><span class="s1">Classpath XML path'</span><span class="p">,</span> <span class="n">icon</span><span class="o">=</span><span class="n">PhosphorIcon</span><span class="o">.</span><span class="n">FILE_CODE</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mi">13</span><span class="p">),</span> <span class="n">xy</span><span class="o">=</span><span class="p">(</span><span class="mi">18</span><span class="p">,</span> <span class="mi">9</span><span class="p">))</span>
+<span class="n">n_cls</span> <span class="o">=</span> <span class="n">grp</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">Node</span><span class="p">(</span><span class="s1">'&lt;mapper class="..."/&gt;</span><span class="se">\n</span><span class="s1">Single Java Interface'</span><span class="p">,</span> <span class="n">icon</span><span class="o">=</span><span class="n">PhosphorIcon</span><span class="o">.</span><span class="n">CODE</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mi">13</span><span class="p">),</span> <span class="n">xy</span><span class="o">=</span><span class="p">(</span><span class="mi">52</span><span class="p">,</span> <span class="mi">9</span><span class="p">))</span>
+<span class="n">n_pkg</span> <span class="o">=</span> <span class="n">grp</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">Node</span><span class="p">(</span><span class="s1">'&lt;package name="..."/&gt;</span><span class="se">\n</span><span class="s1">Auto-scan package (Best)'</span><span class="p">,</span> <span class="n">icon</span><span class="o">=</span><span class="n">PhosphorIcon</span><span class="o">.</span><span class="n">FOLDER_OPEN</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">32</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mi">13</span><span class="p">),</span> <span class="n">xy</span><span class="o">=</span><span class="p">(</span><span class="mi">86</span><span class="p">,</span> <span class="mi">9</span><span class="p">))</span>
+<span class="n">n_url</span> <span class="o">=</span> <span class="n">grp</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">Node</span><span class="p">(</span><span class="s1">'&lt;mapper url="file:///..."/&gt;</span><span class="se">\n</span><span class="s1">External URL XML'</span><span class="p">,</span> <span class="n">icon</span><span class="o">=</span><span class="n">PhosphorIcon</span><span class="o">.</span><span class="n">GLOBE</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mi">13</span><span class="p">),</span> <span class="n">xy</span><span class="o">=</span><span class="p">(</span><span class="mi">120</span><span class="p">,</span> <span class="mi">9</span><span class="p">))</span>
+
+<span class="n">n_reg</span> <span class="o">=</span> <span class="n">d</span><span class="o">.</span><span class="n">add</span><span class="p">(</span>
+    <span class="n">Node</span><span class="p">(</span><span class="s2">"Configuration.mapperRegistry + mappedStatements (Parses both Java Interface + Co-located XML)"</span><span class="p">,</span> <span class="n">icon</span><span class="o">=</span><span class="n">PhosphorIcon</span><span class="o">.</span><span class="n">DATABASE</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">116</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mi">12</span><span class="p">),</span>
+    <span class="n">xy</span><span class="o">=</span><span class="p">(</span><span class="mi">72</span><span class="p">,</span> <span class="mi">9</span><span class="p">),</span>
+<span class="p">)</span>
+
+<span class="n">n_res</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">n_reg</span><span class="p">)</span>
+<span class="n">n_cls</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">n_reg</span><span class="p">)</span>
+<span class="n">n_pkg</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">n_reg</span><span class="p">)</span>
+<span class="n">n_url</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">n_reg</span><span class="p">)</span>
+
+<span class="n">d</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="n">xy</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+<span class="n">save</span><span class="p">()</span>
+</code></pre>
+</details>
+<h3>Co-locating Mapper Interfaces and XML Files</h3>
+<p>When you register mappers via <code>&lt;package name=&quot;com.example.blog.mapper&quot;/&gt;</code> or <code>configuration.addMapper(AuthorMapper.class)</code>, <code>MapperAnnotationBuilder</code> <strong>automatically searches the classpath for a companion XML resource at the exact same package path</strong> (<code>com/example/blog/mapper/AuthorMapper.xml</code>). Keep your interface and XML in matching directory trees (<code>src/main/java/com/example/blog/mapper/AuthorMapper.java</code> and <code>src/main/resources/com/example/blog/mapper/AuthorMapper.xml</code>) so a single <code>&lt;package&gt;</code> tag registers both!</p>
+
+            </main>
+        </div>
+    </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Theme toggle
+            const themeBtn = document.getElementById('theme-toggle');
+            if (themeBtn) {
+                themeBtn.addEventListener('click', function() {
+                    const current = document.documentElement.getAttribute('data-theme');
+                    const next = current === 'dark' ? 'light' : 'dark';
+                    document.documentElement.setAttribute('data-theme', next);
+                    localStorage.setItem('drawlib-theme', next);
+                });
+            }
+
+            // Language dropdown outside-click & Escape close
+            const langDropdowns = document.querySelectorAll('.lang-dropdown');
+            if (langDropdowns.length > 0) {
+                document.addEventListener('click', function(e) {
+                    langDropdowns.forEach(function(dd) {
+                        if (dd.hasAttribute('open') && !dd.contains(e.target)) {
+                            dd.removeAttribute('open');
+                        }
+                    });
+                });
+                document.addEventListener('keydown', function(e) {
+                    if (e.key === 'Escape') {
+                        langDropdowns.forEach(function(dd) {
+                            dd.removeAttribute('open');
+                        });
+                    }
+                });
+            }
+
+            // Mobile menu toggle
+            const menuBtn = document.getElementById('menu-toggle');
+            const sidebar = document.querySelector('.sidebar');
+            if (menuBtn && sidebar) {
+                function setMenuOpen(open) {
+                    sidebar.classList.toggle('is-open', open);
+                    menuBtn.setAttribute('aria-expanded', open ? 'true' : 'false');
+                    document.body.classList.toggle('menu-open', open);
+                    if (open) {
+                        const menu = sidebar.querySelector('.sidebar-menu');
+                        if (menu) {
+                            menu.scrollTop = 0;
+                        }
+                    }
+                }
+
+                menuBtn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    const willOpen = !sidebar.classList.contains('is-open');
+                    setMenuOpen(willOpen);
+                });
+
+                // Close menu when clicking outside sidebar
+                document.addEventListener('click', function(e) {
+                    if (sidebar.classList.contains('is-open') && !sidebar.contains(e.target)) {
+                        setMenuOpen(false);
+                    }
+                });
+
+                // Close menu when a navigation link is clicked
+                const navLinks = sidebar.querySelectorAll('.nav-item a');
+                navLinks.forEach(function(link) {
+                    link.addEventListener('click', function() {
+                        setMenuOpen(false);
+                    });
+                });
+
+                // Close on Escape key
+                document.addEventListener('keydown', function(e) {
+                    if (e.key === 'Escape' && sidebar.classList.contains('is-open')) {
+                        setMenuOpen(false);
+                    }
+                });
+
+                // Reset menu state when resized above mobile breakpoint
+                window.addEventListener('resize', function() {
+                    if (window.innerWidth > 768 && sidebar.classList.contains('is-open')) {
+                        setMenuOpen(false);
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>

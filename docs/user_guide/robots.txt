@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://mybatis3.drawlib.com/user_guide/sitemap.xml

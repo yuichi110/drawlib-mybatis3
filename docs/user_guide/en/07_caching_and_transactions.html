@@ -1,0 +1,495 @@
+<!--
+ Copyright (c) 2026 Yuichi Ito (yuichi@yuichi.com)
+
+ This software is licensed under the Apache License, Version 2.0.
+ For more information, please visit: https://github.com/yuichi110/drawlib
+
+ This software is provided "as is", without warranty of any kind,
+ express or implied, including but not limited to the warranties of
+ merchantability, fitness for a particular purpose and noninfringement.
+-->
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>7. L1/L2 Caching, Transactions &amp; Batching — MyBatis 3 User Guide (Unofficial)</title>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-S9N5BZ1VRC"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-S9N5BZ1VRC');
+    </script>
+    <script>
+        (function() {
+            const saved = localStorage.getItem('drawlib-theme');
+            if (saved === 'dark' || (!saved && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                document.documentElement.setAttribute('data-theme', 'dark');
+            } else {
+                document.documentElement.setAttribute('data-theme', 'light');
+            }
+        })();
+    </script>
+    
+    
+    
+    <link rel="alternate" hreflang="en" href="https://mybatis3.drawlib.com/user_guide/en/07_caching_and_transactions.html">
+    
+    <link rel="alternate" hreflang="ja" href="https://mybatis3.drawlib.com/user_guide/ja/07_caching_and_transactions.html">
+    
+    <link rel="alternate" hreflang="x-default" href="https://mybatis3.drawlib.com/user_guide/en/07_caching_and_transactions.html">
+    
+    
+    
+    <meta name="description" content="MyBatis features a two-tier cache architecture (L1 Local Session Cache and L2 Namespace Transactional Cache) alongside three specialized JDBC execution…">
+    <link rel="canonical" href="https://mybatis3.drawlib.com/user_guide/en/07_caching_and_transactions.html">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="MyBatis 3 User Guide">
+    <meta property="og:title" content="7. L1/L2 Caching, Transactions &amp; Batching — MyBatis 3 User Guide">
+    <meta property="og:description" content="MyBatis features a two-tier cache architecture (L1 Local Session Cache and L2 Namespace Transactional Cache) alongside three specialized JDBC execution…">
+    <meta property="og:url" content="https://mybatis3.drawlib.com/user_guide/en/07_caching_and_transactions.html">
+    <meta property="og:image" content="https://mybatis3.drawlib.com/user_guide/_assets/ogp.png">
+    <meta property="og:locale" content="en_US">
+    <meta property="og:locale:alternate" content="ja_JP">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="7. L1/L2 Caching, Transactions &amp; Batching — MyBatis 3 User Guide">
+    <meta name="twitter:description" content="MyBatis features a two-tier cache architecture (L1 Local Session Cache and L2 Namespace Transactional Cache) alongside three specialized JDBC execution…">
+    <meta name="twitter:image" content="https://mybatis3.drawlib.com/user_guide/_assets/ogp.png">
+    
+    
+    <link rel="icon" type="image/png" href="../_assets/favicon.png">
+    
+    
+    <link rel="stylesheet" href="style.css">
+    
+    
+</head>
+<body>
+    
+    
+    
+    <div class="demo-banner" role="region" aria-label="Portal Navigation">
+        <div class="demo-banner-inner">
+            <span class="demo-banner-badge">DRAWLIB SHOWCASE</span>
+            
+            <span class="demo-banner-text">
+                Unofficial <a href="https://mybatis.org/mybatis-3/" target="_blank" rel="noopener noreferrer">MyBatis 3</a> (v3.6.0) Documentation built with <a href="https://www.drawlib.com/" target="_blank" rel="noopener noreferrer">Drawlib</a>
+            </span>
+            <span class="demo-banner-links">
+                <a href="../../index.html">All Portals</a>
+                <span class="demo-banner-sep">·</span>
+                <strong style="color:#ffffff;">User Guide</strong>
+                <span class="demo-banner-sep">·</span>
+                <a href="../../api/index.html">API Reference</a>
+                <span class="demo-banner-sep">·</span>
+                <a href="../../architecture/index.html">Architecture</a>
+                <span class="demo-banner-sep">·</span>
+                <a href="../../pni501/index.html">PNI501 Audit</a>
+                <span class="demo-banner-sep">·</span>
+                <a href="https://mybatis.org/mybatis-3/" target="_blank" rel="noopener noreferrer">Official Docs ↗</a>
+                <span class="demo-banner-sep">·</span>
+                <a href="https://github.com/yuichi110/drawlib-mybatis3" target="_blank" rel="noopener noreferrer">GitHub ↗</a>
+                <span class="demo-banner-sep">·</span>
+                <a href="https://www.drawlib.com/" target="_blank" rel="noopener noreferrer">Drawlib ↗</a>
+            </span>
+            
+        </div>
+    </div>
+    
+    <div class="doc-layout">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <a href="index.html" class="sidebar-brand" aria-label="drawlib">
+                    
+                    drawlib
+                    
+                </a>
+                <div class="sidebar-header-actions">
+                    <button type="button" id="theme-toggle" class="theme-toggle-btn" aria-label="Toggle theme">
+                        <svg class="icon-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+                        <svg class="icon-moon" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+                    </button>
+                    <button type="button" id="menu-toggle" class="menu-toggle-btn" aria-label="Toggle navigation" aria-expanded="false">
+                        <svg class="icon-hamburger" viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+                        <svg class="icon-close" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                    </button>
+                </div>
+            </div>
+            <div class="sidebar-menu">
+                
+                    
+                        
+                        <div class="sidebar-heading">Getting Started</div>
+                        
+                        <ul class="nav-list">
+                            
+                            <li class="nav-item ">
+                                <a href="index.html" >Overview &amp; Quickstart</a>
+                            </li>
+                            
+                            <li class="nav-item ">
+                                <a href="01_getting_started.html" >1. Installation &amp; SqlSession Lifecycle</a>
+                            </li>
+                            
+                            <li class="nav-item ">
+                                <a href="02_xml_configuration.html" >2. XML Configuration (mybatis-config.xml)</a>
+                            </li>
+                            
+                        </ul>
+                    
+                        
+                        <div class="sidebar-heading">SQL Mapping &amp; Dynamic Queries</div>
+                        
+                        <ul class="nav-list">
+                            
+                            <li class="nav-item ">
+                                <a href="03_mapper_xml_and_sql.html" >3. Mapper XML &amp; SQL Statements</a>
+                            </li>
+                            
+                            <li class="nav-item ">
+                                <a href="04_result_maps_and_associations.html" >4. ResultMaps, Records &amp; Associations</a>
+                            </li>
+                            
+                            <li class="nav-item ">
+                                <a href="05_dynamic_sql.html" >5. Dynamic SQL &amp; OGNL Tags</a>
+                            </li>
+                            
+                            <li class="nav-item ">
+                                <a href="06_java_annotations_and_sql_builder.html" >6. Java Annotations &amp; SQL Builder</a>
+                            </li>
+                            
+                        </ul>
+                    
+                        
+                        <div class="sidebar-heading">Runtime, SPIs &amp; Operations</div>
+                        
+                        <ul class="nav-list">
+                            
+                            <li class="nav-item active">
+                                <a href="07_caching_and_transactions.html" >7. L1/L2 Caching, Transactions &amp; Batching</a>
+                            </li>
+                            
+                            <li class="nav-item ">
+                                <a href="08_typehandlers_plugins_and_testing.html" >8. TypeHandlers, Plugins &amp; Testing</a>
+                            </li>
+                            
+                        </ul>
+                    
+                        
+                        <div class="sidebar-heading">Companion Portals</div>
+                        
+                        <ul class="nav-list">
+                            
+                            <li class="nav-item ">
+                                <a href="https://mybatis3.drawlib.com/" target="_blank" rel="noopener noreferrer">All Portals (Showcase Hub)<svg class="nav-external-icon" viewBox="0 0 24 24" aria-hidden="true"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg></a>
+                            </li>
+                            
+                            <li class="nav-item ">
+                                <a href="https://mybatis3.drawlib.com/api/" target="_blank" rel="noopener noreferrer">API &amp; XML Reference Catalog<svg class="nav-external-icon" viewBox="0 0 24 24" aria-hidden="true"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg></a>
+                            </li>
+                            
+                            <li class="nav-item ">
+                                <a href="https://mybatis3.drawlib.com/architecture/" target="_blank" rel="noopener noreferrer">Internal Architecture Guide<svg class="nav-external-icon" viewBox="0 0 24 24" aria-hidden="true"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg></a>
+                            </li>
+                            
+                            <li class="nav-item ">
+                                <a href="https://mybatis3.drawlib.com/pni501/" target="_blank" rel="noopener noreferrer">PNI501 Diagnostic Report<svg class="nav-external-icon" viewBox="0 0 24 24" aria-hidden="true"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg></a>
+                            </li>
+                            
+                        </ul>
+                    
+                
+            </div>
+        </aside>
+        <div class="content-wrapper">
+            <header class="top-bar">
+                <div class="breadcrumbs">
+                    <span class="crumb">Docs</span>
+                    <span class="crumb-separator">&raquo;</span>
+                    <span class="crumb active">7. L1/L2 Caching, Transactions &amp; Batching</span>
+                </div>
+                
+                <div class="lang-switcher">
+                    <details class="lang-dropdown">
+                        <summary class="lang-dropdown-btn" aria-label="Select language">
+                            <svg class="lang-globe-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
+                            <span class="lang-current-label">English</span>
+                            <svg class="lang-caret-icon" viewBox="0 0 24 24" aria-hidden="true"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                        </summary>
+                        <div class="lang-dropdown-menu" role="menu">
+                            
+                            <a href="07_caching_and_transactions.html" class="lang-option active" lang="en" hreflang="en" aria-current="page">
+                                <span>English</span>
+                                
+                                <svg class="lang-check-icon" viewBox="0 0 24 24" aria-hidden="true"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                                
+                            </a>
+                            
+                            <a href="../ja/07_caching_and_transactions.html" class="lang-option" lang="ja" hreflang="ja" >
+                                <span>日本語</span>
+                                
+                            </a>
+                            
+                        </div>
+                    </details>
+                </div>
+                
+            </header>
+            <main class="main-content">
+                <h1>7. L1/L2 Caching, Transactions &amp; Batching</h1>
+<p>MyBatis features a two-tier cache architecture (<strong>L1 Local Session Cache</strong> and <strong>L2 Namespace Transactional Cache</strong>) alongside three specialized JDBC execution engines (<code>SimpleExecutor</code>, <code>ReuseExecutor</code>, and <code>BatchExecutor</code>) and streaming <code>Cursor&lt;T&gt;</code> queries.</p>
+<hr />
+<h2>Two-Tier Cache Architecture (L1 vs L2)</h2>
+<p>When <code>cacheEnabled=&quot;true&quot;</code>, every query passes through <code>CachingExecutor</code> (L2) before reaching <code>BaseExecutor</code> (L1) and JDBC:</p>
+<figure class="drawlib-image" style="text-align: center;">
+  <img src="../images/07_caching_and_transactions/ug_07_cache_tiers.png" alt="07_caching_and_transactions_1" />
+  <figcaption class="drawlib-caption">MyBatis 3 Two-Tier Cache Lookup Order: L2 TransactionalCacheManager -> L1 PerpetualCache -> JDBC</figcaption>
+</figure>
+<details class="drawlib-code-details">
+<summary>Source Code</summary>
+<pre><code class="language-python"><span class="kn">from</span><span class="w"> </span><span class="nn">drawlib.canvas</span><span class="w"> </span><span class="kn">import</span> <span class="n">save</span><span class="p">,</span> <span class="n">setup</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">drawlib.diagrams.architecture</span><span class="w"> </span><span class="kn">import</span> <span class="n">ArchitectureDiagram</span><span class="p">,</span> <span class="n">Node</span><span class="p">,</span> <span class="n">NodeGroup</span><span class="p">,</span> <span class="n">PhosphorIcon</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">drawlib.styles</span><span class="w"> </span><span class="kn">import</span> <span class="n">Colors</span><span class="p">,</span> <span class="n">Styles</span>
+
+<span class="n">setup</span><span class="p">(</span><span class="n">width</span><span class="o">=</span><span class="mi">144</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mi">48</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">150</span><span class="p">)</span>
+
+<span class="n">d</span> <span class="o">=</span> <span class="n">ArchitectureDiagram</span><span class="p">(</span>
+    <span class="n">node_style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">Dark</span><span class="p">,</span>
+    <span class="n">node_text_style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">DarkBold</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="n">text_size</span><span class="o">=</span><span class="mf">9.2</span><span class="p">),</span>
+    <span class="n">edge_style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">Dark</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="n">line_width</span><span class="o">=</span><span class="mf">1.5</span><span class="p">),</span>
+    <span class="n">edge_text_style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">DarkBold</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="n">text_size</span><span class="o">=</span><span class="mf">8.8</span><span class="p">),</span>
+    <span class="n">node_card_style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">Neutral</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="n">shape_fill_color</span><span class="o">=</span><span class="n">Colors</span><span class="o">.</span><span class="n">White</span><span class="p">),</span>
+<span class="p">)</span>
+
+<span class="n">grp</span> <span class="o">=</span> <span class="n">d</span><span class="o">.</span><span class="n">add</span><span class="p">(</span>
+    <span class="n">NodeGroup</span><span class="p">(</span>
+        <span class="s2">"Query Execution &amp; Cache Resolution Path (CacheKey = StatementId + RowBounds + SQL + Params)"</span><span class="p">,</span>
+        <span class="n">width</span><span class="o">=</span><span class="mi">136</span><span class="p">,</span>
+        <span class="n">height</span><span class="o">=</span><span class="mi">38</span><span class="p">,</span>
+        <span class="n">style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">PrimaryNeutral</span><span class="p">,</span>
+        <span class="n">text_style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">DarkBold</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="n">text_size</span><span class="o">=</span><span class="mf">10.0</span><span class="p">,</span> <span class="n">halign</span><span class="o">=</span><span class="s2">"left"</span><span class="p">,</span> <span class="n">valign</span><span class="o">=</span><span class="s2">"top"</span><span class="p">),</span>
+    <span class="p">),</span>
+    <span class="n">xy</span><span class="o">=</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">),</span>
+<span class="p">)</span>
+<span class="n">n_app</span> <span class="o">=</span> <span class="n">grp</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">Node</span><span class="p">(</span><span class="s2">"1. SqlSession</span><span class="se">\n</span><span class="s2">mapper.findById(42)"</span><span class="p">,</span> <span class="n">icon</span><span class="o">=</span><span class="n">PhosphorIcon</span><span class="o">.</span><span class="n">CODE</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">28</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mi">15</span><span class="p">),</span> <span class="n">xy</span><span class="o">=</span><span class="p">(</span><span class="mi">18</span><span class="p">,</span> <span class="mi">16</span><span class="p">))</span>
+<span class="n">n_l2</span> <span class="o">=</span> <span class="n">grp</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">Node</span><span class="p">(</span><span class="s2">"2. L2 Cache (Namespace)</span><span class="se">\n</span><span class="s2">CachingExecutor +</span><span class="se">\n</span><span class="s2">TransactionalCache"</span><span class="p">,</span> <span class="n">icon</span><span class="o">=</span><span class="n">PhosphorIcon</span><span class="o">.</span><span class="n">GLOBE</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">32</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mi">15</span><span class="p">),</span> <span class="n">xy</span><span class="o">=</span><span class="p">(</span><span class="mi">52</span><span class="p">,</span> <span class="mi">16</span><span class="p">))</span>
+<span class="n">n_l1</span> <span class="o">=</span> <span class="n">grp</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">Node</span><span class="p">(</span><span class="s2">"3. L1 Cache (Session)</span><span class="se">\n</span><span class="s2">BaseExecutor.localCache</span><span class="se">\n</span><span class="s2">(PerpetualCache)"</span><span class="p">,</span> <span class="n">icon</span><span class="o">=</span><span class="n">PhosphorIcon</span><span class="o">.</span><span class="n">STACK</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">32</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mi">15</span><span class="p">),</span> <span class="n">xy</span><span class="o">=</span><span class="p">(</span><span class="mi">88</span><span class="p">,</span> <span class="mi">16</span><span class="p">))</span>
+<span class="n">n_db</span> <span class="o">=</span> <span class="n">grp</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">Node</span><span class="p">(</span><span class="s2">"4. JDBC Database</span><span class="se">\n</span><span class="s2">PreparedStatement</span><span class="se">\n</span><span class="s2">&amp; ResultSet"</span><span class="p">,</span> <span class="n">icon</span><span class="o">=</span><span class="n">PhosphorIcon</span><span class="o">.</span><span class="n">DATABASE</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">26</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mi">15</span><span class="p">),</span> <span class="n">xy</span><span class="o">=</span><span class="p">(</span><span class="mi">121</span><span class="p">,</span> <span class="mi">16</span><span class="p">))</span>
+
+<span class="n">n_app</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">n_l2</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">"check L2"</span><span class="p">)</span>
+<span class="n">n_l2</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">n_l1</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">"miss"</span><span class="p">)</span>
+<span class="n">n_l1</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">n_db</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">"miss"</span><span class="p">)</span>
+
+<span class="n">d</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="n">xy</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+<span class="n">save</span><span class="p">()</span>
+</code></pre>
+</details>
+<h3>L1 Local Cache (<code>localCacheScope</code>)</h3>
+<p>The L1 cache (<code>BaseExecutor.localCache</code>) is <strong>always enabled</strong> and cannot be turned off completely, because MyBatis uses it internally to resolve circular references during nested <code>&lt;resultMap&gt;</code> queries. However, you control its lifetime via <code>localCacheScope</code>:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left"><code>localCacheScope</code></th>
+<th style="text-align:left">Behavior</th>
+<th style="text-align:left">Multi-Instance / Microservice Recommendation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"><code>SESSION</code> <em>(Default)</em></td>
+<td style="text-align:left">Caches query results in memory for the entire lifetime of the <code>SqlSession</code> (until <code>commit()</code>, <code>rollback()</code>, an <code>INSERT</code>/<code>UPDATE</code>/<code>DELETE</code>, or <code>close()</code>). Returns the <strong>exact same Java object reference</strong> on repeated calls, so mutating a returned POJO mutates the cached entry!</td>
+<td style="text-align:left"><strong>Avoid in clustered deployments</strong> unless sessions are strictly single-query.</td>
+</tr>
+<tr>
+<td style="text-align:left"><strong><code>STATEMENT</code></strong> <em>(Recommended)</em></td>
+<td style="text-align:left">Uses the L1 cache only while executing a single <code>MappedStatement</code> (to resolve nested subqueries) and clears it immediately when the statement finishes.</td>
+<td style="text-align:left"><strong>Recommended (<code>&lt;setting name=&quot;localCacheScope&quot; value=&quot;STATEMENT&quot;/&gt;</code>)</strong></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2>L2 Namespace Cache &amp; JEP-290 Deserialization Security</h2>
+<p>The L2 cache is <strong>opt-in per Mapper namespace</strong> via <code>&lt;cache/&gt;</code> in XML or <code>@CacheNamespace</code> in Java.</p>
+<pre><code class="language-xml"><span class="nt">&lt;cache</span>
+<span class="w">  </span><span class="na">eviction=</span><span class="s">"LRU"</span>
+<span class="w">  </span><span class="na">flushInterval=</span><span class="s">"60000"</span>
+<span class="w">  </span><span class="na">size=</span><span class="s">"1024"</span>
+<span class="w">  </span><span class="na">readOnly=</span><span class="s">"false"</span>
+<span class="w">  </span><span class="na">blocking=</span><span class="s">"true"</span><span class="nt">/&gt;</span>
+</code></pre>
+<ul>
+<li><strong>Transactional Staging (<code>TransactionalCache</code>)</strong>: Entries written during a <code>SqlSession</code> are staged in a session-local buffer and are <strong>only published to the shared L2 namespace cache when <code>session.commit()</code> succeeds</strong>. This guarantees uncommitted reads never pollute the L2 cache.</li>
+<li><strong>Namespace-Level Invalidation Warning</strong>: Any <code>INSERT</code>, <code>UPDATE</code>, or <code>DELETE</code> in a Mapper namespace clears that namespace's entire L2 cache. Avoid joining tables from <em>other</em> namespaces inside a cached Mapper unless synchronized via <code>&lt;cache-ref namespace=&quot;...&quot;/&gt;</code>.</li>
+<li><strong>JEP-290 <code>jdk.serialFilter</code> Security (<code>SerialFilterChecker</code>)</strong>: When <code>readOnly=&quot;false&quot;</code> (the default), <code>SerializedCache</code> uses <code>ObjectInputStream</code> to clone cached objects. MyBatis 3.6.0's <code>SerialFilterChecker</code> logs a warning if no JVM deserialization filter is configured. Always pass <code>-Djdk.serialFilter=com.example.blog.domain.**;java.util.**;java.lang.**;java.time.**;!*</code> when using L2 <code>SerializedCache</code> or distributed cache adapters.</li>
+</ul>
+<hr />
+<h2>High-Throughput Batch Execution (<code>ExecutorType.BATCH</code>) &amp; Streaming (<code>Cursor&lt;T&gt;</code>)</h2>
+<p>When inserting or updating thousands of rows, or when streaming millions of rows without exhausting JVM heap, switch execution modes at the <code>SqlSession</code> level:</p>
+<figure class="drawlib-image" style="text-align: center;">
+  <img src="../images/07_caching_and_transactions/ug_07_executors_and_cursor.png" alt="07_caching_and_transactions_2" />
+  <figcaption class="drawlib-caption">Choosing Between SimpleExecutor, BatchExecutor (JDBC addBatch), and Cursor<T> Streaming</figcaption>
+</figure>
+<details class="drawlib-code-details">
+<summary>Source Code</summary>
+<pre><code class="language-python"><span class="kn">from</span><span class="w"> </span><span class="nn">drawlib.canvas</span><span class="w"> </span><span class="kn">import</span> <span class="n">save</span><span class="p">,</span> <span class="n">setup</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">drawlib.smartarts</span><span class="w"> </span><span class="kn">import</span> <span class="n">CardList</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">drawlib.styles</span><span class="w"> </span><span class="kn">import</span> <span class="n">Colors</span><span class="p">,</span> <span class="n">Styles</span>
+
+<span class="n">setup</span><span class="p">(</span><span class="n">width</span><span class="o">=</span><span class="mi">144</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mi">38</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">150</span><span class="p">)</span>
+
+<span class="n">cards</span> <span class="o">=</span> <span class="n">CardList</span><span class="p">(</span>
+    <span class="n">style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">Neutral</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="n">shape_fill_color</span><span class="o">=</span><span class="n">Colors</span><span class="o">.</span><span class="n">White</span><span class="p">),</span>
+    <span class="n">text_style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">DarkBold</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="n">text_size</span><span class="o">=</span><span class="mf">10.0</span><span class="p">),</span>
+    <span class="n">description_style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">Dark</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="n">text_size</span><span class="o">=</span><span class="mf">8.6</span><span class="p">),</span>
+    <span class="n">badge_shape</span><span class="o">=</span><span class="s2">"rounded_rect"</span><span class="p">,</span>
+    <span class="n">badge_style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">PrimaryFlat</span><span class="p">,</span>
+    <span class="n">badge_text_style</span><span class="o">=</span><span class="n">Styles</span><span class="o">.</span><span class="n">WhiteBold</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="n">text_size</span><span class="o">=</span><span class="mf">9.0</span><span class="p">),</span>
+    <span class="n">direction</span><span class="o">=</span><span class="s2">"horizontal"</span><span class="p">,</span>
+    <span class="n">spacing</span><span class="o">=</span><span class="mf">3.0</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">cards</span><span class="o">.</span><span class="n">add</span><span class="p">(</span>
+    <span class="s2">"1. ExecutorType.SIMPLE"</span><span class="p">,</span>
+    <span class="s2">"Default OLTP mode: creates PreparedStatement per call</span><span class="se">\n</span><span class="s2">and returns immediate executeUpdate() row counts."</span><span class="p">,</span>
+    <span class="n">badge_text</span><span class="o">=</span><span class="s2">"SIMPLE"</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">cards</span><span class="o">.</span><span class="n">add</span><span class="p">(</span>
+    <span class="s2">"2. ExecutorType.BATCH"</span><span class="p">,</span>
+    <span class="s2">"Bulk DML write mode: reuses PreparedStatement &amp; ps.addBatch().</span><span class="se">\n</span><span class="s2">10x-50x faster for 1,000+ row writes."</span><span class="p">,</span>
+    <span class="n">badge_text</span><span class="o">=</span><span class="s2">"BATCH"</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">cards</span><span class="o">.</span><span class="n">add</span><span class="p">(</span>
+    <span class="s2">"3. Cursor&lt;T&gt; Streaming"</span><span class="p">,</span>
+    <span class="s2">"Constant-memory O(1) reads: streams ResultSet rows lazily.</span><span class="se">\n</span><span class="s2">Pair with @Options(fetchSize = 500) &amp; try-with-resources."</span><span class="p">,</span>
+    <span class="n">badge_text</span><span class="o">=</span><span class="s2">"STREAM"</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">cards</span><span class="o">.</span><span class="n">draw</span><span class="p">((</span><span class="mf">4.0</span><span class="p">,</span> <span class="mf">4.0</span><span class="p">),</span> <span class="n">width</span><span class="o">=</span><span class="mf">136.0</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mf">30.0</span><span class="p">,</span> <span class="n">align</span><span class="o">=</span><span class="s2">"bottom_left"</span><span class="p">)</span>
+<span class="n">save</span><span class="p">()</span>
+</code></pre>
+</details>
+<h3>Bulk Writes with <code>ExecutorType.BATCH</code></h3>
+<pre><code class="language-java"><span class="c1">// Open a dedicated BATCH session for high-throughput bulk writes</span>
+<span class="k">try</span><span class="w"> </span><span class="p">(</span><span class="n">SqlSession</span><span class="w"> </span><span class="n">batchSession</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">sqlSessionFactory</span><span class="p">.</span><span class="na">openSession</span><span class="p">(</span><span class="n">ExecutorType</span><span class="p">.</span><span class="na">BATCH</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="n">AuthorMapper</span><span class="w"> </span><span class="n">mapper</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">batchSession</span><span class="p">.</span><span class="na">getMapper</span><span class="p">(</span><span class="n">AuthorMapper</span><span class="p">.</span><span class="na">class</span><span class="p">);</span>
+
+<span class="w">  </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">10_000</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">mapper</span><span class="p">.</span><span class="na">insert</span><span class="p">(</span><span class="n">authors</span><span class="p">.</span><span class="na">get</span><span class="p">(</span><span class="n">i</span><span class="p">));</span>
+<span class="w">    </span><span class="c1">// Flush every 1,000 statements to bound JDBC driver memory</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">((</span><span class="n">i</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">%</span><span class="w"> </span><span class="mi">1_000</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="n">batchSession</span><span class="p">.</span><span class="na">flushStatements</span><span class="p">();</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="w">  </span><span class="n">batchSession</span><span class="p">.</span><span class="na">commit</span><span class="p">();</span><span class="w"> </span><span class="c1">// Flushes remaining statements and commits transaction</span>
+<span class="p">}</span>
+</code></pre>
+<h3>Streaming Millions of Rows with <code>Cursor&lt;T&gt;</code></h3>
+<p>Returning <code>Cursor&lt;T&gt;</code> instead of <code>List&lt;T&gt;</code> streams rows one by one from the open JDBC <code>ResultSet</code>:</p>
+<pre><code class="language-java"><span class="kd">public</span><span class="w"> </span><span class="kd">interface</span> <span class="nc">PostMapper</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nd">@Select</span><span class="p">(</span><span class="s">"SELECT id, author_id, title, published_at FROM posts ORDER BY id ASC"</span><span class="p">)</span>
+<span class="w">  </span><span class="nd">@Options</span><span class="p">(</span><span class="n">fetchSize</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">500</span><span class="p">)</span>
+<span class="w">  </span><span class="n">Cursor</span><span class="o">&lt;</span><span class="n">Post</span><span class="o">&gt;</span><span class="w"> </span><span class="nf">streamAllPosts</span><span class="p">();</span>
+<span class="p">}</span>
+
+<span class="c1">// Both SqlSession AND Cursor&lt;Post&gt; must be enclosed in try-with-resources!</span>
+<span class="k">try</span><span class="w"> </span><span class="p">(</span><span class="n">SqlSession</span><span class="w"> </span><span class="n">session</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">sqlSessionFactory</span><span class="p">.</span><span class="na">openSession</span><span class="p">();</span>
+<span class="w">     </span><span class="n">Cursor</span><span class="o">&lt;</span><span class="n">Post</span><span class="o">&gt;</span><span class="w"> </span><span class="n">cursor</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">session</span><span class="p">.</span><span class="na">getMapper</span><span class="p">(</span><span class="n">PostMapper</span><span class="p">.</span><span class="na">class</span><span class="p">).</span><span class="na">streamAllPosts</span><span class="p">())</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="n">Post</span><span class="w"> </span><span class="n">post</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">cursor</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">exportRowToCsv</span><span class="p">(</span><span class="n">post</span><span class="p">);</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre>
+
+            </main>
+        </div>
+    </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Theme toggle
+            const themeBtn = document.getElementById('theme-toggle');
+            if (themeBtn) {
+                themeBtn.addEventListener('click', function() {
+                    const current = document.documentElement.getAttribute('data-theme');
+                    const next = current === 'dark' ? 'light' : 'dark';
+                    document.documentElement.setAttribute('data-theme', next);
+                    localStorage.setItem('drawlib-theme', next);
+                });
+            }
+
+            // Language dropdown outside-click & Escape close
+            const langDropdowns = document.querySelectorAll('.lang-dropdown');
+            if (langDropdowns.length > 0) {
+                document.addEventListener('click', function(e) {
+                    langDropdowns.forEach(function(dd) {
+                        if (dd.hasAttribute('open') && !dd.contains(e.target)) {
+                            dd.removeAttribute('open');
+                        }
+                    });
+                });
+                document.addEventListener('keydown', function(e) {
+                    if (e.key === 'Escape') {
+                        langDropdowns.forEach(function(dd) {
+                            dd.removeAttribute('open');
+                        });
+                    }
+                });
+            }
+
+            // Mobile menu toggle
+            const menuBtn = document.getElementById('menu-toggle');
+            const sidebar = document.querySelector('.sidebar');
+            if (menuBtn && sidebar) {
+                function setMenuOpen(open) {
+                    sidebar.classList.toggle('is-open', open);
+                    menuBtn.setAttribute('aria-expanded', open ? 'true' : 'false');
+                    document.body.classList.toggle('menu-open', open);
+                    if (open) {
+                        const menu = sidebar.querySelector('.sidebar-menu');
+                        if (menu) {
+                            menu.scrollTop = 0;
+                        }
+                    }
+                }
+
+                menuBtn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    const willOpen = !sidebar.classList.contains('is-open');
+                    setMenuOpen(willOpen);
+                });
+
+                // Close menu when clicking outside sidebar
+                document.addEventListener('click', function(e) {
+                    if (sidebar.classList.contains('is-open') && !sidebar.contains(e.target)) {
+                        setMenuOpen(false);
+                    }
+                });
+
+                // Close menu when a navigation link is clicked
+                const navLinks = sidebar.querySelectorAll('.nav-item a');
+                navLinks.forEach(function(link) {
+                    link.addEventListener('click', function() {
+                        setMenuOpen(false);
+                    });
+                });
+
+                // Close on Escape key
+                document.addEventListener('keydown', function(e) {
+                    if (e.key === 'Escape' && sidebar.classList.contains('is-open')) {
+                        setMenuOpen(false);
+                    }
+                });
+
+                // Reset menu state when resized above mobile breakpoint
+                window.addEventListener('resize', function() {
+                    if (window.innerWidth > 768 && sidebar.classList.contains('is-open')) {
+                        setMenuOpen(false);
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>

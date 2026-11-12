@@ -11,6 +11,7 @@
 - [6. ResultSet マッピングと Reflection](06_resultset_and_reflection.md)
 
 ## 関連ポータル
-- [ユーザーガイド ↗](https://mybatis3.drawlib.com/)
+- [全ポータル一覧 (Showcase Hub) ↗](https://mybatis3.drawlib.com/)
+- [ユーザーガイド ↗](https://mybatis3.drawlib.com/user_guide/)
 - [API & XML カタログ ↗](https://mybatis3.drawlib.com/api/)
-- [PNI501 診断レポート ↗](https://mybatis3.drawlib.com/reports/pni501/)
+- [PNI501 診断レポート ↗](https://mybatis3.drawlib.com/pni501/)

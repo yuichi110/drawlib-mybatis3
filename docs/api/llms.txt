@@ -1,4 +1,4 @@
-# MyBatis 3 API & XML Reference Catalog (Unofficial · PNI501 + Drawlib Demo)
+# MyBatis 3 API & XML Reference
 
 > Unofficial bilingual (English/Japanese) API & XML reference catalog for MyBatis 3 v3.6.0 — Core Session API, Mapper Annotations, XML Configuration & Mapper DTD/XSD Elements, SQL Builder, TypeHandlers, Cache & Transaction SPIs, Plugin…
 

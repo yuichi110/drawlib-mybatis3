@@ -1,0 +1,23 @@
+[project]
+name = "user_guide"
+type = "site"
+title = "MyBatis 3 User Guide"
+description = "Comprehensive bilingual user guide for Java MyBatis 3 (v3.6.0) — XML & Annotation mappers, dynamic SQL, result mapping, caching, transactions, TypeHandlers, and plugins, visually explained with Drawlib."
+style = "google"
+output_dir = "../docs/user_guide"
+
+[i18n]
+default_lang = "en"
+langs = ["en", "ja"]
+
+[i18n.labels]
+en = "English"
+ja = "日本語"
+
+[seo]
+site_url = "https://mybatis3.drawlib.com/user_guide"
+og_image = "_assets/ogp.png"
+twitter_card = "summary_large_image"
+sitemap = true
+robots = true
+llms_txt = true

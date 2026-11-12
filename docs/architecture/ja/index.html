@@ -9,7 +9,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MyBatis 3 内部アーキテクチャ概要 — MyBatis 3 Architecture (Unofficial · PNI501 + Drawlib Demo)</title>
+    <title>MyBatis 3 内部アーキテクチャ概要 — MyBatis 3 Internal Architecture (Unofficial)</title>
     <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-S9N5BZ1VRC"></script>
     <script>
@@ -65,27 +65,34 @@
     
 </head>
 <body>
-    <div class="demo-banner" role="region" aria-label="Unofficial Showcase Notice">
+    
+    
+    
+    <div class="demo-banner" role="region" aria-label="Portal Navigation">
         <div class="demo-banner-inner">
-            <span class="demo-banner-badge">UNOFFICIAL DEMO</span>
+            <span class="demo-banner-badge">DRAWLIB SHOWCASE</span>
+            
             <span class="demo-banner-text">
-                
-                <a href="https://pypi.org/project/pni501/" target="_blank" rel="noopener noreferrer">PNI501</a> と <a href="https://www.drawlib.com/" target="_blank" rel="noopener noreferrer">Drawlib</a> で構築した <a href="https://mybatis.org/mybatis-3/" target="_blank" rel="noopener noreferrer">MyBatis 3</a> (v3.6.0, Apache-2.0) の非公式内部アーキテクチャ解説です。
-                
+                <a href="https://www.drawlib.com/" target="_blank" rel="noopener noreferrer">Drawlib</a> で構築された <a href="https://mybatis.org/mybatis-3/" target="_blank" rel="noopener noreferrer">MyBatis 3</a>（v3.6.0）非公式ドキュメント
             </span>
             <span class="demo-banner-links">
-                <a href="https://mybatis3.drawlib.com/ja/">ユーザーガイド</a>
+                <a href="../../index.html">All Portals</a>
                 <span class="demo-banner-sep">·</span>
-                <a href="https://mybatis3.drawlib.com/api/ja/">API リファレンス</a>
+                <a href="../../user_guide/ja/index.html">User Guide</a>
                 <span class="demo-banner-sep">·</span>
-                <strong style="color:#ffffff;">アーキテクチャ</strong>
+                <a href="../../api/ja/index.html">API Reference</a>
                 <span class="demo-banner-sep">·</span>
-                <a href="https://mybatis3.drawlib.com/reports/pni501/">PNI501 Audit</a>
+                <strong style="color:#ffffff;">Architecture</strong>
                 <span class="demo-banner-sep">·</span>
-                <a href="https://mybatis.org/mybatis-3/" target="_blank" rel="noopener noreferrer">公式 Docs ↗</a>
+                <a href="../../pni501/index.html">PNI501 Audit</a>
+                <span class="demo-banner-sep">·</span>
+                <a href="https://mybatis.org/mybatis-3/" target="_blank" rel="noopener noreferrer">Official Docs ↗</a>
                 <span class="demo-banner-sep">·</span>
                 <a href="https://github.com/yuichi110/drawlib-mybatis3" target="_blank" rel="noopener noreferrer">GitHub ↗</a>
+                <span class="demo-banner-sep">·</span>
+                <a href="https://www.drawlib.com/" target="_blank" rel="noopener noreferrer">Drawlib ↗</a>
             </span>
+            
         </div>
     </div>
     
@@ -157,7 +164,11 @@
                         <ul class="nav-list">
                             
                             <li class="nav-item ">
-                                <a href="https://mybatis3.drawlib.com/" target="_blank" rel="noopener noreferrer">ユーザーガイド ↗<svg class="nav-external-icon" viewBox="0 0 24 24" aria-hidden="true"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg></a>
+                                <a href="https://mybatis3.drawlib.com/" target="_blank" rel="noopener noreferrer">全ポータル一覧 (Showcase Hub) ↗<svg class="nav-external-icon" viewBox="0 0 24 24" aria-hidden="true"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg></a>
+                            </li>
+                            
+                            <li class="nav-item ">
+                                <a href="https://mybatis3.drawlib.com/user_guide/" target="_blank" rel="noopener noreferrer">ユーザーガイド ↗<svg class="nav-external-icon" viewBox="0 0 24 24" aria-hidden="true"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg></a>
                             </li>
                             
                             <li class="nav-item ">
@@ -165,7 +176,7 @@
                             </li>
                             
                             <li class="nav-item ">
-                                <a href="https://mybatis3.drawlib.com/reports/pni501/" target="_blank" rel="noopener noreferrer">PNI501 診断レポート ↗<svg class="nav-external-icon" viewBox="0 0 24 24" aria-hidden="true"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg></a>
+                                <a href="https://mybatis3.drawlib.com/pni501/" target="_blank" rel="noopener noreferrer">PNI501 診断レポート ↗<svg class="nav-external-icon" viewBox="0 0 24 24" aria-hidden="true"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg></a>
                             </li>
                             
                         </ul>

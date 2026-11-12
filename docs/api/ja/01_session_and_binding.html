@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Session &amp; Binding API — MyBatis 3 API &amp; XML Reference Catalog (Unofficial · PNI501 + Drawlib Demo)</title>
+    <title>Session &amp; Binding API — MyBatis 3 API &amp; XML Reference (Unofficial)</title>
     <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-S9N5BZ1VRC"></script>
     <script>
@@ -40,15 +40,15 @@
     <meta name="description" content="org.apache.ibatis.session・org.apache.ibatis.binding・org.apache.ibatis.cursor パッケージが提供する、セッション管理・設定レジストリ・ストリーミング Cursor・動的マッパーバインディングのコア API リファレンスです。">
     <link rel="canonical" href="https://mybatis3.drawlib.com/api/ja/01_session_and_binding.html">
     <meta property="og:type" content="website">
-    <meta property="og:site_name" content="MyBatis 3 API &amp; XML Reference Catalog (Unofficial · PNI501 + Drawlib Demo)">
-    <meta property="og:title" content="Session &amp; Binding API — MyBatis 3 API &amp; XML Reference Catalog (Unofficial · PNI501 + Drawlib Demo)">
+    <meta property="og:site_name" content="MyBatis 3 API &amp; XML Reference">
+    <meta property="og:title" content="Session &amp; Binding API — MyBatis 3 API &amp; XML Reference">
     <meta property="og:description" content="org.apache.ibatis.session・org.apache.ibatis.binding・org.apache.ibatis.cursor パッケージが提供する、セッション管理・設定レジストリ・ストリーミング Cursor・動的マッパーバインディングのコア API リファレンスです。">
     <meta property="og:url" content="https://mybatis3.drawlib.com/api/ja/01_session_and_binding.html">
     <meta property="og:image" content="https://mybatis3.drawlib.com/api/_assets/ogp.png">
     <meta property="og:locale" content="ja_JP">
     <meta property="og:locale:alternate" content="en_US">
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="Session &amp; Binding API — MyBatis 3 API &amp; XML Reference Catalog (Unofficial · PNI501 + Drawlib Demo)">
+    <meta name="twitter:title" content="Session &amp; Binding API — MyBatis 3 API &amp; XML Reference">
     <meta name="twitter:description" content="org.apache.ibatis.session・org.apache.ibatis.binding・org.apache.ibatis.cursor パッケージが提供する、セッション管理・設定レジストリ・ストリーミング Cursor・動的マッパーバインディングのコア API リファレンスです。">
     <meta name="twitter:image" content="https://mybatis3.drawlib.com/api/_assets/ogp.png">
     
@@ -64,27 +64,34 @@
     
 </head>
 <body>
-    <div class="demo-banner" role="region" aria-label="Unofficial Showcase Notice">
+    
+    
+    
+    <div class="demo-banner" role="region" aria-label="Portal Navigation">
         <div class="demo-banner-inner">
-            <span class="demo-banner-badge">UNOFFICIAL DEMO</span>
+            <span class="demo-banner-badge">DRAWLIB SHOWCASE</span>
+            
             <span class="demo-banner-text">
-                
-                <a href="https://pypi.org/project/pni501/" target="_blank" rel="noopener noreferrer">PNI501</a> と <a href="https://www.drawlib.com/" target="_blank" rel="noopener noreferrer">Drawlib</a> で構築した <a href="https://mybatis.org/mybatis-3/" target="_blank" rel="noopener noreferrer">MyBatis 3</a> (v3.6.0, Apache-2.0) の非公式 API &amp; XML カタログです。
-                
+                <a href="https://www.drawlib.com/" target="_blank" rel="noopener noreferrer">Drawlib</a> で構築された <a href="https://mybatis.org/mybatis-3/" target="_blank" rel="noopener noreferrer">MyBatis 3</a>（v3.6.0）非公式ドキュメント
             </span>
             <span class="demo-banner-links">
-                <a href="https://mybatis3.drawlib.com/ja/">ユーザーガイド</a>
+                <a href="../../index.html">All Portals</a>
                 <span class="demo-banner-sep">·</span>
-                <strong style="color:#ffffff;">API リファレンス</strong>
+                <a href="../../user_guide/ja/index.html">User Guide</a>
                 <span class="demo-banner-sep">·</span>
-                <a href="https://mybatis3.drawlib.com/architecture/ja/">アーキテクチャ</a>
+                <strong style="color:#ffffff;">API Reference</strong>
                 <span class="demo-banner-sep">·</span>
-                <a href="https://mybatis3.drawlib.com/reports/pni501/">PNI501 Audit</a>
+                <a href="../../architecture/ja/index.html">Architecture</a>
                 <span class="demo-banner-sep">·</span>
-                <a href="https://mybatis.org/mybatis-3/" target="_blank" rel="noopener noreferrer">公式 Docs ↗</a>
+                <a href="../../pni501/index.html">PNI501 Audit</a>
+                <span class="demo-banner-sep">·</span>
+                <a href="https://mybatis.org/mybatis-3/" target="_blank" rel="noopener noreferrer">Official Docs ↗</a>
                 <span class="demo-banner-sep">·</span>
                 <a href="https://github.com/yuichi110/drawlib-mybatis3" target="_blank" rel="noopener noreferrer">GitHub ↗</a>
+                <span class="demo-banner-sep">·</span>
+                <a href="https://www.drawlib.com/" target="_blank" rel="noopener noreferrer">Drawlib ↗</a>
             </span>
+            
         </div>
     </div>
     
@@ -93,7 +100,7 @@
             <div class="sidebar-header has-subbar">
                 <a href="index.html" class="site-title">
                     
-                    MyBatis 3 API &amp; XML Reference Catalog (Unofficial · PNI501 + Drawlib Demo)
+                    MyBatis 3 API &amp; XML Reference
                     
                 </a>
                 <div class="sidebar-header-actions">
@@ -113,12 +120,12 @@
                 
                 <a href="index.html" class="sidebar-version-badge">
                     <span class="sidebar-version-dot"></span>
-                    <span>MyBatis 3 · v3.6.0</span>
+                    <span>API Reference · v3.6.0</span>
                 </a>
                 
                 
                 
-                <a href="https://github.com/yuichi110/drawlib-mybatis3" target="_blank" rel="noopener noreferrer" class="sidebar-github-link" aria-label="Repository" title="View Source Repository">
+                <a href="https://github.com/mybatis/mybatis-3" target="_blank" rel="noopener noreferrer" class="sidebar-github-link" aria-label="Repository" title="View Source Repository">
                     <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg>
                 </a>
                 
@@ -706,31 +713,6 @@
                 </div>
                 
                 <div class="top-bar-right">
-                    
-                    <div class="top-bar-links">
-                        
-                        <a href="https://mybatis3.drawlib.com/" target="_blank" rel="noopener noreferrer" class="top-bar-ext-link">
-                            <span>User Guide</span>
-                            
-                            <svg viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
-                            
-                        </a>
-                        
-                        <a href="https://mybatis3.drawlib.com/architecture/" target="_blank" rel="noopener noreferrer" class="top-bar-ext-link">
-                            <span>Architecture</span>
-                            
-                            <svg viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
-                            
-                        </a>
-                        
-                        <a href="https://mybatis3.drawlib.com/reports/pni501/" target="_blank" rel="noopener noreferrer" class="top-bar-ext-link">
-                            <span>PNI501 Audit</span>
-                            
-                            <svg viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
-                            
-                        </a>
-                        
-                    </div>
                     
                     
                     <div class="lang-switcher" aria-label="Language switcher">

@@ -2,116 +2,305 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
     <loc>https://mybatis3.drawlib.com/</loc>
-    <xhtml:link rel="alternate" hreflang="en" href="https://mybatis3.drawlib.com/en/" />
-    <xhtml:link rel="alternate" hreflang="ja" href="https://mybatis3.drawlib.com/ja/" />
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://mybatis3.drawlib.com/" />
   </url>
   <url>
-    <loc>https://mybatis3.drawlib.com/en/</loc>
-    <xhtml:link rel="alternate" hreflang="en" href="https://mybatis3.drawlib.com/en/" />
-    <xhtml:link rel="alternate" hreflang="ja" href="https://mybatis3.drawlib.com/ja/" />
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://mybatis3.drawlib.com/" />
+    <loc>https://mybatis3.drawlib.com/user_guide/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://mybatis3.drawlib.com/user_guide/en/" />
+    <xhtml:link rel="alternate" hreflang="ja" href="https://mybatis3.drawlib.com/user_guide/ja/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://mybatis3.drawlib.com/user_guide/" />
   </url>
   <url>
-    <loc>https://mybatis3.drawlib.com/en/01_getting_started.html</loc>
-    <xhtml:link rel="alternate" hreflang="en" href="https://mybatis3.drawlib.com/en/01_getting_started.html" />
-    <xhtml:link rel="alternate" hreflang="ja" href="https://mybatis3.drawlib.com/ja/01_getting_started.html" />
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://mybatis3.drawlib.com/en/01_getting_started.html" />
+    <loc>https://mybatis3.drawlib.com/user_guide/en/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://mybatis3.drawlib.com/user_guide/en/" />
+    <xhtml:link rel="alternate" hreflang="ja" href="https://mybatis3.drawlib.com/user_guide/ja/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://mybatis3.drawlib.com/user_guide/" />
   </url>
   <url>
-    <loc>https://mybatis3.drawlib.com/en/02_xml_configuration.html</loc>
-    <xhtml:link rel="alternate" hreflang="en" href="https://mybatis3.drawlib.com/en/02_xml_configuration.html" />
-    <xhtml:link rel="alternate" hreflang="ja" href="https://mybatis3.drawlib.com/ja/02_xml_configuration.html" />
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://mybatis3.drawlib.com/en/02_xml_configuration.html" />
+    <loc>https://mybatis3.drawlib.com/user_guide/en/01_getting_started.html</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://mybatis3.drawlib.com/user_guide/en/01_getting_started.html" />
+    <xhtml:link rel="alternate" hreflang="ja" href="https://mybatis3.drawlib.com/user_guide/ja/01_getting_started.html" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://mybatis3.drawlib.com/user_guide/en/01_getting_started.html" />
   </url>
   <url>
-    <loc>https://mybatis3.drawlib.com/en/03_mapper_xml_and_sql.html</loc>
-    <xhtml:link rel="alternate" hreflang="en" href="https://mybatis3.drawlib.com/en/03_mapper_xml_and_sql.html" />
-    <xhtml:link rel="alternate" hreflang="ja" href="https://mybatis3.drawlib.com/ja/03_mapper_xml_and_sql.html" />
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://mybatis3.drawlib.com/en/03_mapper_xml_and_sql.html" />
+    <loc>https://mybatis3.drawlib.com/user_guide/en/02_xml_configuration.html</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://mybatis3.drawlib.com/user_guide/en/02_xml_configuration.html" />
+    <xhtml:link rel="alternate" hreflang="ja" href="https://mybatis3.drawlib.com/user_guide/ja/02_xml_configuration.html" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://mybatis3.drawlib.com/user_guide/en/02_xml_configuration.html" />
   </url>
   <url>
-    <loc>https://mybatis3.drawlib.com/en/04_result_maps_and_associations.html</loc>
-    <xhtml:link rel="alternate" hreflang="en" href="https://mybatis3.drawlib.com/en/04_result_maps_and_associations.html" />
-    <xhtml:link rel="alternate" hreflang="ja" href="https://mybatis3.drawlib.com/ja/04_result_maps_and_associations.html" />
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://mybatis3.drawlib.com/en/04_result_maps_and_associations.html" />
+    <loc>https://mybatis3.drawlib.com/user_guide/en/03_mapper_xml_and_sql.html</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://mybatis3.drawlib.com/user_guide/en/03_mapper_xml_and_sql.html" />
+    <xhtml:link rel="alternate" hreflang="ja" href="https://mybatis3.drawlib.com/user_guide/ja/03_mapper_xml_and_sql.html" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://mybatis3.drawlib.com/user_guide/en/03_mapper_xml_and_sql.html" />
   </url>
   <url>
-    <loc>https://mybatis3.drawlib.com/en/05_dynamic_sql.html</loc>
-    <xhtml:link rel="alternate" hreflang="en" href="https://mybatis3.drawlib.com/en/05_dynamic_sql.html" />
-    <xhtml:link rel="alternate" hreflang="ja" href="https://mybatis3.drawlib.com/ja/05_dynamic_sql.html" />
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://mybatis3.drawlib.com/en/05_dynamic_sql.html" />
+    <loc>https://mybatis3.drawlib.com/user_guide/en/04_result_maps_and_associations.html</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://mybatis3.drawlib.com/user_guide/en/04_result_maps_and_associations.html" />
+    <xhtml:link rel="alternate" hreflang="ja" href="https://mybatis3.drawlib.com/user_guide/ja/04_result_maps_and_associations.html" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://mybatis3.drawlib.com/user_guide/en/04_result_maps_and_associations.html" />
   </url>
   <url>
-    <loc>https://mybatis3.drawlib.com/en/06_java_annotations_and_sql_builder.html</loc>
-    <xhtml:link rel="alternate" hreflang="en" href="https://mybatis3.drawlib.com/en/06_java_annotations_and_sql_builder.html" />
-    <xhtml:link rel="alternate" hreflang="ja" href="https://mybatis3.drawlib.com/ja/06_java_annotations_and_sql_builder.html" />
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://mybatis3.drawlib.com/en/06_java_annotations_and_sql_builder.html" />
+    <loc>https://mybatis3.drawlib.com/user_guide/en/05_dynamic_sql.html</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://mybatis3.drawlib.com/user_guide/en/05_dynamic_sql.html" />
+    <xhtml:link rel="alternate" hreflang="ja" href="https://mybatis3.drawlib.com/user_guide/ja/05_dynamic_sql.html" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://mybatis3.drawlib.com/user_guide/en/05_dynamic_sql.html" />
   </url>
   <url>
-    <loc>https://mybatis3.drawlib.com/en/07_caching_and_transactions.html</loc>
-    <xhtml:link rel="alternate" hreflang="en" href="https://mybatis3.drawlib.com/en/07_caching_and_transactions.html" />
-    <xhtml:link rel="alternate" hreflang="ja" href="https://mybatis3.drawlib.com/ja/07_caching_and_transactions.html" />
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://mybatis3.drawlib.com/en/07_caching_and_transactions.html" />
+    <loc>https://mybatis3.drawlib.com/user_guide/en/06_java_annotations_and_sql_builder.html</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://mybatis3.drawlib.com/user_guide/en/06_java_annotations_and_sql_builder.html" />
+    <xhtml:link rel="alternate" hreflang="ja" href="https://mybatis3.drawlib.com/user_guide/ja/06_java_annotations_and_sql_builder.html" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://mybatis3.drawlib.com/user_guide/en/06_java_annotations_and_sql_builder.html" />
   </url>
   <url>
-    <loc>https://mybatis3.drawlib.com/en/08_typehandlers_plugins_and_testing.html</loc>
-    <xhtml:link rel="alternate" hreflang="en" href="https://mybatis3.drawlib.com/en/08_typehandlers_plugins_and_testing.html" />
-    <xhtml:link rel="alternate" hreflang="ja" href="https://mybatis3.drawlib.com/ja/08_typehandlers_plugins_and_testing.html" />
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://mybatis3.drawlib.com/en/08_typehandlers_plugins_and_testing.html" />
+    <loc>https://mybatis3.drawlib.com/user_guide/en/07_caching_and_transactions.html</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://mybatis3.drawlib.com/user_guide/en/07_caching_and_transactions.html" />
+    <xhtml:link rel="alternate" hreflang="ja" href="https://mybatis3.drawlib.com/user_guide/ja/07_caching_and_transactions.html" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://mybatis3.drawlib.com/user_guide/en/07_caching_and_transactions.html" />
   </url>
   <url>
-    <loc>https://mybatis3.drawlib.com/ja/</loc>
-    <xhtml:link rel="alternate" hreflang="en" href="https://mybatis3.drawlib.com/en/" />
-    <xhtml:link rel="alternate" hreflang="ja" href="https://mybatis3.drawlib.com/ja/" />
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://mybatis3.drawlib.com/" />
+    <loc>https://mybatis3.drawlib.com/user_guide/en/08_typehandlers_plugins_and_testing.html</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://mybatis3.drawlib.com/user_guide/en/08_typehandlers_plugins_and_testing.html" />
+    <xhtml:link rel="alternate" hreflang="ja" href="https://mybatis3.drawlib.com/user_guide/ja/08_typehandlers_plugins_and_testing.html" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://mybatis3.drawlib.com/user_guide/en/08_typehandlers_plugins_and_testing.html" />
   </url>
   <url>
-    <loc>https://mybatis3.drawlib.com/ja/01_getting_started.html</loc>
-    <xhtml:link rel="alternate" hreflang="en" href="https://mybatis3.drawlib.com/en/01_getting_started.html" />
-    <xhtml:link rel="alternate" hreflang="ja" href="https://mybatis3.drawlib.com/ja/01_getting_started.html" />
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://mybatis3.drawlib.com/en/01_getting_started.html" />
+    <loc>https://mybatis3.drawlib.com/user_guide/ja/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://mybatis3.drawlib.com/user_guide/en/" />
+    <xhtml:link rel="alternate" hreflang="ja" href="https://mybatis3.drawlib.com/user_guide/ja/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://mybatis3.drawlib.com/user_guide/" />
   </url>
   <url>
-    <loc>https://mybatis3.drawlib.com/ja/02_xml_configuration.html</loc>
-    <xhtml:link rel="alternate" hreflang="en" href="https://mybatis3.drawlib.com/en/02_xml_configuration.html" />
-    <xhtml:link rel="alternate" hreflang="ja" href="https://mybatis3.drawlib.com/ja/02_xml_configuration.html" />
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://mybatis3.drawlib.com/en/02_xml_configuration.html" />
+    <loc>https://mybatis3.drawlib.com/user_guide/ja/01_getting_started.html</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://mybatis3.drawlib.com/user_guide/en/01_getting_started.html" />
+    <xhtml:link rel="alternate" hreflang="ja" href="https://mybatis3.drawlib.com/user_guide/ja/01_getting_started.html" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://mybatis3.drawlib.com/user_guide/en/01_getting_started.html" />
   </url>
   <url>
-    <loc>https://mybatis3.drawlib.com/ja/03_mapper_xml_and_sql.html</loc>
-    <xhtml:link rel="alternate" hreflang="en" href="https://mybatis3.drawlib.com/en/03_mapper_xml_and_sql.html" />
-    <xhtml:link rel="alternate" hreflang="ja" href="https://mybatis3.drawlib.com/ja/03_mapper_xml_and_sql.html" />
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://mybatis3.drawlib.com/en/03_mapper_xml_and_sql.html" />
+    <loc>https://mybatis3.drawlib.com/user_guide/ja/02_xml_configuration.html</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://mybatis3.drawlib.com/user_guide/en/02_xml_configuration.html" />
+    <xhtml:link rel="alternate" hreflang="ja" href="https://mybatis3.drawlib.com/user_guide/ja/02_xml_configuration.html" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://mybatis3.drawlib.com/user_guide/en/02_xml_configuration.html" />
   </url>
   <url>
-    <loc>https://mybatis3.drawlib.com/ja/04_result_maps_and_associations.html</loc>
-    <xhtml:link rel="alternate" hreflang="en" href="https://mybatis3.drawlib.com/en/04_result_maps_and_associations.html" />
-    <xhtml:link rel="alternate" hreflang="ja" href="https://mybatis3.drawlib.com/ja/04_result_maps_and_associations.html" />
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://mybatis3.drawlib.com/en/04_result_maps_and_associations.html" />
+    <loc>https://mybatis3.drawlib.com/user_guide/ja/03_mapper_xml_and_sql.html</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://mybatis3.drawlib.com/user_guide/en/03_mapper_xml_and_sql.html" />
+    <xhtml:link rel="alternate" hreflang="ja" href="https://mybatis3.drawlib.com/user_guide/ja/03_mapper_xml_and_sql.html" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://mybatis3.drawlib.com/user_guide/en/03_mapper_xml_and_sql.html" />
   </url>
   <url>
-    <loc>https://mybatis3.drawlib.com/ja/05_dynamic_sql.html</loc>
-    <xhtml:link rel="alternate" hreflang="en" href="https://mybatis3.drawlib.com/en/05_dynamic_sql.html" />
-    <xhtml:link rel="alternate" hreflang="ja" href="https://mybatis3.drawlib.com/ja/05_dynamic_sql.html" />
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://mybatis3.drawlib.com/en/05_dynamic_sql.html" />
+    <loc>https://mybatis3.drawlib.com/user_guide/ja/04_result_maps_and_associations.html</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://mybatis3.drawlib.com/user_guide/en/04_result_maps_and_associations.html" />
+    <xhtml:link rel="alternate" hreflang="ja" href="https://mybatis3.drawlib.com/user_guide/ja/04_result_maps_and_associations.html" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://mybatis3.drawlib.com/user_guide/en/04_result_maps_and_associations.html" />
   </url>
   <url>
-    <loc>https://mybatis3.drawlib.com/ja/06_java_annotations_and_sql_builder.html</loc>
-    <xhtml:link rel="alternate" hreflang="en" href="https://mybatis3.drawlib.com/en/06_java_annotations_and_sql_builder.html" />
-    <xhtml:link rel="alternate" hreflang="ja" href="https://mybatis3.drawlib.com/ja/06_java_annotations_and_sql_builder.html" />
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://mybatis3.drawlib.com/en/06_java_annotations_and_sql_builder.html" />
+    <loc>https://mybatis3.drawlib.com/user_guide/ja/05_dynamic_sql.html</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://mybatis3.drawlib.com/user_guide/en/05_dynamic_sql.html" />
+    <xhtml:link rel="alternate" hreflang="ja" href="https://mybatis3.drawlib.com/user_guide/ja/05_dynamic_sql.html" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://mybatis3.drawlib.com/user_guide/en/05_dynamic_sql.html" />
   </url>
   <url>
-    <loc>https://mybatis3.drawlib.com/ja/07_caching_and_transactions.html</loc>
-    <xhtml:link rel="alternate" hreflang="en" href="https://mybatis3.drawlib.com/en/07_caching_and_transactions.html" />
-    <xhtml:link rel="alternate" hreflang="ja" href="https://mybatis3.drawlib.com/ja/07_caching_and_transactions.html" />
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://mybatis3.drawlib.com/en/07_caching_and_transactions.html" />
+    <loc>https://mybatis3.drawlib.com/user_guide/ja/06_java_annotations_and_sql_builder.html</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://mybatis3.drawlib.com/user_guide/en/06_java_annotations_and_sql_builder.html" />
+    <xhtml:link rel="alternate" hreflang="ja" href="https://mybatis3.drawlib.com/user_guide/ja/06_java_annotations_and_sql_builder.html" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://mybatis3.drawlib.com/user_guide/en/06_java_annotations_and_sql_builder.html" />
   </url>
   <url>
-    <loc>https://mybatis3.drawlib.com/ja/08_typehandlers_plugins_and_testing.html</loc>
-    <xhtml:link rel="alternate" hreflang="en" href="https://mybatis3.drawlib.com/en/08_typehandlers_plugins_and_testing.html" />
-    <xhtml:link rel="alternate" hreflang="ja" href="https://mybatis3.drawlib.com/ja/08_typehandlers_plugins_and_testing.html" />
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://mybatis3.drawlib.com/en/08_typehandlers_plugins_and_testing.html" />
+    <loc>https://mybatis3.drawlib.com/user_guide/ja/07_caching_and_transactions.html</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://mybatis3.drawlib.com/user_guide/en/07_caching_and_transactions.html" />
+    <xhtml:link rel="alternate" hreflang="ja" href="https://mybatis3.drawlib.com/user_guide/ja/07_caching_and_transactions.html" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://mybatis3.drawlib.com/user_guide/en/07_caching_and_transactions.html" />
+  </url>
+  <url>
+    <loc>https://mybatis3.drawlib.com/user_guide/ja/08_typehandlers_plugins_and_testing.html</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://mybatis3.drawlib.com/user_guide/en/08_typehandlers_plugins_and_testing.html" />
+    <xhtml:link rel="alternate" hreflang="ja" href="https://mybatis3.drawlib.com/user_guide/ja/08_typehandlers_plugins_and_testing.html" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://mybatis3.drawlib.com/user_guide/en/08_typehandlers_plugins_and_testing.html" />
+  </url>
+  <url>
+    <loc>https://mybatis3.drawlib.com/api/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://mybatis3.drawlib.com/api/en/" />
+    <xhtml:link rel="alternate" hreflang="ja" href="https://mybatis3.drawlib.com/api/ja/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://mybatis3.drawlib.com/api/" />
+  </url>
+  <url>
+    <loc>https://mybatis3.drawlib.com/api/en/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://mybatis3.drawlib.com/api/en/" />
+    <xhtml:link rel="alternate" hreflang="ja" href="https://mybatis3.drawlib.com/api/ja/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://mybatis3.drawlib.com/api/" />
+  </url>
+  <url>
+    <loc>https://mybatis3.drawlib.com/api/en/00_overview.html</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://mybatis3.drawlib.com/api/en/00_overview.html" />
+    <xhtml:link rel="alternate" hreflang="ja" href="https://mybatis3.drawlib.com/api/ja/00_overview.html" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://mybatis3.drawlib.com/api/en/00_overview.html" />
+  </url>
+  <url>
+    <loc>https://mybatis3.drawlib.com/api/en/01_session_and_binding.html</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://mybatis3.drawlib.com/api/en/01_session_and_binding.html" />
+    <xhtml:link rel="alternate" hreflang="ja" href="https://mybatis3.drawlib.com/api/ja/01_session_and_binding.html" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://mybatis3.drawlib.com/api/en/01_session_and_binding.html" />
+  </url>
+  <url>
+    <loc>https://mybatis3.drawlib.com/api/en/02_annotations_and_sql.html</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://mybatis3.drawlib.com/api/en/02_annotations_and_sql.html" />
+    <xhtml:link rel="alternate" hreflang="ja" href="https://mybatis3.drawlib.com/api/ja/02_annotations_and_sql.html" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://mybatis3.drawlib.com/api/en/02_annotations_and_sql.html" />
+  </url>
+  <url>
+    <loc>https://mybatis3.drawlib.com/api/en/03_xml_config_and_mapper.html</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://mybatis3.drawlib.com/api/en/03_xml_config_and_mapper.html" />
+    <xhtml:link rel="alternate" hreflang="ja" href="https://mybatis3.drawlib.com/api/ja/03_xml_config_and_mapper.html" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://mybatis3.drawlib.com/api/en/03_xml_config_and_mapper.html" />
+  </url>
+  <url>
+    <loc>https://mybatis3.drawlib.com/api/en/04_type_cache_tx_datasource.html</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://mybatis3.drawlib.com/api/en/04_type_cache_tx_datasource.html" />
+    <xhtml:link rel="alternate" hreflang="ja" href="https://mybatis3.drawlib.com/api/ja/04_type_cache_tx_datasource.html" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://mybatis3.drawlib.com/api/en/04_type_cache_tx_datasource.html" />
+  </url>
+  <url>
+    <loc>https://mybatis3.drawlib.com/api/en/05_plugin_reflection_exceptions.html</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://mybatis3.drawlib.com/api/en/05_plugin_reflection_exceptions.html" />
+    <xhtml:link rel="alternate" hreflang="ja" href="https://mybatis3.drawlib.com/api/ja/05_plugin_reflection_exceptions.html" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://mybatis3.drawlib.com/api/en/05_plugin_reflection_exceptions.html" />
+  </url>
+  <url>
+    <loc>https://mybatis3.drawlib.com/api/ja/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://mybatis3.drawlib.com/api/en/" />
+    <xhtml:link rel="alternate" hreflang="ja" href="https://mybatis3.drawlib.com/api/ja/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://mybatis3.drawlib.com/api/" />
+  </url>
+  <url>
+    <loc>https://mybatis3.drawlib.com/api/ja/00_overview.html</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://mybatis3.drawlib.com/api/en/00_overview.html" />
+    <xhtml:link rel="alternate" hreflang="ja" href="https://mybatis3.drawlib.com/api/ja/00_overview.html" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://mybatis3.drawlib.com/api/en/00_overview.html" />
+  </url>
+  <url>
+    <loc>https://mybatis3.drawlib.com/api/ja/01_session_and_binding.html</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://mybatis3.drawlib.com/api/en/01_session_and_binding.html" />
+    <xhtml:link rel="alternate" hreflang="ja" href="https://mybatis3.drawlib.com/api/ja/01_session_and_binding.html" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://mybatis3.drawlib.com/api/en/01_session_and_binding.html" />
+  </url>
+  <url>
+    <loc>https://mybatis3.drawlib.com/api/ja/02_annotations_and_sql.html</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://mybatis3.drawlib.com/api/en/02_annotations_and_sql.html" />
+    <xhtml:link rel="alternate" hreflang="ja" href="https://mybatis3.drawlib.com/api/ja/02_annotations_and_sql.html" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://mybatis3.drawlib.com/api/en/02_annotations_and_sql.html" />
+  </url>
+  <url>
+    <loc>https://mybatis3.drawlib.com/api/ja/03_xml_config_and_mapper.html</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://mybatis3.drawlib.com/api/en/03_xml_config_and_mapper.html" />
+    <xhtml:link rel="alternate" hreflang="ja" href="https://mybatis3.drawlib.com/api/ja/03_xml_config_and_mapper.html" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://mybatis3.drawlib.com/api/en/03_xml_config_and_mapper.html" />
+  </url>
+  <url>
+    <loc>https://mybatis3.drawlib.com/api/ja/04_type_cache_tx_datasource.html</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://mybatis3.drawlib.com/api/en/04_type_cache_tx_datasource.html" />
+    <xhtml:link rel="alternate" hreflang="ja" href="https://mybatis3.drawlib.com/api/ja/04_type_cache_tx_datasource.html" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://mybatis3.drawlib.com/api/en/04_type_cache_tx_datasource.html" />
+  </url>
+  <url>
+    <loc>https://mybatis3.drawlib.com/api/ja/05_plugin_reflection_exceptions.html</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://mybatis3.drawlib.com/api/en/05_plugin_reflection_exceptions.html" />
+    <xhtml:link rel="alternate" hreflang="ja" href="https://mybatis3.drawlib.com/api/ja/05_plugin_reflection_exceptions.html" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://mybatis3.drawlib.com/api/en/05_plugin_reflection_exceptions.html" />
+  </url>
+  <url>
+    <loc>https://mybatis3.drawlib.com/architecture/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://mybatis3.drawlib.com/architecture/en/" />
+    <xhtml:link rel="alternate" hreflang="ja" href="https://mybatis3.drawlib.com/architecture/ja/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://mybatis3.drawlib.com/architecture/" />
+  </url>
+  <url>
+    <loc>https://mybatis3.drawlib.com/architecture/en/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://mybatis3.drawlib.com/architecture/en/" />
+    <xhtml:link rel="alternate" hreflang="ja" href="https://mybatis3.drawlib.com/architecture/ja/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://mybatis3.drawlib.com/architecture/" />
+  </url>
+  <url>
+    <loc>https://mybatis3.drawlib.com/architecture/en/01_package_and_layers.html</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://mybatis3.drawlib.com/architecture/en/01_package_and_layers.html" />
+    <xhtml:link rel="alternate" hreflang="ja" href="https://mybatis3.drawlib.com/architecture/ja/01_package_and_layers.html" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://mybatis3.drawlib.com/architecture/en/01_package_and_layers.html" />
+  </url>
+  <url>
+    <loc>https://mybatis3.drawlib.com/architecture/en/02_bootstrap_and_builders.html</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://mybatis3.drawlib.com/architecture/en/02_bootstrap_and_builders.html" />
+    <xhtml:link rel="alternate" hreflang="ja" href="https://mybatis3.drawlib.com/architecture/ja/02_bootstrap_and_builders.html" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://mybatis3.drawlib.com/architecture/en/02_bootstrap_and_builders.html" />
+  </url>
+  <url>
+    <loc>https://mybatis3.drawlib.com/architecture/en/03_mapper_proxy_engine.html</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://mybatis3.drawlib.com/architecture/en/03_mapper_proxy_engine.html" />
+    <xhtml:link rel="alternate" hreflang="ja" href="https://mybatis3.drawlib.com/architecture/ja/03_mapper_proxy_engine.html" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://mybatis3.drawlib.com/architecture/en/03_mapper_proxy_engine.html" />
+  </url>
+  <url>
+    <loc>https://mybatis3.drawlib.com/architecture/en/04_executor_and_caching.html</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://mybatis3.drawlib.com/architecture/en/04_executor_and_caching.html" />
+    <xhtml:link rel="alternate" hreflang="ja" href="https://mybatis3.drawlib.com/architecture/ja/04_executor_and_caching.html" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://mybatis3.drawlib.com/architecture/en/04_executor_and_caching.html" />
+  </url>
+  <url>
+    <loc>https://mybatis3.drawlib.com/architecture/en/05_dynamic_sql_and_ognl.html</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://mybatis3.drawlib.com/architecture/en/05_dynamic_sql_and_ognl.html" />
+    <xhtml:link rel="alternate" hreflang="ja" href="https://mybatis3.drawlib.com/architecture/ja/05_dynamic_sql_and_ognl.html" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://mybatis3.drawlib.com/architecture/en/05_dynamic_sql_and_ognl.html" />
+  </url>
+  <url>
+    <loc>https://mybatis3.drawlib.com/architecture/en/06_resultset_and_reflection.html</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://mybatis3.drawlib.com/architecture/en/06_resultset_and_reflection.html" />
+    <xhtml:link rel="alternate" hreflang="ja" href="https://mybatis3.drawlib.com/architecture/ja/06_resultset_and_reflection.html" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://mybatis3.drawlib.com/architecture/en/06_resultset_and_reflection.html" />
+  </url>
+  <url>
+    <loc>https://mybatis3.drawlib.com/architecture/ja/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://mybatis3.drawlib.com/architecture/en/" />
+    <xhtml:link rel="alternate" hreflang="ja" href="https://mybatis3.drawlib.com/architecture/ja/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://mybatis3.drawlib.com/architecture/" />
+  </url>
+  <url>
+    <loc>https://mybatis3.drawlib.com/architecture/ja/01_package_and_layers.html</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://mybatis3.drawlib.com/architecture/en/01_package_and_layers.html" />
+    <xhtml:link rel="alternate" hreflang="ja" href="https://mybatis3.drawlib.com/architecture/ja/01_package_and_layers.html" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://mybatis3.drawlib.com/architecture/en/01_package_and_layers.html" />
+  </url>
+  <url>
+    <loc>https://mybatis3.drawlib.com/architecture/ja/02_bootstrap_and_builders.html</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://mybatis3.drawlib.com/architecture/en/02_bootstrap_and_builders.html" />
+    <xhtml:link rel="alternate" hreflang="ja" href="https://mybatis3.drawlib.com/architecture/ja/02_bootstrap_and_builders.html" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://mybatis3.drawlib.com/architecture/en/02_bootstrap_and_builders.html" />
+  </url>
+  <url>
+    <loc>https://mybatis3.drawlib.com/architecture/ja/03_mapper_proxy_engine.html</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://mybatis3.drawlib.com/architecture/en/03_mapper_proxy_engine.html" />
+    <xhtml:link rel="alternate" hreflang="ja" href="https://mybatis3.drawlib.com/architecture/ja/03_mapper_proxy_engine.html" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://mybatis3.drawlib.com/architecture/en/03_mapper_proxy_engine.html" />
+  </url>
+  <url>
+    <loc>https://mybatis3.drawlib.com/architecture/ja/04_executor_and_caching.html</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://mybatis3.drawlib.com/architecture/en/04_executor_and_caching.html" />
+    <xhtml:link rel="alternate" hreflang="ja" href="https://mybatis3.drawlib.com/architecture/ja/04_executor_and_caching.html" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://mybatis3.drawlib.com/architecture/en/04_executor_and_caching.html" />
+  </url>
+  <url>
+    <loc>https://mybatis3.drawlib.com/architecture/ja/05_dynamic_sql_and_ognl.html</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://mybatis3.drawlib.com/architecture/en/05_dynamic_sql_and_ognl.html" />
+    <xhtml:link rel="alternate" hreflang="ja" href="https://mybatis3.drawlib.com/architecture/ja/05_dynamic_sql_and_ognl.html" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://mybatis3.drawlib.com/architecture/en/05_dynamic_sql_and_ognl.html" />
+  </url>
+  <url>
+    <loc>https://mybatis3.drawlib.com/architecture/ja/06_resultset_and_reflection.html</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://mybatis3.drawlib.com/architecture/en/06_resultset_and_reflection.html" />
+    <xhtml:link rel="alternate" hreflang="ja" href="https://mybatis3.drawlib.com/architecture/ja/06_resultset_and_reflection.html" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://mybatis3.drawlib.com/architecture/en/06_resultset_and_reflection.html" />
+  </url>
+  <url>
+    <loc>https://mybatis3.drawlib.com/pni501/</loc>
+  </url>
+  <url>
+    <loc>https://mybatis3.drawlib.com/pni501/en/</loc>
   </url>
 </urlset>
